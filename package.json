@@ -1,0 +1,33 @@
+{
+  "name": "SampleReactNativeProject",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest",
+    "android-windows": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res && react-native run-android",
+    "android": "cd ./android && gradlew.bat app:assembleDebug && gradlew.bat installDebug && cd .. && react-native run-android"
+  },
+  "dependencies": {
+    "abcjs": "^5.6.9",
+    "buffer": "^5.2.1",
+    "react": "16.6.3",
+    "react-native": "0.58.6",
+    "react-native-navigation": "^2.13.1",
+    "react-native-sqlite-2": "^2.0.1",
+    "react-native-svg": "^9.2.4",
+    "standalone-vexflow-context": "^0.1.1",
+    "svg-path-bounding-box": "^1.0.4",
+    "vexflow": "^1.2.88"
+  },
+  "devDependencies": {
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "24.1.0",
+    "jest": "24.1.0",
+    "metro-react-native-babel-preset": "0.53.0",
+    "react-test-renderer": "16.6.3"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
