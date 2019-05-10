@@ -15,7 +15,6 @@ import Vex from 'vexflow';
 import {
   StyleSheet,
   View,
-  Dimensions
 } from 'react-native';
 
 export default class VexFlowScore extends Component {
@@ -25,7 +24,19 @@ export default class VexFlowScore extends Component {
   }
 
   runVexFlowCode(context) {
-    context.setViewBox(0, 140, 505, 500);
+    // x y width height... WHAT ARE X AND Y DOING???
+    // context.setViewBox(0, 140, 505, 500);
+
+    if (this.props.dimensions.height > this.props.dimensions.width) {
+      // portrait
+      console.log('RENDERING PORTRAIT');
+      var RENDER_WIDTH = 500;
+    } else {
+      //landscape
+      console.log('RENDERING LANDSCAPE');
+      var RENDER_WIDTH = 900
+    }
+    context.setViewBox(0, 150, RENDER_WIDTH + 5, 500);
 
     console.log('IN RUNVEXFLOWCODE, TUNE WAS: ' + this.props.tune);
 
@@ -93,7 +104,7 @@ export default class VexFlowScore extends Component {
           }
           let duration = (1/noteDuration).toString();
 
-          let noteToAdd = new StaveNote({ clef: clef, keys: keys, duration: duration });
+          let noteToAdd = new StaveNote({ clef: clef, keys: keys, duration: duration, auto_stem: true });
           if (isDotted) {
             noteToAdd.addDotToAll();
           }
@@ -218,11 +229,14 @@ export default class VexFlowScore extends Component {
 
     // SINCE I'M MULTIPLYING BY WIDTH FACTOR, BARS WITH 0 NOTES END UP WITH 0 WIDTH. THE INTERESTING EFFECT
     // IS THAT THIS HIDES THE PROBLEM OF DOUBLE BARLINES, SINCE THE MEASURE IS 0 WIDTH. DO I WANT IT THIS WAY?
+
+    // o yeah what's happening is that when there's extra with, and it's granted to all the other bars, it will
+    // also be added to the zero width bar.
     let X_OFFSET = 3;
-    let WIDTH_FACTOR = 25;
+    let WIDTH_FACTOR = 27;
     let LINE_HEIGHT = 190;
-    let CLEFS_AND_SIGS_WIDTH = 100;
-    let RENDER_WIDTH = 500;
+    let CLEFS_AND_SIGS_WIDTH = 150;
+    // let RENDER_WIDTH = 500;
 
     bars.forEach(function(bar, i) {
 
@@ -258,11 +272,19 @@ export default class VexFlowScore extends Component {
           // divide the extra space equally between all the bars on this line
           let spaceAdded = 0;
           for (let k = barsOnThisLine - 1; k >= 0; k--) {
-            let spaceToAdd = Math.floor(extraSpace / (k + 1));
-            bars[i-k].x += spaceAdded;
-            bars[i-k].width += spaceToAdd;
-            extraSpace -= spaceToAdd;
-            spaceAdded += spaceToAdd;
+            if (bars[i-k].width > 0) { // fix to avoid adding width to zero width bars... probably still has bug. see below, remove this once empty bars are simply removed from bars[]
+              let spaceToAdd = Math.floor(extraSpace / (k + 1));
+              bars[i-k].x += spaceAdded;
+              bars[i-k].width += spaceToAdd;
+              extraSpace -= spaceToAdd;
+              spaceAdded += spaceToAdd;
+            } else {
+              // if the first width is zero? it will add the remaining space at the end even if it doesn't add the right amount immediately
+              // if the last width is zero? it will never add the final piece of space
+
+              // it will be better to disappear the extra bar from the bars[] array and add whatever decorators (repeat etc) to the
+              // neighboring bars, but will leave it this way for now
+            }
           }
           
         } else {
@@ -354,7 +376,8 @@ export default class VexFlowScore extends Component {
   }
 
   render() {
-    let context = new ReactNativeSVGContext(NotoFontPack, { width: Dimensions.get('window').width * .90, height: Dimensions.get('window').height * 1.5 });
+    // let context = new ReactNativeSVGContext(NotoFontPack, { width: Dimensions.get('window').width * .90, height: Dimensions.get('window').height * 1.5 });
+    let context = new ReactNativeSVGContext(NotoFontPack, { width: this.props.dimensions.width * .90, height: this.props.dimensions.height * 2 });
     this.runVexFlowCode(context);
 
     return (

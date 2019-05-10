@@ -4,22 +4,33 @@ import VexFlowScore from './VexFlowScore';
 import {
   StyleSheet,
   Text,
+  Dimensions,
   ScrollView
 } from 'react-native';
 
 export default class CurrentTune extends Component {
   constructor(props) {
     super(props);
-    // this.getTuneName = this.getTuneName.bind(this);
-  }
 
-  // getTuneName(abcString) {
-  //   let lines = abcString.split('\n');
-  //   let meterLine = lines.filter((line) => {
-  //       return line.charAt(0) == "T";
-  //   });
-  //   return meterLine[0].slice(2, meterLine[0].length).trim();
-  // }
+    this.state = {
+      dimensions: {
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height
+      }
+    };
+
+    Dimensions.addEventListener('change', (e) => {
+      const { width, height } = e.window;
+      console.log('width and height: ' + width, ', ' + height);
+      this.setState({
+        dimensions: {
+          width: width,
+          height: height
+        }
+      });
+    });
+
+  }
 
   render() {
     return (
@@ -27,7 +38,7 @@ export default class CurrentTune extends Component {
         <Text style={styles.welcome}>
           {this.props.tune.Title}
         </Text>
-        <VexFlowScore tune={this.props.tune.Tune}></VexFlowScore>
+        <VexFlowScore tune={this.props.tune.Tune} dimensions={this.state.dimensions}></VexFlowScore>
       </ScrollView>
     );
   }
