@@ -1,3 +1,5 @@
+// When possible, use the readTransaction() to obtain better execution performance of SQL statements.
+
 import SQLite from 'react-native-sqlite-2';
 
 export default {
@@ -9,15 +11,94 @@ export default {
       txn.executeSql('DROP TABLE IF EXISTS Tunes', []); // JUST FOR TESTING  
       txn.executeSql('select * from sqlite_master where type = "table" and name = "Tunes"', [], (tx, res) => {
         if (res.rows.length == 0) {
-          txn.executeSql('CREATE TABLE `Tunes` (`Tune` TEXT, `Title` TEXT, `Rhythm` TEXT)', [], (tx, res) => {
+          txn.executeSql('CREATE TABLE `Tunes` (`Tune` TEXT, `Title` TEXT, `Rhythm` TEXT, `Collection` INTEGER, `Setlists` TEXT)', [], (tx, res) => {
             // check to make sure it worked
-            // console.log('created table, res: ');
-            // console.log(res);
+            console.log('created table, res: ');
+            console.log(res);
           });
-          this.importTuneBook(defaultData);
+          this.importTuneBook(defaultData); // should be promise? .then()
         }
       });
     })
+  },
+
+  getTunesForCollection(collection) {
+    console.log('getTunesForCollection querying with setlist: ' + collection);
+    return new Promise((resolve, reject) => {
+      let tunes = [];
+      this.db.transaction((txn) => {
+        txn.executeSql('select * from Tunes where Collection = ' + collection, [], (tx, res) => {
+          for (let i = 0; i < res.rows.length; ++i) {
+            let tune = res.rows.item(i);
+            tune.Tune = tune.Tune.replace(/\"\"/g, "\"");
+            tunes.push(tune);
+            console.log('in getTunesForCollection, querying, got:', res.rows.item(i));
+          }
+        });
+      }, (error) => {
+        reject(error);
+      }, () => {
+        resolve(tunes);
+      });   
+    });
+  },
+
+  getTunesForSetlist(setlist) {
+    console.log('getTunesForSetlist querying with setlist: ' + setlist);
+    return new Promise((resolve, reject) => {
+      let tunes = [];
+      this.db.transaction((txn) => {
+        // using a weird LIKE operator and have to have an array be formatted like ",2,4,6," to match correctly
+        txn.executeSql('select * from Tunes where setlist like %,' + setlist + ',%', [], (tx, res) => {
+          for (let i = 0; i < res.rows.length; ++i) {
+            let tune = res.rows.item(i);
+            tune.Tune = tune.Tune.replace(/\"\"/g, "\"");
+            tunes.push(tune);
+            console.log('in getTunesForSetlist, querying, got:', res.rows.item(i));
+          }
+        });
+      }, (error) => {
+        reject(error);
+      }, () => {
+        resolve(tunes);
+      });   
+    });
+  },
+
+  getCollections() {
+    return new Promise(function(resolve, reject) {
+      let collections = [
+        {
+          rowid: 1,
+          Name: 'Nottingham'
+        }, {
+          rowid: 2,
+          Name: 'Others'
+        }, {
+          rowid: 3,
+          Name: 'Etc'
+        }
+      ];
+      resolve(collections);
+    }); 
+  },
+
+  getSetlists() {
+    return new Promise(function(resolve, reject) {
+      let setlists = [
+        {
+          rowid: 1,
+          Name: 'Setlist A'
+        }, {
+          rowid: 2,
+          Name: 'Favorite Tunes'
+        }, {
+          rowid: 3,
+          Name: 'Third Setlist'
+        }
+      ];
+      resolve(setlists);
+    }); 
   },
 
   importTuneBook(tuneBook) {
@@ -48,9 +129,12 @@ export default {
           }
         });
 
+        let collection = 1;
+        let setlists = "1,2,3";
+
         // console.log('going to insert with this statement: ');
         // console.log('insert into Tunes (Tune, Title, Rhythm) VALUES ("' + tune + '", "' + title + '", "' + rhythm + '")');  
-        txn.executeSql('insert into Tunes (Tune, Title, Rhythm) VALUES ("' + tune + '", "' + title + '", "' + rhythm + '")', [], function (tx, res) {
+        txn.executeSql('insert into Tunes (Tune, Title, Rhythm, Collection, Setlists) VALUES ("' + tune + '", "' + title + '", "' + rhythm + '", "' + collection + '", "' + setlists + '")', [], function (tx, res) {
           // console.log(res);
           // do something
         });
@@ -61,10 +145,10 @@ export default {
       // console.log('TRANSACTION SUCCESS?');
       this.db.transaction((txn) => {
           // just to check if it worked
-          // console.log('AFTER INIT TABLE CONTAINS...')
+          console.log('AFTER INIT TABLE CONTAINS...')
           txn.executeSql('select * from Tunes', [], (tx, res) => {
             for (let i = 0; i < res.rows.length; ++i) {
-              // console.log('item:', res.rows.item(i));
+              console.log('item:', res.rows.item(i));
             }          
           });
         });      

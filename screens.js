@@ -3,6 +3,7 @@
 import { Navigation } from 'react-native-navigation';
 
 export function registerScreens() {
+  Navigation.registerComponent('TopBrowser', () => require('./components/TopBrowser').default);
+  Navigation.registerComponent('CollectionBrowser', () => require('./components/CollectionBrowser').default);  
   Navigation.registerComponent('CurrentTune', () => require('./components/CurrentTune').default);
-  Navigation.registerComponent('TunesList', () => require('./components/TunesList').default);
 }

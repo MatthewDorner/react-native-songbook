@@ -10,7 +10,7 @@ YellowBox.ignoreWarnings([
 ]);
 
 registerScreens();
-Database.init();
+Database.init(); // should I do something to wait until this completes before continuing?
 
 Navigation.events().registerAppLaunchedListener(() => {
   Navigation.setRoot({
@@ -19,7 +19,7 @@ Navigation.events().registerAppLaunchedListener(() => {
         children: [
           {
             stack: {
-              id: 'testId',
+              id: 'CurrentTuneStack',
               options: {
                 topBar: {
                   visible: false,
@@ -47,18 +47,28 @@ Navigation.events().registerAppLaunchedListener(() => {
                 },
               ]
             }
-          },
-          {
+          }, // end stack
+          { // begin stack
+            stack: {
+            id: 'BrowserStack',
+            children: [
+
+
+
+          { //begin component
             component: {
-              name: 'TunesList',
+              name: 'TopBrowser',
               options: {
                 bottomTab: {
-                  text: 'Tunes List',
+                  text: 'Collection Browser',
                   icon: require('./icon.png'),
                 }
               }
             },
-          }
+          } // end component
+        ]// end children
+      }
+        }// end stack
         ]
       }
     }
