@@ -20,10 +20,17 @@ Navigation.events().registerAppLaunchedListener(() => {
           {
             stack: {
               id: 'testId',
+              options: {
+                topBar: {
+                  visible: false,
+                  height: 0,
+                }
+              },
               children: [
                 {
                   component: {
                     name: 'CurrentTune',
+                    id: 'CurrentTune', // needed for mergeoptions to toggle tabbar visibility
                     passProps: {
                       tune: SampleTune
                     },
@@ -31,6 +38,9 @@ Navigation.events().registerAppLaunchedListener(() => {
                       bottomTab: {
                         text: 'Current Tune',
                         icon: require('./icon.png'),
+                      },
+                      bottomTabs: {
+                        drawBehind: true
                       }
                     }
                   },

@@ -149,4 +149,37 @@ K:G\n\
 f|:"G"g3/2a/2 "D"gf|"G"gd2e|"C"dc "D"BA|"G"BG2A|"G"B" Em"G2A/2B/2|\\\n\
 "Am"c" D"A2B/2c/2|"G"Bd "C"cB| [1"D"Ad ef:|[2"D"A2 A2||\\\n\
 "G"BG2A/2B/2|"D"cA "G7"dB|"C"ec2d/2e/2|"D"fzde/2f/2|\n\
-"G"g3/2a/2 "Em"ge|"Bm"df "Em"gB|"Am"ce "D"d/2e/2d/2c/2|"G"BG G2:|';
+"G"g3/2a/2 "Em"ge|"Bm"df "Em"gB|"Am"ce "D"d/2e/2d/2c/2|"G"BG G2:|\n\
+\n\
+\n\
+X: 306\n\
+T:Swallowtail\n\
+% Nottingham Music Database\n\
+S:EF\n\
+Y:AB\n\
+M:6/8\n\
+K:Em\n\
+P:A\n\
+E/2F/2|"Em"GEE BEE|"Em"GEE BAG|"D"FDD ADD|"D"d^cd AGF|\n\
+"Em"GEE BEE|"Em"GEE B2^c|"D"d^cd AGF|"Em"GEE E2:|\n\
+P:B\n\
+B|"Bm"B^cd "Em"e2f|"Em"e2f edB|"Bm"B^cd "Em"e2f|"Em"edB "D"d3|\n\
+"Bm"B^cd "Em"e2f|"Em"e2f edB|"D"d^cd AGF|"Em"GEE E2:|\n\
+\n\
+\n\
+X: 307\n\
+T:Sweets of May\n\
+% Nottingham Music Database\n\
+Y:AABBCC\n\
+S:Kevin Briggs, via EF\n\
+M:6/8\n\
+K:G\n\
+P:A\n\
+|:d/2c/2|"G"B2G "D7"AFD|"G"GAG "D7"Gdc|"G"B2G GAB|"C"cBc "D7"d2c|\n\
+"G"B2G "D7"AFD|"G"GAG "D7"Gdc|"G"B2G "D7"AFD|"G"G3 -G2:|\n\
+P:B\n\
+|:A|"Am"ABA A2G|"Em"E2F G2"E"^G|"Am"ABA c2d|"Dm"e2d "E7"c2B|\n\
+"Am"ABA A2G|"Em"E2F G2"E"^G|"Am"A2A "G"BAG|"Am"A3 -A2:|\n\
+P:C\n\
+|:(3A/2B/2c/2|"D"d3 dcd|"D"D3 DED|"Am"c3 cBc|"D7"D3 DEF|"G"G2D "D7/a"G2A|\\\n\
+"G/b"B2G "C"B2c|"D7"d2D DEF|"G"G3 -G2:|';

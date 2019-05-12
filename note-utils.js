@@ -35,5 +35,23 @@ export default {
             case 6: // b
                 return 11;
         }
+    },
+
+    getVexAccidental(accidental) {
+        // these should be done better in JS by using key-value lookups instead of switch statement?
+        switch (accidental) {
+            case "sharp":
+                return "#";
+            case "flat":
+                return  "b";
+            case "dblsharp":
+                return "##";
+            case "dblflat":
+                return "bb";
+            case "natural":
+                return "n";
+            default:
+                return false;
+        }
     }
 }

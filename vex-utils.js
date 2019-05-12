@@ -24,6 +24,11 @@ export default {
     /*
         convert the keys in vex format such as 'd/4' into guitar tab positions of string, fret
         needs to be updated to act on the entire array not just keys[0]
+
+        TODO: need to take into account that if there's an accidental earlier in the bar, it applies to all notes in that position
+        in the bar (if a C is marked #, later Cs in the bar, although they won't have an accidental, will also be sharped,
+        unless they have a natural accidental) ALSO, IF AN ACCIDENTAL IS APPLIED THAT is already in the key signature,
+        such as if C# was already in key signature but a C had a # accidental, it wouldn't do anything
     */
     getTabPosition(keys, accidentals, keySignature) {
         let diatonicNote = NoteUtils.getDiatonicFromLetter(keys[0]);
@@ -48,10 +53,6 @@ export default {
             }
         });
 
-        /*
-            sharp doesn't just raise whatever the note is... if a note is shown as sharp and it's already
-            listed in the key signature, it doesn't do anything...
-        */
         if (accidentals[0]) {
             switch (accidentals[0]) {
                 case "b":
@@ -136,12 +137,9 @@ export default {
             let vexOctave = octave + 4;
             let note = pitch.pitch - (octave * 7)
 
-            // got pitch.pitch as: 6 (B )
+            // got pitch.pitch as: 6 (B ) // B in the middle of treble clef
             // vex-utils.js:156 octave: 1, vexOctave: 5, note: -6
 
-            // console.log('****');
-            // console.log('got pitch.pitch as: ' + pitch.pitch);
-            // console.log('pushing note: ' + notes[note] + '/' + vexOctave.toString());
             keys.push(notes[note] + '/' + vexOctave.toString());
         });
 
@@ -170,26 +168,7 @@ export default {
         let accidentals = [];
 
         abcPitches.forEach((pitch) => {
-            let accidental = false;
-            if (pitch.accidental) {
-                switch (pitch.accidental) {
-                    case "sharp":
-                        accidental = "#";
-                    break;
-                    case "flat":
-                        accidental = "b";
-                    break;
-                    case "dblsharp":
-                        accidental = "##";
-                    break;
-                    case "dblflat":
-                        accidental = "bb";
-                    break;
-                    case "natural":
-                        accidental = "n";
-                    break;
-                }
-            }
+            let accidental = NoteUtils.getVexAccidental(pitch.accidental);
             accidentals.push(accidental);
         });
 
