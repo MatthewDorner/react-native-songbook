@@ -1,4 +1,5 @@
 // When possible, use the readTransaction() to obtain better execution performance of SQL statements.
+// Your query %searchword% cause table scan, it will get slower as number of records increase. Use searchword% query to get index base fast query.
 
 import SQLite from 'react-native-sqlite-2';
 
@@ -49,7 +50,8 @@ export default {
       let tunes = [];
       this.db.transaction((txn) => {
         // using a weird LIKE operator and have to have an array be formatted like ",2,4,6," to match correctly
-        txn.executeSql('select * from Tunes where setlist like %,' + setlist + ',%', [], (tx, res) => {
+        console.log('querying: ' + 'select * from Tunes where setlist like %\',' + setlist + ',\'%');
+        txn.executeSql('select * from Tunes where Setlists like "%,' + setlist + ',%"', [], (tx, res) => {
           for (let i = 0; i < res.rows.length; ++i) {
             let tune = res.rows.item(i);
             tune.Tune = tune.Tune.replace(/\"\"/g, "\"");
@@ -129,9 +131,15 @@ export default {
           }
         });
 
-        let collection = 1;
-        let setlists = "1,2,3";
-
+        // in the future load real data to collection after asking user which collection they want
+        // and they can add tunes individually to setlists later from the CollectionBrowser
+        console.log('loading test data: ' + i);
+        console.log('title was: ' + title);
+        let collection = (i % 3) + 1;
+        console.log('returning collection ' + collection);
+        let setlists = "," + ((i % 3) + 1) + ",2,";
+        console.log('returing setlists: ' + setlists);
+        
         // console.log('going to insert with this statement: ');
         // console.log('insert into Tunes (Tune, Title, Rhythm) VALUES ("' + tune + '", "' + title + '", "' + rhythm + '")');  
         txn.executeSql('insert into Tunes (Tune, Title, Rhythm, Collection, Setlists) VALUES ("' + tune + '", "' + title + '", "' + rhythm + '", "' + collection + '", "' + setlists + '")', [], function (tx, res) {

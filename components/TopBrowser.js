@@ -5,7 +5,7 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  View,
+  ScrollView,
   TouchableHighlight
 } from 'react-native';
 import { Navigation } from 'react-native-navigation';
@@ -46,7 +46,8 @@ export default class TopBrowser extends Component {
             name: 'CollectionBrowser',            
             passProps: {
               collectionId: item.rowid,
-              queriedBy: 'Collection'
+              queriedBy: 'Collection',
+              tuneChangeCallback: this.props.tuneChangeCallback
             }
           }
         });
@@ -77,7 +78,8 @@ export default class TopBrowser extends Component {
             name: 'CollectionBrowser',            
             passProps: {
               setlistIds: item.rowid,
-              queriedBy: 'Setlist'
+              queriedBy: 'Setlist',
+              tuneChangeCallback: this.props.tuneChangeCallback
             }
           }
         });
@@ -91,7 +93,7 @@ export default class TopBrowser extends Component {
 
   render() {
     return (
-      <View>
+      <ScrollView>
         <Text style = {styles.sectionHeader}>
           Collections
         </Text>
@@ -100,6 +102,7 @@ export default class TopBrowser extends Component {
           extraData={this.state}
           data={this.state.collections}
           renderItem={this._renderCollectionsItem}
+          keyExtractor={(item, index) => index.toString()} // is this really right
         />
         <Text style = {styles.sectionHeader}>
           Setlists
@@ -109,8 +112,9 @@ export default class TopBrowser extends Component {
           extraData={this.state}
           data={this.state.setlists}
           renderItem={this._renderSetlistsItem}       
+          keyExtractor={(item, index) => index.toString()} // is this really right
         />
-      </View>
+      </ScrollView>
     );
   }
 }

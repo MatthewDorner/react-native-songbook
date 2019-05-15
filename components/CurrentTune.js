@@ -16,7 +16,8 @@ export default class CurrentTune extends Component {
       dimensions: {
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height
-      }
+      },
+      tune: props.tune // eventually initialize this somehow else (to empty) instead of passing in from index.js
     };
 
     Dimensions.addEventListener('change', (e) => {
@@ -30,15 +31,20 @@ export default class CurrentTune extends Component {
       });
     });
 
+    props.tuneChangeCallback.setCallback((tune) => {
+      this.setState({
+        tune: tune
+      });
+    });
   }
 
   render() {
     return (
       <ScrollView>
         <Text style={styles.welcome}>
-          {this.props.tune.Title}
+          {this.state.tune.Title}
         </Text>
-        <VexFlowScore tune={this.props.tune.Tune} dimensions={this.state.dimensions}></VexFlowScore>
+        <VexFlowScore tune={this.state.tune.Tune} dimensions={this.state.dimensions}></VexFlowScore>
       </ScrollView>
     );
   }

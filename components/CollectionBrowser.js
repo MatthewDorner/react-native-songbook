@@ -6,6 +6,7 @@ import {
   Button,
   StyleSheet,
   Text,
+  ScrollView,
   View,
   TouchableHighlight
 } from 'react-native';
@@ -39,7 +40,12 @@ export default class CollectionBrowser extends Component {
   }
 
   _renderItem = ({ item }) => (
-    <TouchableHighlight underlayColor = {'red'}> 
+    <TouchableHighlight underlayColor = {'red'} onPress={() => {
+      if (this.props.tuneChangeCallback.callback) {
+        this.props.tuneChangeCallback.callback(item);
+      }
+    }}
+    > 
       <Text style = {styles.listItemText} >
         {item.Title}
       </Text>
@@ -48,7 +54,7 @@ export default class CollectionBrowser extends Component {
 
   render() {
     return (
-      <View>
+      <ScrollView>
         <View>
           {/* This will contain the search bar and parameters */}
         </View>
@@ -56,8 +62,9 @@ export default class CollectionBrowser extends Component {
           contentContainerStyle={{ alignItems: 'center' }}
           data={this.state.tunes}
           renderItem={this._renderItem}
+          keyExtractor={(item, index) => index.toString()} // is this really right
         />
-      </View>
+      </ScrollView>
     );
   }
 }
