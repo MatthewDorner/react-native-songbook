@@ -40,7 +40,7 @@ export default class TopBrowser extends Component {
   }
 
   _renderCollectionsItem = ({ item }) => (
-    <TouchableHighlight underlayColor = {'red'} onPress={() => {
+    <TouchableHighlight underlayColor = {'lightgray'} onPress={() => {
         Navigation.push('BrowserStack', {
           component: {
             name: 'CollectionBrowser',            
@@ -72,7 +72,7 @@ export default class TopBrowser extends Component {
   */
 
   _renderSetlistsItem = ({ item }) => (
-    <TouchableHighlight underlayColor = {'red'} onPress={() => {
+    <TouchableHighlight underlayColor = {'lightgray'} onPress={() => {
         Navigation.push('BrowserStack', {
           component: {
             name: 'CollectionBrowser',            

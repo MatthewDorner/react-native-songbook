@@ -40,7 +40,7 @@ export default class CollectionBrowser extends Component {
   }
 
   _renderItem = ({ item }) => (
-    <TouchableHighlight underlayColor = {'red'} onPress={() => {
+    <TouchableHighlight underlayColor = {'lightgray'} onPress={() => {
       if (this.props.tuneChangeCallback.callback) {
         this.props.tuneChangeCallback.callback(item);
       }

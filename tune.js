@@ -33,8 +33,8 @@ export default {
       };
     }
 
-    console.log('got musicalObjects, was: ');
-    console.log(musicalObjects);
+    // console.log('got musicalObjects, was: ');
+    // console.log(musicalObjects);
 
     musicalObjects.forEach((obj, i) => {
       switch (obj.el_type) {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { ReactNativeSVGContext, NotoFontPack } from 'standalone-vexflow-context';
 import VexUtils from '../vex-utils';
 import ABCJS from 'abcjs';
@@ -11,7 +11,7 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 
-export default class VexFlowScore extends Component {
+export default class VexFlowScore extends PureComponent {
   constructor(props) {
     super(props);
     this.runVexFlowCode = this.runVexFlowCode.bind(this);
@@ -33,8 +33,29 @@ export default class VexFlowScore extends Component {
     });
   }
 
+  // log for unnecessary updates. think it should be good since switched to PureComponent though
+  componentDidUpdate(prevProps, prevState) {
+    console.log('---------------------------------------------------');
+    console.log('VexFlowScore did update');
+    Object.entries(this.props).forEach(([key, val]) => {
+        if (prevProps[key] !== val) {
+          console.log(`Prop '${key}' changed`)
+          console.log(prevProps[key] + " was not equal to " + val);
+        }
+      }
+    );
+    Object.entries(this.state).forEach(([key, val]) => {
+        if (prevState[key] !== val) {
+          console.log(`State '${key}' changed`)
+          console.log(prevState[key] + " was not equal to " + val);  
+        }
+      }
+    );
+    console.log('---------------------------------------------------');
+  }
+
   runVexFlowCode(context) {
-    if (this.props.dimensions.height > this.props.dimensions.width) {
+    if (this.props.dimHeight > this.props.dimWidth) {
       // portrait
       var RENDER_WIDTH = 500;
     } else {
@@ -42,7 +63,7 @@ export default class VexFlowScore extends Component {
       var RENDER_WIDTH = 850
     }
     context.setViewBox(0, 130, RENDER_WIDTH + 5, 500); // x y width height... WHAT ARE X AND Y DOING AGAIN, WHY 150???
-    console.log('IN RUNVEXFLOWCODE, TUNE WAS: ' + this.props.tune);
+    // console.log('IN RUNVEXFLOWCODE, TUNE WAS: ' + this.props.tune);
 
     // GET THE PARSED OBJECT AND PROPERTIES
     let parsedObject = ABCJS.parseOnly(this.props.tune);
@@ -63,7 +84,7 @@ export default class VexFlowScore extends Component {
   }
 
   render() {
-    let context = new ReactNativeSVGContext(NotoFontPack, { width: this.props.dimensions.width * .90, height: this.props.dimensions.height * 2 });
+    let context = new ReactNativeSVGContext(NotoFontPack, { width: this.props.dimWidth * .90, height: this.props.dimHeight * 2 });
     this.runVexFlowCode(context);
 
     return (

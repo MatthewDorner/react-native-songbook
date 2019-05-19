@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import VexFlowScore from './VexFlowScore';
+import { Navigation } from 'react-native-navigation';
 
 import {
   StyleSheet,
@@ -13,28 +14,26 @@ export default class CurrentTune extends Component {
     super(props);
 
     this.state = {
-      dimensions: {
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height
-      },
+      dimWidth: Dimensions.get('window').width,
+      dimHeight: Dimensions.get('window').height,
       tune: props.tune // eventually initialize this somehow else (to empty) instead of passing in from index.js
     };
 
     Dimensions.addEventListener('change', (e) => {
       const { width, height } = e.window;
-      console.log('width and height: ' + width, ', ' + height);
       this.setState({
-        dimensions: {
-          width: width,
-          height: height
-        }
+        dimWidth: width,
+        dimHeight: height
       });
     });
 
     props.tuneChangeCallback.setCallback((tune) => {
-      this.setState({
-        tune: tune
+      Navigation.mergeOptions('CurrentTune', {
+        bottomTabs: {
+          currentTabIndex: 0
+        }
       });
+      this.setState({tune: tune});
     });
   }
 
@@ -44,7 +43,7 @@ export default class CurrentTune extends Component {
         <Text style={styles.welcome}>
           {this.state.tune.Title}
         </Text>
-        <VexFlowScore tune={this.state.tune.Tune} dimensions={this.state.dimensions}></VexFlowScore>
+        <VexFlowScore tune={this.state.tune.Tune} dimHeight={this.state.dimHeight} dimWidth={this.state.dimWidth}></VexFlowScore>
       </ScrollView>
     );
   }

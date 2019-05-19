@@ -13,18 +13,15 @@ export default {
       txn.executeSql('select * from sqlite_master where type = "table" and name = "Tunes"', [], (tx, res) => {
         if (res.rows.length == 0) {
           txn.executeSql('CREATE TABLE `Tunes` (`Tune` TEXT, `Title` TEXT, `Rhythm` TEXT, `Collection` INTEGER, `Setlists` TEXT)', [], (tx, res) => {
-            // check to make sure it worked
-            console.log('created table, res: ');
-            console.log(res);
+            //res
           });
-          this.importTuneBook(defaultData); // should be promise? .then()
+          this.importTuneBook(defaultData); // should be promise? .then() or at least not inside transaction?
         }
       });
     })
   },
 
   getTunesForCollection(collection) {
-    console.log('getTunesForCollection querying with setlist: ' + collection);
     return new Promise((resolve, reject) => {
       let tunes = [];
       this.db.transaction((txn) => {
@@ -33,7 +30,6 @@ export default {
             let tune = res.rows.item(i);
             tune.Tune = tune.Tune.replace(/\"\"/g, "\"");
             tunes.push(tune);
-            console.log('in getTunesForCollection, querying, got:', res.rows.item(i));
           }
         });
       }, (error) => {
@@ -45,18 +41,15 @@ export default {
   },
 
   getTunesForSetlist(setlist) {
-    console.log('getTunesForSetlist querying with setlist: ' + setlist);
     return new Promise((resolve, reject) => {
       let tunes = [];
       this.db.transaction((txn) => {
         // using a weird LIKE operator and have to have an array be formatted like ",2,4,6," to match correctly
-        console.log('querying: ' + 'select * from Tunes where setlist like %\',' + setlist + ',\'%');
         txn.executeSql('select * from Tunes where Setlists like "%,' + setlist + ',%"', [], (tx, res) => {
           for (let i = 0; i < res.rows.length; ++i) {
             let tune = res.rows.item(i);
             tune.Tune = tune.Tune.replace(/\"\"/g, "\"");
             tunes.push(tune);
-            console.log('in getTunesForSetlist, querying, got:', res.rows.item(i));
           }
         });
       }, (error) => {
@@ -117,7 +110,7 @@ export default {
 
     this.db.transaction((txn) => {
 
-      tunes.forEach((tune) => {
+      tunes.forEach((tune, i) => {
         let rhythm = "";
         tune.split('\n').forEach((line) => {
           if (line.startsWith('R:')) {
@@ -131,32 +124,19 @@ export default {
           }
         });
 
-        // in the future load real data to collection after asking user which collection they want
-        // and they can add tunes individually to setlists later from the CollectionBrowser
-        console.log('loading test data: ' + i);
-        console.log('title was: ' + title);
         let collection = (i % 3) + 1;
-        console.log('returning collection ' + collection);
         let setlists = "," + ((i % 3) + 1) + ",2,";
-        console.log('returing setlists: ' + setlists);
-        
-        // console.log('going to insert with this statement: ');
-        // console.log('insert into Tunes (Tune, Title, Rhythm) VALUES ("' + tune + '", "' + title + '", "' + rhythm + '")');  
         txn.executeSql('insert into Tunes (Tune, Title, Rhythm, Collection, Setlists) VALUES ("' + tune + '", "' + title + '", "' + rhythm + '", "' + collection + '", "' + setlists + '")', [], function (tx, res) {
-          // console.log(res);
-          // do something
+          // res
         });
       });
     }, (error) => {
-      // console.log('TRANSACTION ERROR: ' + error.message);
+      // transaction error
     }, () => {
-      // console.log('TRANSACTION SUCCESS?');
+      // transaction success
       this.db.transaction((txn) => {
-          // just to check if it worked
-          console.log('AFTER INIT TABLE CONTAINS...')
           txn.executeSql('select * from Tunes', [], (tx, res) => {
             for (let i = 0; i < res.rows.length; ++i) {
-              console.log('item:', res.rows.item(i));
             }          
           });
         });      
