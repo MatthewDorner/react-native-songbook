@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Database from '../database';
+import SearchContainer from './SearchContainer';
 
 import {
   FlatList,
@@ -17,26 +18,68 @@ export default class CollectionBrowser extends Component {
     super(props);
 
     this.state = {
-      tunes: []
+      tunes: [], // all the tunes for this Collection (I'll call Setlist a type of collection)
+      filteredTunes: []
     };
 
     this.queryDatabaseState = this.queryDatabaseState.bind(this);
+    this.onSearch = this.onSearch.bind(this);
   }
 
+  // Important: You must return a Promise
+  onSearch = (searchText, filters) => {
+    return new Promise((resolve, reject) => {
+      console.log("got search for: " + searchText);
+      if (filters) {
+        console.log("filters were key: " + filters.rhythm + " , rhythm: " + filters.key);
+      }
+
+      if (!filters) {
+        filters = {};
+      }
+
+      if (!filters.key) {
+        filters.key = ""
+      }
+
+      if (!filters.rhythm) {
+        filters.rhythm = ""
+      }
+
+      if (!searchText) {
+        searchText = ""
+      }
+
+      let searchResults = this.state.tunes.filter((tune) => tune.Title.toLowerCase().includes(searchText.toLowerCase()));
+      console.log('got searchResults: ' + searchResults);
+      this.setState({
+        filteredTunes: searchResults
+      }, () => {
+        let rhythmFilterResults = this.state.filteredTunes.filter((tune) => tune.Rhythm.toLowerCase().includes(filters.rhythm.toLowerCase()));
+        console.log('got rhythmFilterResults: ' + rhythmFilterResults);
+        this.setState({
+          filteredTunes: rhythmFilterResults
+        }, () => {
+          let keyFilterResults = this.state.filteredTunes.filter((tune) => tune.Key.toLowerCase().includes(filters.key.toLowerCase()));
+          console.log('got keyFilterResults: ' + keyFilterResults);
+          this.setState({
+            filteredTunes: keyFilterResults
+          });    
+        });
+      });
+
+      resolve();
+    });
+  }
+  
   componentDidMount() {
     this.queryDatabaseState();
   }
 
   queryDatabaseState() {
-    if (this.props.queriedBy == "Collection") {
-      Database.getTunesForCollection(this.props.collectionId).then((tunes) => {
-        this.setState({tunes: tunes});
-      });
-    } else if (this.props.queriedBy == "Setlist") {
-      Database.getTunesForSetlist(this.props.setlistIds).then((tunes) => {
-        this.setState({tunes: tunes});
-      });
-    }
+    Database.getTunesForCollection(this.props.collectionId, this.props.queriedBy).then((tunes) => {
+      this.setState({tunes: tunes, filteredTunes: tunes});
+    });
   }
 
   _renderItem = ({ item }) => (
@@ -45,10 +88,17 @@ export default class CollectionBrowser extends Component {
         this.props.tuneChangeCallback.callback(item);
       }
     }}
-    > 
-      <Text style = {styles.listItemText} >
-        {item.Title}
-      </Text>
+    >
+      <View>
+        <Text style = {styles.listItemTitle}>
+          {item.Title}
+        </Text>
+        <View>
+          <Text style = {styles.listItemDetail}>
+            {"Rhythm: " + item.Rhythm + ", Key: " + item.Key}
+          </Text>
+        </View>
+      </View>
     </TouchableHighlight>
   );
 
@@ -56,11 +106,11 @@ export default class CollectionBrowser extends Component {
     return (
       <ScrollView>
         <View>
-          {/* This will contain the search bar and parameters */}
+          <SearchContainer onSearch={this.onSearch}/>
         </View>
         <FlatList
-          contentContainerStyle={{ alignItems: 'center' }}
-          data={this.state.tunes}
+          contentContainerStyle={{ alignItems: 'flex-start' }}
+          data={this.state.filteredTunes}
           renderItem={this._renderItem}
           keyExtractor={(item, index) => index.toString()} // is this really right
         />
@@ -70,9 +120,14 @@ export default class CollectionBrowser extends Component {
 }
 
 const styles = StyleSheet.create({
-  listItemText: {
+  listItemTitle: {
     fontSize: 20,
     textAlign: 'left',
-    margin: 10,
+    margin: 4,
+  },
+  listItemDetail: {
+    fontSize: 13,
+    textAlign: 'left',
+    margin: 2,
   },
 });

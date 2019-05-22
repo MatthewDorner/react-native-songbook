@@ -31,8 +31,7 @@ Navigation.events().registerAppLaunchedListener(() => {
   Navigation.setRoot({
     root: {
       bottomTabs: {
-        children: [
-          {
+        children: [{
             stack: {
               id: 'CurrentTuneStack',
               options: {
@@ -53,7 +52,7 @@ Navigation.events().registerAppLaunchedListener(() => {
                     options: {
                       bottomTab: {
                         text: 'Current Tune',
-                        icon: require('./icon.png'),
+                        icon: require('./music.png'), // credit "feathericons"
                       },
                       bottomTabs: {
                         drawBehind: true
@@ -67,26 +66,29 @@ Navigation.events().registerAppLaunchedListener(() => {
           { // begin stack
             stack: {
             id: 'BrowserStack',
-            children: [
-
-
-
-          { //begin component
-            component: {
-              name: 'TopBrowser',
-              passProps: {
-                tuneChangeCallback: tuneChangeCallback
-              },
-              options: {
-                bottomTab: {
-                  text: 'Collection Browser',
-                  icon: require('./icon.png'),
-                }
+            options: {
+              topBar: {
+                visible: false,
+                height: 0,
               }
-            },
-          } // end component
-        ]// end children
-      }
+            },            
+            children: [
+              { //begin component
+                component: {
+                  name: 'TopBrowser',
+                  passProps: {
+                    tuneChangeCallback: tuneChangeCallback
+                  },
+                  options: {
+                    bottomTab: {
+                      text: 'Collection Browser',
+                      icon: require('./book.png'), // would be cool to use closed book when you're not on collection tab, open book when you are on it
+                    }
+                  }
+                },
+              } // end component
+            ]// end children
+          }
         }// end stack
         ]
       }
