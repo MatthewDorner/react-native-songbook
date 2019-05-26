@@ -10,16 +10,16 @@ export default {
       Type: Constants.CollectionTypes.COLLECTION
     }, {
       Name: 'Etc',
-      Type: Constants.CollectionTypes.COLLECTION   
+      Type: Constants.CollectionTypes.COLLECTION
     }, {
       Name: 'Setlist A',
-      Type: Constants.CollectionTypes.SETLIST   
+      Type: Constants.CollectionTypes.SETLIST
     }, {
       Name: 'Favorite Tunes',
-      Type: Constants.CollectionTypes.SETLIST   
+      Type: Constants.CollectionTypes.SETLIST
     }, {
       Name: 'Third Setlist',
-      Type: Constants.CollectionTypes.SETLIST   
+      Type: Constants.CollectionTypes.SETLIST
     }
   ],
   testTunes: 'X: 2\n\
@@ -120,6 +120,18 @@ E/2F/2|"Em"GEE BEE|"Em"GEE BAG|"D"FDD ADD|"D"d^cd AGF|\n\
 P:B\n\
 B|"Bm"B^cd "Em"e2f|"Em"e2f edB|"Bm"B^cd "Em"e2f|"Em"edB "D"d3|\n\
 "Bm"B^cd "Em"e2f|"Em"e2f edB|"D"d^cd AGF|"Em"GEE E2:|\n\
+\n\
+\n\
+X:12\n\
+T:The Irish Washerwoman\n\
+R:Jig\n\
+M:6/8\n\
+L:1/8\n\
+K:Gmaj\n\
+dc|:"G"BGG DGG|BGB dcB|"Am"cAA EAA|cAc "D"edc|\n\
+"G"BGG DGG|BGB dcB|"Am"cBc "D"Adc|[1"G"BGG Gdc:|[2"G"BGG Gga|]\n\
+|:"G"bgg dgg|bgb bag|"D"aff dff|afa agf|\n\
+"C"egg "G"dgg|"C"cgg "G"B2B|"Am"cBc "D"Adc|[1"G"BGG Gga:|[2"G"BGG G3|]\n\
 \n\
 \n\
 X: 307\n\

@@ -3,4 +3,4 @@ export default {
     COLLECTION: 1,
     SETLIST: 2
   }
-}
+};

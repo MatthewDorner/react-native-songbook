@@ -1,7 +1,4 @@
 import React, { Component } from 'react';
-import Database from '../database';
-import Constants from '../constants';
-
 import {
   FlatList,
   StyleSheet,
@@ -10,6 +7,12 @@ import {
   TouchableHighlight
 } from 'react-native';
 import { Navigation } from 'react-native-navigation';
+import Database from '../data-access/database';
+import Constants from '../logic/constants';
+
+// just added so I can see madge generate dependency graph
+import CollectionBrowser from './CollectionBrowser';
+
 // import { isTSEnumMember } from '@babel/types';
 
 export default class TopBrowser extends Component {
@@ -32,20 +35,22 @@ export default class TopBrowser extends Component {
     Database.getCollections(Constants.CollectionTypes.COLLECTION).then((collections) => {
       console.log('setting collections to: ');
       console.log(collections);
-      this.setState({collections: collections});
+      this.setState({ collections });
     });
     Database.getCollections(Constants.CollectionTypes.SETLIST).then((setlists) => {
       console.log('setting setlists to: ');
       console.log(setlists);
-      this.setState({setlists: setlists});
+      this.setState({ setlists });
     });
   }
 
   _renderCollectionsItem = ({ item }) => (
-    <TouchableHighlight underlayColor = {'lightgray'} onPress={() => {
+    <TouchableHighlight
+      underlayColor="lightgray"
+      onPress={() => {
         Navigation.push('BrowserStack', {
           component: {
-            name: 'CollectionBrowser',            
+            name: 'CollectionBrowser',
             passProps: {
               collectionId: item.rowid,
               queriedBy: item.Type,
@@ -53,9 +58,9 @@ export default class TopBrowser extends Component {
             }
           }
         });
-      }}    
-    > 
-      <Text style = {styles.listItemText} >
+      }}
+    >
+      <Text style={styles.listItemText}>
         {item.Name}
       </Text>
     </TouchableHighlight>
@@ -64,7 +69,7 @@ export default class TopBrowser extends Component {
   render() {
     return (
       <ScrollView>
-        <Text style = {styles.sectionHeader}>
+        <Text style={styles.sectionHeader}>
           Collections
         </Text>
         <FlatList
@@ -74,14 +79,14 @@ export default class TopBrowser extends Component {
           renderItem={this._renderCollectionsItem}
           keyExtractor={(item, index) => index.toString()} // is this really right
         />
-        <Text style = {styles.sectionHeader}>
+        <Text style={styles.sectionHeader}>
           Setlists
         </Text>
-        <FlatList 
+        <FlatList
           contentContainerStyle={{ alignItems: 'center' }}
           extraData={this.state}
           data={this.state.setlists}
-          renderItem={this._renderCollectionsItem}       
+          renderItem={this._renderCollectionsItem}
           keyExtractor={(item, index) => index.toString()} // is this really right
         />
       </ScrollView>

@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import VexFlowScore from './VexFlowScore';
-import { Navigation } from 'react-native-navigation';
 import Search from 'react-native-search-box';
 
 import {
@@ -15,8 +13,8 @@ export default class SearchContainer extends Component {
     super(props);
 
     this.state = {
-      keyFilter: "",
-      rhythmFilter: ""
+      keyFilter: '',
+      rhythmFilter: ''
     };
   }
 
@@ -25,17 +23,17 @@ export default class SearchContainer extends Component {
       <View>
         <Search ref="search_box" onSearch={this.props.onSearch} />
         <View style={styles.searchContainer}>
-          <TextInput 
-            onSubmitEditing={() => this.props.onSearch(this.refs.search_box.value, {rhythm: this.state.rhythmFilter, key: this.state.keyFilter})}
-            style={[styles.searchFilter, {marginRight: 2.5}]}
+          <TextInput
+            onSubmitEditing={() => this.props.onSearch(this.refs.search_box.value, { rhythm: this.state.rhythmFilter, key: this.state.keyFilter })}
+            style={[styles.searchFilter, { marginRight: 2.5 }]}
             placeholder="Rhythm"
-            onChangeText={(text) => this.setState({rhythmFilter: text})}
+            onChangeText={text => this.setState({ rhythmFilter: text })}
           />
-          <TextInput 
-            onSubmitEditing={() => this.props.onSearch(this.refs.search_box.value, {rhythm: this.state.rhythmFilter, key: this.state.keyFilter})}
-            style={[styles.searchFilter, {marginLeft: 2.5}]}
+          <TextInput
+            onSubmitEditing={() => this.props.onSearch(this.refs.search_box.value, { rhythm: this.state.rhythmFilter, key: this.state.keyFilter })}
+            style={[styles.searchFilter, { marginLeft: 2.5 }]}
             placeholder="Key"
-            onChangeText={(text) => this.setState({keyFilter: text})}
+            onChangeText={text => this.setState({ keyFilter: text })}
           />
         </View>
       </View>
@@ -52,7 +50,7 @@ const styles = StyleSheet.create({
   searchFilter: {
     textAlign: 'center',
     flex: 1,
-    height: 30, 
+    height: 30,
     paddingTop: 5,
     paddingBottom: 5,
     // width: '45%',
@@ -67,6 +65,6 @@ const styles = StyleSheet.create({
   searchContainer: {
     height: 35,
     flexDirection: 'row',
-    backgroundColor: "grey"
+    backgroundColor: 'grey'
   }
 });

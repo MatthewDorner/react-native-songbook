@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import VexFlowScore from './VexFlowScore';
 import { Navigation } from 'react-native-navigation';
 
 import {
@@ -8,6 +7,7 @@ import {
   Dimensions,
   ScrollView
 } from 'react-native';
+import VexFlowScore from './VexFlowScore';
 
 export default class CurrentTune extends Component {
   constructor(props) {
@@ -16,7 +16,10 @@ export default class CurrentTune extends Component {
     this.state = {
       dimWidth: Dimensions.get('window').width,
       dimHeight: Dimensions.get('window').height,
-      tune: props.tune // eventually initialize this somehow else (to empty) instead of passing in from index.js
+      tune: {
+        Title: '',
+        Tune: ''
+      }
     };
 
     Dimensions.addEventListener('change', (e) => {
@@ -33,7 +36,7 @@ export default class CurrentTune extends Component {
           currentTabIndex: 0
         }
       });
-      this.setState({tune: tune});
+      this.setState({ tune });
     });
   }
 
@@ -43,7 +46,7 @@ export default class CurrentTune extends Component {
         <Text style={styles.welcome}>
           {this.state.tune.Title}
         </Text>
-        <VexFlowScore tune={this.state.tune.Tune} dimHeight={this.state.dimHeight} dimWidth={this.state.dimWidth}></VexFlowScore>
+        <VexFlowScore tune={this.state.tune.Tune} dimHeight={this.state.dimHeight} dimWidth={this.state.dimWidth} />
       </ScrollView>
     );
   }
