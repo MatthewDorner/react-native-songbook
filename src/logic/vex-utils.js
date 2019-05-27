@@ -5,17 +5,19 @@ import NoteUtils from './note-utils';
 export default {
 
   /* this is to get the notes to group together correctly in jig timing, although there was a post
-    suggesting that the automatic beaming would work for compound signatures (such as jig I think) but
+    suggesting that the automatic beaming would work
+    for compound signatures (such as jig I think) but
     it doesn't seem to. so instead I was going to use this code and if it doesn't find any beams of
     3 eighth notes in either the first or second half of the measure, it will run the automatic
-    beaming code ... this code only works right in 6/8 time though and I need all time signatures to work */
+    beaming code ... this code only works right in 6/8 time
+    though and I need all time signatures to work */
   generateBeams(notes) {
     const beams = [];
-    if (notes[0] && notes[0].duration == '8' && notes[1] && notes[1].duration == '8' && notes[2] && notes[2].duration == '8') {
+    if (notes[0] && notes[0].duration === '8' && notes[1] && notes[1].duration === '8' && notes[2] && notes[2].duration === '8') {
       beams.push(new Beam([notes[0], notes[1], notes[2]]));
     }
     const l = notes.length;
-    if (notes[l - 1] && notes[l - 1].duration == '8' && notes[l - 2] && notes[l - 2].duration == '8' && notes[l - 3] && notes[l - 3].duration == '8') {
+    if (notes[l - 1] && notes[l - 1].duration === '8' && notes[l - 2] && notes[l - 2].duration === '8' && notes[l - 3] && notes[l - 3].duration === '8') {
       beams.push(new Beam([notes[l - 1], notes[l - 2], notes[l - 3]]));
     }
     return beams;
@@ -26,9 +28,12 @@ export default {
         needs to be updated to act on the entire array not just keys[0]
 
         TODO: need to take into account that if there's an accidental earlier in the bar, it applies to all notes in that position
-        in the bar (if a C is marked #, later Cs in the bar, although they won't have an accidental, will also be sharped,
-        unless they have a natural accidental) ALSO, IF AN ACCIDENTAL IS APPLIED THAT is already in the key signature,
-        such as if C# was already in key signature but a C had a # accidental, it wouldn't do anything
+        in the bar (if a C is marked #, later Cs in the bar, although they won't
+        have an accidental, will also be sharped,
+        unless they have a natural accidental) ALSO, IF AN ACCIDENTAL IS
+        APPLIED THAT is already in the key signature,
+        such as if C# was already in key signature but a C had a #
+        accidental, it wouldn't do anything
     */
   getTabPosition(keys, accidentals, keySignature) {
     const diatonicNote = NoteUtils.getDiatonicFromLetter(keys[0]);
@@ -38,15 +43,28 @@ export default {
     let noteIsSharped = false;
     let noteIsFlatted = false;
 
+    // encode 'sharp', 'flat', 'dblsharp', 'dblflat' as constants like +1, -1, +2, -2
+    // now USE THIS IN VexUtils:
+    // getSemitonesForAccidental(accidental) {
+    //   const semitones = {
+    //     sharp: 1,
+    //     flat: -1,
+    //     dblsharp: 2,
+    //     dblflat: -2,
+    //     natural: 0
+    //   };
+    //   return semitones[accidental];
+    // }
+
     keySignature.accidentals.forEach((accidental) => {
-      if (diatonicNote == NoteUtils.getDiatonicFromLetter(accidental.note)) {
+      if (diatonicNote === NoteUtils.getDiatonicFromLetter(accidental.note)) {
         switch (accidental.acc) {
           case 'sharp':
-            chromaticNote++;
+            chromaticNote += 1;
             noteIsSharped = true;
             break;
           case 'flat':
-            chromaticNote--;
+            chromaticNote -= 1;
             noteIsFlatted = true;
             break;
           default:
@@ -82,11 +100,12 @@ export default {
     const noteNumber = octave * 12 + chromaticNote;
     const lowestNoteNumber = 28; // number for e2, lowest note on guitar
     let fretsFromZero = noteNumber - lowestNoteNumber;
-    fretsFromZero -= 12; // "guitar plays octave lower than it reads" so actually e3 will be the lowest supported
+    // "guitar plays octave lower than it reads" so actually e3 will be the lowest supported
+    fretsFromZero -= 12;
 
     // correct for the major third interval between B and G strings
     if (fretsFromZero >= 19) {
-      fretsFromZero++;
+      fretsFromZero += 1;
     }
 
     let left = fretsFromZero % 5;
@@ -110,16 +129,17 @@ export default {
     */
   convertKeySignature(abcKey) {
     const { keySpecs } = Vex.Flow.keySignature;
-    if (abcKey.accidentals.length == 0) {
+    if (abcKey.accidentals.length === 0) {
       return 'C';
     }
     for (const key in keySpecs) {
       if (keySpecs[key].num == abcKey.accidentals.length) {
-        if (abcKey.accidentals[0].acc == 'sharp' && keySpecs[key].acc == '#' || abcKey.accidentals[0].acc == 'flat' && keySpecs[key].acc == 'b') {
+        if (abcKey.accidentals[0].acc == 'sharp' && keySpecs[key].acc == '#'|| abcKey.accidentals[0].acc == 'flat' && keySpecs[key].acc == 'b') {
           return key;
         }
       }
     }
+    return false;
   },
 
   /*
@@ -137,27 +157,67 @@ export default {
   },
 
   getKeys(abcPitches) {
-    let keys = [];
+    // middle B in treble clef is abc pitch number 6
+    const keys = [];
     abcPitches.forEach((pitch) => {
       const notes = ['c', 'd', 'e', 'f', 'g', 'a', 'b'];
       const octave = (Math.floor(pitch.pitch / 7)); // this not right
       const vexOctave = octave + 4;
       const note = pitch.pitch - (octave * 7);
-
-      // got pitch.pitch as: 6 (B ) // B in the middle of treble clef
-      // vex-utils.js:156 octave: 1, vexOctave: 5, note: -6
-
       keys.push(`${notes[note]}/${vexOctave.toString()}`);
     });
 
     return keys;
   },
 
+  getVolta(obj, length, barVoltaStarted, inVolta) {
+    if (!obj.endEnding) { // volta isn't ending right now
+      if (barVoltaStarted === length - 1) { // started last bar
+        return {
+          type: Vex.Flow.Volta.type.BEGIN,
+          number: inVolta
+        };
+      }
+      // started previously
+      return {
+        type: Vex.Flow.Volta.type.MID,
+        number: inVolta
+      };
+    }
+    // volta IS ending right now
+    if (barVoltaStarted === length - 1) { // started last bar and is ending this one
+      return {
+        type: Vex.Flow.Volta.type.BEGIN_END,
+        number: inVolta
+      };
+    }
+    return {
+      type: Vex.Flow.Volta.type.END, // started some other time
+      number: inVolta
+    };
+  },
+
+  getVexDuration(abcDuration) {
+    let noteDuration = abcDuration;
+    let isDotted = false;
+
+    for (let j = 0; j < 5; j += 1) {
+      const pow = 2 ** j;
+      if (abcDuration === 1 / pow + (1 / pow) * 0.5) {
+        noteDuration = 1 / pow;
+        isDotted = true;
+      }
+    }
+    const duration = (1 / noteDuration).toString();
+    return { duration, isDotted };
+  },
+
   getAccidentals(abcPitches) {
     /*
             ACCIDENTALS
 
-                so it seems like they're both working the same way and I don't even need to calculate
+                so it seems like they're both working the same
+                way and I don't even need to calculate
                 accidentals. though I DO NEED TO calculate them when it comes to guitar tab, mainly
                 sending the accidentals into the getTabPosition so it can take them into account
 
@@ -168,7 +228,8 @@ export default {
                 new VF.StaveNote({clef: "treble", keys: ["c/5", "eb/5", "g#/5"], duration: "q" }).
                 addAccidental(1, new VF.Accidental("b")).
                 addAccidental(2, new VF.Accidental("#")).addDotToAll()
-                ^ NOTE THAT THEY'RE INCLUDING THE ACCIDENTALS IN THE keys[], does it make any difference
+                ^ NOTE THAT THEY'RE INCLUDING THE ACCIDENTALS IN THE
+                keys[], does it make any difference
                 if I do that?
         */
 

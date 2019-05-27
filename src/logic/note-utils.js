@@ -2,6 +2,7 @@ export default {
   // to convert notes between a-g, 0-7 and 0-11
 
   getDiatonicFromLetter(letter) {
+    // this will get a number with a being 0
     let diatonic = letter.charCodeAt(0) - 97;
 
     // change from a being 0 to c being 0
@@ -18,40 +19,30 @@ export default {
     return this.getChromaticFromDiatonic(diatonic);
   },
 
+  // starting with c, maps diatonic (0-7) to chromatic (0-11)
   getChromaticFromDiatonic(diatonic) {
-    switch (diatonic) {
-      case 0: // c
-        return 0;
-      case 1: // d
-        return 2;
-      case 2: // e
-        return 4;
-      case 3: // f
-        return 5;
-      case 4: // g
-        return 7;
-      case 5: // a
-        return 9;
-      case 6: // b
-        return 11;
-    }
+    return [0, 2, 4, 5, 7, 9, 11][diatonic];
   },
 
   getVexAccidental(accidental) {
-    // these should be done better in JS by using key-value lookups instead of switch statement?
-    switch (accidental) {
-      case 'sharp':
-        return '#';
-      case 'flat':
-        return 'b';
-      case 'dblsharp':
-        return '##';
-      case 'dblflat':
-        return 'bb';
-      case 'natural':
-        return 'n';
-      default:
-        return false;
-    }
+    const accidentals = {
+      sharp: '#',
+      flat: 'b',
+      dblsharp: '##',
+      dblflat: 'bb',
+      natural: 'n'
+    };
+    return accidentals[accidental];
+  },
+
+  getSemitonesForAccidental(accidental) {
+    const semitones = {
+      sharp: 1,
+      flat: -1,
+      dblsharp: 2,
+      dblflat: -2,
+      natural: 0
+    };
+    return semitones[accidental];
   }
 };

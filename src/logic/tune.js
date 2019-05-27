@@ -6,38 +6,51 @@ import { Stave } from 'vexflow/src/stave';
 import { TabStave } from 'vexflow/src/tabstave';
 import { Voice } from 'vexflow/src/voice';
 import { Formatter } from 'vexflow/src/formatter';
+import ABCJS from 'abcjs';
+import Bar from './bar';
 import VexUtils from './vex-utils';
 
-export default {
+export default class Tune {
+  constructor(abcString, renderOptions) {
+    this.renderOptions = renderOptions;
+
+    // GET THE PARSED OBJECT AND PROPERTIES
+    const parsedObject = ABCJS.parseOnly(abcString);
+    const musicalObjects = parsedObject[0].lines
+      .map(line => line.staff[0].voices[0])
+      .reduce((acc, val) => acc.concat(val), []);
+
+    if (!parsedObject[0].lines[0]) {
+      return; // context will be empty and can be rendered to blank
+    }
+
+    // GET THE TUNE ATTRIBUTES
+    this.tuneAttrs = {
+      meter: VexUtils.getMeter(abcString),
+      clef: parsedObject[0].lines[0].staff[0].clef.type,
+      abcKeySignature: parsedObject[0].lines[0].staff[0].key,
+      vexKeySignature: VexUtils.convertKeySignature(parsedObject[0].lines[0].staff[0].key)
+    };
+
+    // PROCESS AND RENDER
+    this.bars = this.generateBars(musicalObjects);
+    this.setBarPositions(); // will mutate this.bars
+  }
+
   // take the abcjs parser output and turn it into an array of bars
   // (vexflow rendering works in terms of bars,
   // but abcjs just supplies a big array of note, note, barline, note, etc.)
-  getBars(musicalObjects, abcKeySignature, clef) {
-    // INITIALIZE VARIABLES
+  generateBars(musicalObjects) {
+    const bars = [];
+
+    // VARIABLES THAT TRACK STATE BETWEEN MUSICALOBJECTS
     let currentStaveNotes = [];
     let currentTabNotes = [];
+
+    // VARIABLES THAT TRACK STATE BETWEEN BARS
     let nextBarDecorations = [];
-    const bars = [];
     let inVolta = 0; // 0 = nothing, 1 or 2 means we're in ending 1 or 2 or whateer
     let barVoltaStarted = 0;
-
-    function Bar() {
-      this.notes = [];
-      this.tabNotes = [];
-      this.beams = [];
-      this.decorations = [];
-      this.tabDecorations = [];
-      this.x = 0;
-      this.y = 0;
-      this.width = 0;
-      this.volta = {
-        type: 0,
-        number: 0
-      };
-    }
-
-    // console.log('got musicalObjects, was: ');
-    // console.log(musicalObjects);
 
     musicalObjects.forEach((obj) => {
       switch (obj.el_type) {
@@ -46,89 +59,45 @@ export default {
             break; // TODO implement
           }
 
+          // PROCESS PROPERTIES INTO VEXFLOW-FRIENDLY FORMS
           const keys = VexUtils.getKeys(obj.pitches);
           const accidentals = VexUtils.getAccidentals(obj.pitches);
-          let noteDuration = obj.duration;
-          let isDotted = false;
+          const { duration, isDotted } = VexUtils.getVexDuration(obj.duration);
 
-          for (let j = 0; j < 5; j += 1) {
-            const pow = 2 ** j;
-            if (obj.duration === 1 / pow + (1 / pow) * 0.5) {
-              noteDuration = 1 / pow;
-              isDotted = true;
-            }
-          }
-          const duration = (1 / noteDuration).toString();
-
+          // CREATE AND ADD MODIFIERS TO STAVE NOTE
           const noteToAdd = new StaveNote({
-            clef, keys, duration, auto_stem: true
+            clef: this.tuneAttrs.clef, keys, duration, auto_stem: true
           });
-          if (isDotted) {
-            noteToAdd.addDotToAll();
-          }
+          if (isDotted) { noteToAdd.addDotToAll(); }
           accidentals.forEach((accidental, i) => {
-            if (accidental) {
-              noteToAdd.addAccidental(i, new Vex.Flow.Accidental(accidental));
-            }
+            if (accidental) { noteToAdd.addAccidental(i, new Vex.Flow.Accidental(accidental)); }
           });
-
           if (obj.chord) {
             noteToAdd.addModifier(0, new Vex.Flow.Annotation(obj.chord[0].name) // why [0]
               .setVerticalJustification(Vex.Flow.Annotation.VerticalJustify.TOP));
           }
 
-          currentStaveNotes.push(noteToAdd);
-
-          /* TAB */
+          // CREATE AND ADD MODIFIERS TO TAB NOTE
           const tabNoteToAdd = new TabNote({
-            positions: VexUtils.getTabPosition(keys, accidentals, abcKeySignature),
+            positions: VexUtils.getTabPosition(keys, accidentals, this.tuneAttrs.abcKeySignature),
             duration
           });
-          if (isDotted) {
-            tabNoteToAdd.addDot();
-          }
-          currentTabNotes.push(tabNoteToAdd);
+          if (isDotted) { tabNoteToAdd.addDot(); }
 
+          currentStaveNotes.push(noteToAdd);
+          currentTabNotes.push(tabNoteToAdd);
           break;
         }
         case 'bar': {
-          /*
-            there is a problem with the order of creating new volta, evaluating existing volta,
-            and creating the bar. if we don't check voltas before we break due to multiple bars,
-            we could possibly miss a volta marker if it's part of a series of multiple bars.
-
-            maybe we should collapse multiple bars into one and add their modifiers together
-            before even getting to this point. it would make the multiple bar thing
-            null.
-          */
-
           const currentBar = new Bar();
 
-          if (inVolta !== 0 && !obj.endEnding) { // and isn't ending right now
-            if (barVoltaStarted === bars.length - 1) { // started last bar
-              currentBar.volta = {
-                type: Vex.Flow.Volta.type.BEGIN,
-                number: inVolta
-              };
-            } else { // started previously
-              currentBar.volta = {
-                type: Vex.Flow.Volta.type.MID,
-                number: inVolta
-              };
+          // handle existing volta
+          if (inVolta) {
+            currentBar.volta = VexUtils.getVolta(obj, bars.length, barVoltaStarted, inVolta);
+            if (currentBar.volta.type === Vex.Flow.Volta.type.BEGIN_END
+              || currentBar.volta.type === Vex.Flow.Volta.type.END) {
+              inVolta = 0;
             }
-          } else if (inVolta !== 0) { // and IS ending right now
-            if (barVoltaStarted === bars.length - 1) { // started last bar and is ending this one
-              currentBar.volta = {
-                type: Vex.Flow.Volta.type.BEGIN_END,
-                number: inVolta
-              };
-            } else {
-              currentBar.volta = {
-                type: Vex.Flow.Volta.type.END, // started some other time
-                number: inVolta
-              };
-            }
-            inVolta = 0; // end volta
           }
 
           // handle new volta
@@ -137,32 +106,20 @@ export default {
             barVoltaStarted = bars.length;
           }
 
-          nextBarDecorations.forEach((decoration) => {
-            currentBar.decorations.push(decoration);
-          });
+          // handle decorations from previous barline that apply to this bar
+          currentBar.decorations = nextBarDecorations;
           nextBarDecorations = [];
 
+          // apply decorations found in this barline object
           if (obj.type === 'bar_right_repeat') {
             currentBar.decorations.push(Vex.Flow.Barline.type.REPEAT_END);
           } else if (obj.type === 'bar_left_repeat') {
             nextBarDecorations.push(Vex.Flow.Barline.type.REPEAT_BEGIN);
           }
 
-          /*
-            so auto beaming somehow sets the stem-direction. but I thought we got beaming from
-            abcjs.. yeah, we do. I was using it but somehow lost it in refactor. I want to use that,
-            but calculate stem direction based off it (because beam groups must share stem direction)
-
-            it will be best to calculate the stem direction of the beam group by the first... note
-            since that will probably be the one that may have a chord symbol above it, and want to make
-            sure that the stem is pointing down if necessary if a chord symbol is above it
-
-            abcjs just doesn't give stem direction?
-          */
-
           // ONLY WANT TO USE THIS CODE FOR 6/8 TUNES
           // currentBar.beams = VexUtils.generateBeams(currentStaveNotes);
-          // if (beams.length == 0) {
+          // if (currentBar.beams.length === 0) {
           //   currentBar.beams = Beam.generateBeams(currentStaveNotes);
           // }
           currentBar.beams = Beam.generateBeams(currentStaveNotes);
@@ -180,93 +137,98 @@ export default {
       }
     });
     return bars;
-  },
+  }
 
-  // take the array of bars and determine the x, y, and width of each bar based on the # of notes in the bar
-  positionBars(bars, RENDER_WIDTH) {
-    // SINCE I'M MULTIPLYING BY WIDTH FACTOR, BARS WITH 0 NOTES END UP WITH 0 WIDTH. THE INTERESTING EFFECT
-    // IS THAT THIS HIDES THE PROBLEM OF DOUBLE BARLINES, SINCE THE MEASURE IS 0 WIDTH. DO I WANT IT THIS WAY?
+  // take the array of bars and determine the x, y, and width of
+  // each bar based on the # of notes in the bar
+  setBarPositions() {
+    const {
+      renderWidth, xOffset, widthFactor, lineHeight, clefsAndSigsWidth
+    } = this.renderOptions;
 
-    // o yeah what's happening is that when there's extra with, and it's granted to all the other bars, it will
-    // also be added to the zero width bar.
-    const X_OFFSET = 3;
-    const WIDTH_FACTOR = 27;
-    const LINE_HEIGHT = 190;
-    const CLEFS_AND_SIGS_WIDTH = 120;
-
-    bars.forEach((bar, i) => {
-      let idealWidth = bar.notes.length * WIDTH_FACTOR;
-      if (idealWidth > RENDER_WIDTH) {
-        idealWidth = RENDER_WIDTH;
+    const positionedBars = this.bars.map((bar, i) => {
+      const positionedBar = bar;
+      let idealWidth = bar.notes.length * widthFactor;
+      if (idealWidth > renderWidth) {
+        idealWidth = renderWidth;
       }
 
       if (i === 0) { // first bar
-        bar.x = X_OFFSET;
-        bar.y = 0;
-        bar.width = idealWidth + CLEFS_AND_SIGS_WIDTH;
-      } else if (bars[i - 1].x + bars[i - 1].width >= RENDER_WIDTH) { // first bar on a new line
-        bar.x = X_OFFSET;
-        bar.y = bars[i - 1].y + LINE_HEIGHT;
-        bar.width = idealWidth;
+        positionedBar.position.x = xOffset;
+        positionedBar.position.y = 0;
+        positionedBar.position.width = idealWidth + clefsAndSigsWidth;
+      } else if (this.bars[i - 1].position.x + this.bars[i - 1].position.width >= renderWidth) { // first bar on a new line
+        positionedBar.position.x = xOffset;
+        positionedBar.position.y = this.bars[i - 1].position.y + lineHeight;
+        positionedBar.position.width = idealWidth;
       } else { // bar on an incomplete line
-        bar.x = bars[i - 1].x + bars[i - 1].width;
-        bar.y = bars[i - 1].y;
-        bar.width = idealWidth;
+        positionedBar.position.x = this.bars[i - 1].position.x + this.bars[i - 1].position.width;
+        positionedBar.position.y = this.bars[i - 1].position.y;
+        positionedBar.position.width = idealWidth;
 
-        // check if next bar won't fit or there is no next bar. actually this is supposed to
-        // work when there's no next bar but it doesn't work...
-        if (!bars[i + 1] || bar.x + idealWidth + (bars[i + 1].notes.length * WIDTH_FACTOR) > RENDER_WIDTH) {
-          let extraSpace = (RENDER_WIDTH - bar.x) - idealWidth;
+        // check if next bar won't fit or there is no next bar. actually this doesn't work
+        // if there's only one bar on the final line
+        if (!this.bars[i + 1] || bar.position.x + idealWidth + (this.bars[i + 1].notes.length * widthFactor) > renderWidth) {
+          let extraSpace = (renderWidth - bar.position.x) - idealWidth;
           let barsOnThisLine = 1;
 
-          for (let j = i - 1; bars[j] && bars[j].y === bar.y; j -= 1) {
+          for (let j = i - 1; this.bars[j] && this.bars[j].position.y === bar.position.y; j -= 1) {
             barsOnThisLine += 1;
           }
 
-          // if there will be extra space because the next bar won't fit,
+          // if there will be extra space at the end because the next bar won't fit,
           // divide the extra space equally between all the bars on this line
           let spaceAdded = 0;
           for (let k = barsOnThisLine - 1; k >= 0; k -= 1) {
             const spaceToAdd = Math.floor(extraSpace / (k + 1));
-            bars[i - k].x += spaceAdded;
-            bars[i - k].width += spaceToAdd;
+            this.bars[i - k].position.x += spaceAdded;
+            this.bars[i - k].position.width += spaceToAdd;
             extraSpace -= spaceToAdd;
             spaceAdded += spaceToAdd;
           }
         } else {
-          bar.width = idealWidth;
+          positionedBar.position.width = idealWidth;
         }
       }
+      return positionedBar;
     });
-    return bars;
-  },
+    this.bars = positionedBars;
+  }
 
-  // take positionedBars and render it to the supplied VexFlow context
-  render(positionedBars, clef, meter, keySignature, context) {
-    positionedBars.forEach((bar, index) => {
+  // take positionedBars and draw it to the supplied VexFlow context
+  drawToContext(context) {
+    if (!this.bars) {
+      return;
+    }
+    const { clef, meter, vexKeySignature } = this.tuneAttrs;
+    let stave;
+    let tabStave;
+    this.bars.forEach((bar, index) => {
       if (index === 0) {
-        // to "split" the first stave secretly so that the modifiers don't mess up the tab note alignment
-        const clefsStave = new Stave(bar.x, bar.y, Math.floor(bar.width / 2), { right_bar: false });
-        const clefsTabStave = new TabStave(bar.x, bar.y + 50, Math.floor(bar.width / 2), { right_bar: false });
+        // to "split" the first stave w/ invisible bar line so that the modifiers don't mess up the tab note alignment
+        const clefsStave = new Stave(bar.position.x, bar.position.y, Math.floor(bar.position.width / 2), { right_bar: false });
+        const clefsTabStave = new TabStave(bar.position.x, bar.position.y + 50, Math.floor(bar.position.width / 2), { right_bar: false });
+
         clefsStave.setContext(context);
-        clefsTabStave.setContext(context);
         clefsStave.setClef(clef);
-        clefsStave.setKeySignature(keySignature);
+        clefsStave.setKeySignature(vexKeySignature);
         clefsStave.setTimeSignature(meter);
         clefsStave.draw();
+
+        clefsTabStave.setContext(context);
         clefsTabStave.draw();
 
-        bar.x += Math.floor(bar.width / 2);
-        bar.width -= Math.floor(bar.width / 2);
+        bar.position.x += Math.floor(bar.position.width / 2);
+        bar.position.width -= Math.floor(bar.position.width / 2);
 
-        var stave = new Stave(bar.x, bar.y, bar.width, { left_bar: false });
+        stave = new Stave(bar.position.x, bar.position.y, bar.position.width, { left_bar: false });
         stave.setContext(context);
-        var tabStave = new TabStave(bar.x, bar.y + 50, bar.width, { left_bar: false });
+        tabStave = new TabStave(bar.position.x, bar.position.y + 50, bar.position.width, { left_bar: false });
         tabStave.setContext(context);
       } else {
-        var stave = new Stave(bar.x, bar.y, bar.width);
+        stave = new Stave(bar.position.x, bar.position.y, bar.position.width);
         stave.setContext(context);
-        var tabStave = new TabStave(bar.x, bar.y + 50, bar.width);
+        tabStave = new TabStave(bar.position.x, bar.position.y + 50, bar.position.width);
         tabStave.setContext(context);
       }
 
@@ -276,7 +238,7 @@ export default {
 
       bar.decorations.forEach((decoration) => {
         switch (decoration) {
-          case Vex.Flow.Barline.type.REPEAT_BEGIN: // these are integer constants...
+          case Vex.Flow.Barline.type.REPEAT_BEGIN:
             stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
             tabStave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
             break;
@@ -302,4 +264,4 @@ export default {
       Formatter.FormatAndDraw(context, tabStave, bar.tabNotes);
     });
   }
-};
+}
