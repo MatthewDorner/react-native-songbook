@@ -4,6 +4,8 @@ React Native app for viewing music in [ABC Notation](https://en.wikipedia.org/wi
 
 Uses [abcjs](https://github.com/paulrosen/abcjs) to parse and [VexFlow](https://github.com/0xfe/vexflow) to render.
 
+![screenshot](https://matthewdorner.github.io/reactnativesongbook.png)
+
 Current features:
 - Generate sheet music and guitar tablature from ABC notation
 - SQLite database with [test data](https://github.com/jukedeck/nottingham-dataset), search and filter
