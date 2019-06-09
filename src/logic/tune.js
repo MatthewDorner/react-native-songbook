@@ -1,5 +1,3 @@
-import { StaveNote } from 'vexflow/src/stavenote';
-import { TabNote } from 'vexflow/src/tabnote';
 import { Beam } from 'vexflow/src/beam';
 import Vex from 'vexflow';
 import { Stave } from 'vexflow/src/stave';
@@ -9,6 +7,7 @@ import { Formatter } from 'vexflow/src/formatter';
 import ABCJS from 'abcjs';
 import Bar from './bar';
 import VexUtils from './vex-utils';
+// import { objectExpression } from '@babel/types'; how did this get here
 
 export default class Tune {
   constructor(abcString, renderOptions) {
@@ -16,9 +15,14 @@ export default class Tune {
 
     // GET THE PARSED OBJECT AND PROPERTIES
     const parsedObject = ABCJS.parseOnly(abcString);
-    const musicalObjects = parsedObject[0].lines
+    console.log('got parsedObject:');
+    console.log(parsedObject);
+
+    const tuneObjArray = parsedObject[0].lines
       .map(line => line.staff[0].voices[0])
       .reduce((acc, val) => acc.concat(val), []);
+    console.log('got tuneObjArray:');
+    console.log(tuneObjArray);
 
     if (!parsedObject[0].lines[0]) {
       return; // context will be empty and can be rendered to blank
@@ -33,143 +37,173 @@ export default class Tune {
     };
 
     // PROCESS AND RENDER
-    this.bars = this.generateBars(musicalObjects);
+    const structuredTune = this.parseTuneStructure(tuneObjArray);
+    this.bars = this.generateVexBars(structuredTune);
     this.setBarPositions(); // will mutate this.bars
   }
 
-  // take the abcjs parser output and turn it into an array of bars
-  // (vexflow rendering works in terms of bars,
-  // but abcjs just supplies a big array of note, note, barline, note, etc.)
-  generateBars(musicalObjects) {
-    const bars = [];
+  parsePartStructure(partObjArray) {
+    let bars = []; // array of BarRegion objects to return
+    function BarRegion() {
+      this.startBarLine = {};
+      this.endBarLine = {};
+      this.contents = [];
+    }
 
-    // VARIABLES THAT TRACK STATE BETWEEN MUSICALOBJECTS
-    let currentStaveNotes = [];
-    let currentTabNotes = [];
+    // variables that hold parser state + initialization of those
+    let currentBar = new BarRegion();
+    let currentBarObjects = [];
 
-    // VARIABLES THAT TRACK STATE BETWEEN BARS
-    let nextBarDecorations = [];
-    let inVolta = 0; // 0 = nothing, 1 or 2 means we're in ending 1 or 2 or whateer
-    let barVoltaStarted = 0;
-
-    musicalObjects.forEach((obj) => {
+    partObjArray.forEach((obj, i) => {
       switch (obj.el_type) {
-        case 'note': {
-          if (obj.rest) {
-            break; // TODO implement
+        case 'bar':
+          if (i === 0) { // if it's the very first obj, just apply it to the (empty) currentBar
+            currentBar.startBarLine = obj;
+          } else { // apply the current bar and push
+            currentBar.endBarLine = obj;
+            currentBar.contents = currentBarObjects;
+            bars.push(currentBar);
           }
-
-          // PROCESS PROPERTIES INTO VEXFLOW-FRIENDLY FORMS
-          const keys = VexUtils.getKeys(obj.pitches);
-          const accidentals = VexUtils.getAccidentals(obj.pitches);
-          const { duration, isDotted } = VexUtils.getVexDuration(obj.duration);
-
-          // CREATE AND ADD MODIFIERS TO STAVE NOTE
-          const noteToAdd = new StaveNote({
-            clef: this.tuneAttrs.clef, keys, duration, auto_stem: true
-          });
-          if (isDotted) { noteToAdd.addDotToAll(); }
-          accidentals.forEach((accidental, i) => {
-            if (accidental) { noteToAdd.addAccidental(i, new Vex.Flow.Accidental(accidental)); }
-          });
-          if (obj.chord) {
-            noteToAdd.addModifier(0, new Vex.Flow.Annotation(obj.chord[0].name) // why [0]
-              .setVerticalJustification(Vex.Flow.Annotation.VerticalJustify.TOP));
+          if (i !== obj.length) { // reset the state 2 prepare for next bar
+            currentBar = new BarRegion();
+            currentBarObjects = [];
+            currentBar.startBarLine = obj;
           }
-
-          // CREATE AND ADD MODIFIERS TO TAB NOTE
-          const tabNoteToAdd = new TabNote({
-            positions: VexUtils.getTabPosition(keys, accidentals, this.tuneAttrs.abcKeySignature),
-            duration
-          });
-          if (isDotted) { tabNoteToAdd.addDot(); }
-
-          currentStaveNotes.push(noteToAdd);
-          currentTabNotes.push(tabNoteToAdd);
           break;
-        }
-        case 'bar': {
-          const currentBar = new Bar();
-
-          // handle existing volta
-          if (inVolta) {
-            currentBar.volta = VexUtils.getVolta(obj, bars.length, barVoltaStarted, inVolta);
-            if (currentBar.volta.type === Vex.Flow.Volta.type.BEGIN_END
-              || currentBar.volta.type === Vex.Flow.Volta.type.END) {
-              inVolta = 0;
-            }
-          }
-
-          // handle new volta
-          if (obj.startEnding) {
-            inVolta = obj.startEnding;
-            barVoltaStarted = bars.length;
-          }
-
-          // handle decorations from previous barline that apply to this bar
-          currentBar.decorations = nextBarDecorations;
-          nextBarDecorations = [];
-
-          // apply decorations found in this barline object
-          if (obj.type === 'bar_right_repeat') {
-            currentBar.decorations.push(Vex.Flow.Barline.type.REPEAT_END);
-          } else if (obj.type === 'bar_left_repeat') {
-            nextBarDecorations.push(Vex.Flow.Barline.type.REPEAT_BEGIN);
-          }
-
-          // ONLY WANT TO USE THIS CODE FOR 6/8 TUNES
-          // currentBar.beams = VexUtils.generateBeams(currentStaveNotes);
-          // if (currentBar.beams.length === 0) {
-          //   currentBar.beams = Beam.generateBeams(currentStaveNotes);
-          // }
-          currentBar.beams = Beam.generateBeams(currentStaveNotes);
-
-          currentBar.notes = currentStaveNotes;
-          currentBar.tabNotes = currentTabNotes;
-          currentStaveNotes = [];
-          currentTabNotes = [];
-
-          bars.push(currentBar);
-          break;
-        }
         default:
+          currentBarObjects.push(obj);
           break;
       }
     });
+
+    // deal with the last bar (if the last object was a barline, this shouldn't execute)
+    if (currentBarObjects.length > 0) {
+      currentBar.contents = currentBarObjects;
+      bars.push(currentBar);
+    }
+
     return bars;
   }
 
-  // take the array of bars and determine the x, y, and width of
-  // each bar based on the # of notes in the bar
+  parseTuneStructure(tuneObjArray) {
+    let parts = []; // array of PartRegion objects to return
+    function PartRegion(title) {
+      this.title = title;
+      this.bars = []; // the BarRegion object defined in parsePartStructure()
+    }
+
+    // variables that hold parser state + initialization of those
+    let currentPart = new PartRegion("default");
+    let currentPartObjects = [];
+
+    tuneObjArray.forEach((obj) => {
+      switch (obj.el_type) {
+        case 'part':
+          if (currentPartObjects.length === 0) {
+            // if the current part is still empty, just rename the current part
+            currentPart.title = obj.title;
+          } else {
+            // convert and apply bars to part, push to parts[]
+            currentPart.bars = this.parsePartStructure(currentPartObjects);            
+            parts.push(currentPart);
+            // reset the state variables
+            currentPartObjects = [];
+            currentPart = new PartRegion(obj.title);
+          }
+          break;
+        default:
+          currentPartObjects.push(obj);
+          break;
+      }
+    });
+
+    // deal with the final part also ignore final part if it's empty
+    if (currentPartObjects.length > 0) {
+      currentPart.bars = this.parsePartStructure(currentPartObjects);            
+      parts.push(currentPart);
+    }
+    return parts;
+  }
+
+  generateVexBars(parts) {
+    // array of VexPart objects to return
+    const vexParts = [];
+    function VexPart(title) {
+      this.title = title;
+      this.bars = []; // the Bar class from bar.js
+    }
+
+    parts.forEach((part, i) => {
+      const currentVexPart = new VexPart(part.title);
+      vexParts.push(currentVexPart);
+
+      part.bars.forEach((bar, i) => {
+        const currentVexBar = new Bar();
+        currentVexPart.bars.push(currentVexBar);
+
+        bar.contents.forEach((obj) => {
+
+          if (obj.rest || obj.el_type != 'note') {
+            return; // TODO implement
+          }
+
+          const { noteToAdd, tabNoteToAdd } = VexUtils.generateVexNotes(obj, this.tuneAttrs);
+          currentVexBar.notes.push(noteToAdd);
+          currentVexBar.tabNotes.push(tabNoteToAdd);
+        }); // end of bar.contents.forEach
+
+        currentVexBar.volta = VexUtils.getVolta(bar);
+        if (['bar_right_repeat', 'bar_dbl_repeat'].includes(bar.endBarLine.type)) {
+          currentVexBar.decorations.push(Vex.Flow.Barline.type.REPEAT_END);
+        } else if (['bar_left_repeat', 'bar_dbl_repeat'].includes(bar.startBarLine.type)) {
+          currentVexBar.decorations.push(Vex.Flow.Barline.type.REPEAT_BEGIN);
+        }
+
+        currentVexBar.beams = Beam.generateBeams(currentVexBar.notes);
+      }); // end of part.bars.forEach
+    }); // end of parts.forEach
+    return vexParts;
+  }
+
   setBarPositions() {
     const {
-      renderWidth, xOffset, widthFactor, lineHeight, clefsAndSigsWidth
+      renderWidth, xOffset, widthFactor, lineHeight, clefsAndSigsWidth, repeatWidthModifier
     } = this.renderOptions;
+
+    // flatten out the parts for now until I do option to separate parts
+    this.bars = this.bars
+      .map(part => part.bars)
+      .reduce((acc, val) => acc.concat(val), []);
 
     const positionedBars = this.bars.map((bar, i) => {
       const positionedBar = bar;
-      let idealWidth = bar.notes.length * widthFactor;
-      if (idealWidth > renderWidth) {
-        idealWidth = renderWidth;
+      let minWidth = bar.notes.length * widthFactor;
+
+      if (bar.decorations.includes(Vex.Flow.Barline.type.REPEAT_END)) {
+        minWidth += repeatWidthModifier;
+      }
+
+      if (minWidth > renderWidth) {
+        minWidth = renderWidth;
       }
 
       if (i === 0) { // first bar
         positionedBar.position.x = xOffset;
         positionedBar.position.y = 0;
-        positionedBar.position.width = idealWidth + clefsAndSigsWidth;
+        positionedBar.position.width = minWidth + clefsAndSigsWidth;
       } else if (this.bars[i - 1].position.x + this.bars[i - 1].position.width >= renderWidth) { // first bar on a new line
         positionedBar.position.x = xOffset;
         positionedBar.position.y = this.bars[i - 1].position.y + lineHeight;
-        positionedBar.position.width = idealWidth;
+        positionedBar.position.width = minWidth;
       } else { // bar on an incomplete line
         positionedBar.position.x = this.bars[i - 1].position.x + this.bars[i - 1].position.width;
         positionedBar.position.y = this.bars[i - 1].position.y;
-        positionedBar.position.width = idealWidth;
+        positionedBar.position.width = minWidth;
 
         // check if next bar won't fit or there is no next bar. actually this doesn't work
         // if there's only one bar on the final line
-        if (!this.bars[i + 1] || bar.position.x + idealWidth + (this.bars[i + 1].notes.length * widthFactor) > renderWidth) {
-          let extraSpace = (renderWidth - bar.position.x) - idealWidth;
+        if (!this.bars[i + 1] || bar.position.x + minWidth + (this.bars[i + 1].notes.length * widthFactor) > renderWidth) {
+          let extraSpace = (renderWidth - bar.position.x) - minWidth;
           let barsOnThisLine = 1;
 
           for (let j = i - 1; this.bars[j] && this.bars[j].position.y === bar.position.y; j -= 1) {
@@ -187,7 +221,7 @@ export default class Tune {
             spaceAdded += spaceToAdd;
           }
         } else {
-          positionedBar.position.width = idealWidth;
+          positionedBar.position.width = minWidth;
         }
       }
       return positionedBar;
@@ -206,8 +240,8 @@ export default class Tune {
     this.bars.forEach((bar, index) => {
       if (index === 0) {
         // to "split" the first stave w/ invisible bar line so that the modifiers don't mess up the tab note alignment
-        const clefsStave = new Stave(bar.position.x, bar.position.y, Math.floor(bar.position.width / 2), { right_bar: false });
-        const clefsTabStave = new TabStave(bar.position.x, bar.position.y + 50, Math.floor(bar.position.width / 2), { right_bar: false });
+        const clefsStave = new Stave(bar.position.x, bar.position.y, this.renderOptions.clefsAndSigsWidth, { right_bar: false });
+        const clefsTabStave = new TabStave(bar.position.x, bar.position.y + 50, this.renderOptions.clefsAndSigsWidth, { right_bar: false });
 
         clefsStave.setContext(context);
         clefsStave.setClef(clef);
@@ -218,8 +252,8 @@ export default class Tune {
         clefsTabStave.setContext(context);
         clefsTabStave.draw();
 
-        bar.position.x += Math.floor(bar.position.width / 2);
-        bar.position.width -= Math.floor(bar.position.width / 2);
+        bar.position.x += this.renderOptions.clefsAndSigsWidth;
+        bar.position.width -= this.renderOptions.clefsAndSigsWidth;
 
         stave = new Stave(bar.position.x, bar.position.y, bar.position.width, { left_bar: false });
         stave.setContext(context);
@@ -232,7 +266,7 @@ export default class Tune {
         tabStave.setContext(context);
       }
 
-      if (bar.volta.type !== 0) { // it's not type 0 which means not there...
+      if (bar.volta.number != 0) {
         stave.setVoltaType(bar.volta.type, bar.volta.number.toString(), 10);
       }
 

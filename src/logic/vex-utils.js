@@ -1,6 +1,8 @@
 import { Beam } from 'vexflow/src/beam';
 import Vex from 'vexflow';
 import NoteUtils from './note-utils';
+import { StaveNote } from 'vexflow/src/stavenote';
+import { TabNote } from 'vexflow/src/tabnote';
 
 export default {
 
@@ -141,6 +143,35 @@ export default {
     }
     return false;
   },
+  
+  generateVexNotes(obj, tuneAttrs) {
+    // PROCESS PROPERTIES INTO VEXFLOW-FRIENDLY FORMS
+    const keys = this.getKeys(obj.pitches);
+    const accidentals = this.getAccidentals(obj.pitches);
+    const { duration, isDotted } = this.getVexDuration(obj.duration);
+
+    // CREATE AND ADD MODIFIERS TO STAVE NOTE
+    const noteToAdd = new StaveNote({
+      clef: tuneAttrs.clef, keys, duration, auto_stem: true
+    });
+    if (isDotted) { noteToAdd.addDotToAll(); }
+    accidentals.forEach((accidental, i) => {
+      if (accidental) { noteToAdd.addAccidental(i, new Vex.Flow.Accidental(accidental)); }
+    });
+    if (obj.chord) {
+      noteToAdd.addModifier(0, new Vex.Flow.Annotation(obj.chord[0].name) // why [0]
+        .setVerticalJustification(Vex.Flow.Annotation.VerticalJustify.TOP));
+    }
+
+    // CREATE AND ADD MODIFIERS TO TAB NOTE
+    const tabNoteToAdd = new TabNote({
+      positions: this.getTabPosition(keys, accidentals, tuneAttrs.abcKeySignature),
+      duration
+    });
+    if (isDotted) { tabNoteToAdd.addDot(); }
+
+    return { noteToAdd, tabNoteToAdd };
+  },
 
   /*
         since the built in functions in abc parsed object doesn't seem to work
@@ -170,31 +201,31 @@ export default {
     return keys;
   },
 
-  getVolta(obj, length, barVoltaStarted, inVolta) {
-    if (!obj.endEnding) { // volta isn't ending right now
-      if (barVoltaStarted === length - 1) { // started last bar
-        return {
-          type: Vex.Flow.Volta.type.BEGIN,
-          number: inVolta
-        };
-      }
-      // started previously
+  // getVolta(obj, length, barVoltaStarted, inVolta) {
+  getVolta(obj) {
+    // this won't work for figuring out MID voltas but they probably won't occur anyway...
+    // don't really want to keep track of stuff between iterations
+    if (obj.startBarLine.startEnding && obj.endBarLine.endEnding) {
       return {
-        type: Vex.Flow.Volta.type.MID,
-        number: inVolta
+        number: obj.startBarLine.startEnding,
+        type: Vex.Flow.Volta.type.BEGIN_END
+      };
+    } else if (obj.startBarLine.startEnding) {
+      return {
+        number: obj.startBarLine.startEnding,
+        type: Vex.Flow.Volta.type.BEGIN
+      };  
+    } else if (obj.endBarLine.endEnding) {
+      return { // not going to be able to know the number
+        number: 0,
+        type: Vex.Flow.Voice.type.END
+      };
+    } else {
+      return {
+        number: 0,
+        type: 0
       };
     }
-    // volta IS ending right now
-    if (barVoltaStarted === length - 1) { // started last bar and is ending this one
-      return {
-        type: Vex.Flow.Volta.type.BEGIN_END,
-        number: inVolta
-      };
-    }
-    return {
-      type: Vex.Flow.Volta.type.END, // started some other time
-      number: inVolta
-    };
   },
 
   getVexDuration(abcDuration) {

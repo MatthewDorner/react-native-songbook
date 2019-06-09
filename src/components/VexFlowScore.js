@@ -67,11 +67,14 @@ export default class VexFlowScore extends PureComponent {
     context.setViewBox(0, 130, renderWidth + 5, 500);
 
     // for now, eventually some of these will be integrated into display settings functionality
+    // should these be expressed as fraction of renderWidth? aren't they changing relative
+    // size depending on the device the way it is now?
     const renderOptions = {
       xOffset: 3,
       widthFactor: 27,
       lineHeight: 190,
-      clefsAndSigsWidth: 120,
+      clefsAndSigsWidth: 90,
+      repeatWidthModifier: 30, // can't figure out why this is necessary but...
       renderWidth
     };
 

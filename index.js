@@ -14,7 +14,10 @@ YellowBox.ignoreWarnings([
 ]);
 
 RegisterScreens();
-Database.init(); // should I do something to wait until this completes before continuing?
+// should I do something to wait until this completes before continuing?
+// something like Promise.all() for this and loading the sound samples?
+// is not using a promsie the reason why sometimes the data doesn't appear to have loaded?
+Database.init();
 
 // a provisional solution for allowing CollectionBrowser to update the state in CurrentTune.
 // probably can use Redux to do the same thing but may not be worth it if this works. probably
@@ -22,6 +25,7 @@ Database.init(); // should I do something to wait until this completes before co
 
 // note: did not work when I created an object {} with these properties, but does work with a class and
 // then creating the object as an instance, would be interesting to know why this is
+
 const cb = function () {
   this.callback = undefined;
 };
