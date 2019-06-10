@@ -7,7 +7,8 @@ import { Formatter } from 'vexflow/src/formatter';
 import ABCJS from 'abcjs';
 import Bar from './bar';
 import VexUtils from './vex-utils';
-// import { objectExpression } from '@babel/types'; how did this get here
+import { StaveNote } from 'vexflow/src/stavenote';
+import { TabNote } from 'vexflow/src/tabnote';
 
 export default class Tune {
   constructor(abcString, renderOptions) {
@@ -38,8 +39,17 @@ export default class Tune {
 
     // PROCESS AND RENDER
     const structuredTune = this.parseTuneStructure(tuneObjArray);
-    this.bars = this.generateVexBars(structuredTune);
-    this.setBarPositions(); // will mutate this.bars
+    console.log('got structured tune: ');
+    console.log(structuredTune);
+    this.tuneData = this.generateVexObjects(structuredTune);
+    console.log('got tuneData: ');
+    console.log(this.tuneData);
+    this.removeEmptyBars();
+    console.log('after removing: ');
+    console.log(this.tuneData);
+    this.setBarPositions();
+    console.log('positioned bars: ');
+    console.log(this.tuneData);
   }
 
   parsePartStructure(partObjArray) {
@@ -86,10 +96,10 @@ export default class Tune {
   }
 
   parseTuneStructure(tuneObjArray) {
-    let parts = []; // array of PartRegion objects to return
+    let partRegions = []; // array of PartRegion objects to return
     function PartRegion(title) {
       this.title = title;
-      this.bars = []; // the BarRegion object defined in parsePartStructure()
+      this.barRegions = []; // the BarRegion object defined in parsePartStructure()
     }
 
     // variables that hold parser state + initialization of those
@@ -103,9 +113,9 @@ export default class Tune {
             // if the current part is still empty, just rename the current part
             currentPart.title = obj.title;
           } else {
-            // convert and apply bars to part, push to parts[]
-            currentPart.bars = this.parsePartStructure(currentPartObjects);            
-            parts.push(currentPart);
+            // convert and apply bars to part, push to partRegions[]
+            currentPart.barRegions = this.parsePartStructure(currentPartObjects);            
+            partRegions.push(currentPart);
             // reset the state variables
             currentPartObjects = [];
             currentPart = new PartRegion(obj.title);
@@ -119,67 +129,133 @@ export default class Tune {
 
     // deal with the final part also ignore final part if it's empty
     if (currentPartObjects.length > 0) {
-      currentPart.bars = this.parsePartStructure(currentPartObjects);            
-      parts.push(currentPart);
+      currentPart.barRegions = this.parsePartStructure(currentPartObjects);            
+      partRegions.push(currentPart);
     }
-    return parts;
+    return partRegions;
   }
 
-  generateVexBars(parts) {
+  generateVexObjects(partRegions) {
     // array of VexPart objects to return
-    const vexParts = [];
-    function VexPart(title) {
+    const parts = [];
+    function Part(title) {
       this.title = title;
       this.bars = []; // the Bar class from bar.js
     }
 
-    parts.forEach((part, i) => {
-      const currentVexPart = new VexPart(part.title);
-      vexParts.push(currentVexPart);
+    // state to keep track of through entire tune, reluctantly
+    let currentVexKeySignature = this.tuneAttrs.vexKeySignature;
 
-      part.bars.forEach((bar, i) => {
-        const currentVexBar = new Bar();
-        currentVexPart.bars.push(currentVexBar);
+    partRegions.forEach((partRegion, i) => {
+      const currentPart = new Part(partRegion.title);
+      parts.push(currentPart);
 
-        bar.contents.forEach((obj) => {
+      partRegion.barRegions.forEach((barRegion, i) => {
+        const currentBar = new Bar();
+        currentPart.bars.push(currentBar);
+
+        barRegion.contents.forEach((obj, i) => {
+          if (obj.el_type == 'key') {
+            currentAbcKeySignature = obj;
+            currentVexKeySignature = VexUtils.convertKeySignature(obj);
+            currentBar.keySig = currentVexKeySignature;
+            return;
+          }
 
           if (obj.rest || obj.el_type != 'note') {
             return; // TODO implement
           }
 
-          const { noteToAdd, tabNoteToAdd } = VexUtils.generateVexNotes(obj, this.tuneAttrs);
-          currentVexBar.notes.push(noteToAdd);
-          currentVexBar.tabNotes.push(tabNoteToAdd);
+          // PROCESS PROPERTIES INTO VEXFLOW-FRIENDLY FORMS
+          const keys = VexUtils.getKeys(obj.pitches);
+          const accidentals = VexUtils.getAccidentals(obj.pitches);
+          const { duration, isDotted } = VexUtils.getVexDuration(obj.duration);
+      
+          // CREATE AND ADD MODIFIERS TO STAVE NOTE
+          const noteToAdd = new StaveNote({
+            clef: this.tuneAttrs.clef, keys, duration, auto_stem: true
+          });
+          if (isDotted) { noteToAdd.addDotToAll(); }
+          accidentals.forEach((accidental, i) => {
+            if (accidental) { noteToAdd.addAccidental(i, new Vex.Flow.Accidental(accidental)); }
+          });
+          if (obj.chord) {
+            noteToAdd.addModifier(0, new Vex.Flow.Annotation(obj.chord[0].name) // why [0]
+              .setVerticalJustification(Vex.Flow.Annotation.VerticalJustify.TOP));
+          }
+
+          // CREATE AND ADD MODIFIERS TO TAB NOTE
+          const tabNoteToAdd = new TabNote({
+            positions: VexUtils.getTabPosition(keys, this.tuneAttrs.abcKeySignature, barRegion.contents, i),
+            duration
+          });
+          if (isDotted) { tabNoteToAdd.addDot(); }
+
+          currentBar.notes.push(noteToAdd);
+          currentBar.tabNotes.push(tabNoteToAdd);
+
         }); // end of bar.contents.forEach
 
-        currentVexBar.volta = VexUtils.getVolta(bar);
-        if (['bar_right_repeat', 'bar_dbl_repeat'].includes(bar.endBarLine.type)) {
-          currentVexBar.decorations.push(Vex.Flow.Barline.type.REPEAT_END);
-        } else if (['bar_left_repeat', 'bar_dbl_repeat'].includes(bar.startBarLine.type)) {
-          currentVexBar.decorations.push(Vex.Flow.Barline.type.REPEAT_BEGIN);
+        currentBar.volta = VexUtils.getVolta(barRegion);
+
+        if (['bar_right_repeat', 'bar_dbl_repeat'].includes(barRegion.endBarLine.type)) {
+          currentBar.repeats.push(Vex.Flow.Barline.type.REPEAT_END);
+        }
+        if (['bar_left_repeat', 'bar_dbl_repeat'].includes(barRegion.startBarLine.type)) {
+          currentBar.repeats.push(Vex.Flow.Barline.type.REPEAT_BEGIN);
         }
 
-        currentVexBar.beams = Beam.generateBeams(currentVexBar.notes);
+        currentBar.beams = Beam.generateBeams(currentBar.notes);
       }); // end of part.bars.forEach
     }); // end of parts.forEach
-    return vexParts;
+    return parts;
+  }
+
+  removeEmptyBars() {
+    this.tuneData = this.tuneData.map(function(part) {
+      let bars = part.bars.filter(function(bar, i) {
+        if (bar.notes.length == 0) {
+
+          // NEED THIS TO ALSO SHIFT KEY-SIG CHANGES, AS WELL AS REMEMBER THAT THERE MIGHT BE
+          // ADDITIONAL THINGS IN THE FUTURE THAT WILL NEED TO BE INCLUDED
+
+          if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_END)) {
+            if (bars[i - 1]) {
+              bars[i - 1].repeats.push(Vex.Flow.Barline.type.REPEAT_END);
+            }
+          }
+          if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_BEGIN)) {
+            if (bars[i + 1]) {
+              bars[i + 1].repeats.push(Vex.Flow.Barline.type.REPEAT_BEGIN);
+            }
+          }
+
+          return false;
+        }
+        return true;
+      });
+      return {
+        title: part.title,
+        bars: bars
+      }
+    });
   }
 
   setBarPositions() {
     const {
-      renderWidth, xOffset, widthFactor, lineHeight, clefsAndSigsWidth, repeatWidthModifier
+      renderWidth, xOffset, widthFactor, lineHeight, clefsAndSigsWidth, repeatWidthModifier, minWidthMultiplier
     } = this.renderOptions;
 
     // flatten out the parts for now until I do option to separate parts
-    this.bars = this.bars
+    this.tuneData = this.tuneData
       .map(part => part.bars)
       .reduce((acc, val) => acc.concat(val), []);
 
-    const positionedBars = this.bars.map((bar, i) => {
+    this.tuneData = this.tuneData.map((bar, i) => {
       const positionedBar = bar;
       let minWidth = bar.notes.length * widthFactor;
 
-      if (bar.decorations.includes(Vex.Flow.Barline.type.REPEAT_END)) {
+      if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_END)) {
         minWidth += repeatWidthModifier;
       }
 
@@ -187,26 +263,30 @@ export default class Tune {
         minWidth = renderWidth;
       }
 
+      if (minWidth < widthFactor * minWidthMultiplier) {
+        minWidth = widthFactor * minWidthMultiplier;
+      }
+
       if (i === 0) { // first bar
         positionedBar.position.x = xOffset;
         positionedBar.position.y = 0;
         positionedBar.position.width = minWidth + clefsAndSigsWidth;
-      } else if (this.bars[i - 1].position.x + this.bars[i - 1].position.width >= renderWidth) { // first bar on a new line
+      } else if (this.tuneData[i - 1].position.x + this.tuneData[i - 1].position.width >= renderWidth) { // first bar on a new line
         positionedBar.position.x = xOffset;
-        positionedBar.position.y = this.bars[i - 1].position.y + lineHeight;
+        positionedBar.position.y = this.tuneData[i - 1].position.y + lineHeight;
         positionedBar.position.width = minWidth;
       } else { // bar on an incomplete line
-        positionedBar.position.x = this.bars[i - 1].position.x + this.bars[i - 1].position.width;
-        positionedBar.position.y = this.bars[i - 1].position.y;
+        positionedBar.position.x = this.tuneData[i - 1].position.x + this.tuneData[i - 1].position.width;
+        positionedBar.position.y = this.tuneData[i - 1].position.y;
         positionedBar.position.width = minWidth;
 
         // check if next bar won't fit or there is no next bar. actually this doesn't work
         // if there's only one bar on the final line
-        if (!this.bars[i + 1] || bar.position.x + minWidth + (this.bars[i + 1].notes.length * widthFactor) > renderWidth) {
+        if (!this.tuneData[i + 1] || bar.position.x + minWidth + (this.tuneData[i + 1].notes.length * widthFactor) > renderWidth) {
           let extraSpace = (renderWidth - bar.position.x) - minWidth;
           let barsOnThisLine = 1;
 
-          for (let j = i - 1; this.bars[j] && this.bars[j].position.y === bar.position.y; j -= 1) {
+          for (let j = i - 1; this.tuneData[j] && this.tuneData[j].position.y === bar.position.y; j -= 1) {
             barsOnThisLine += 1;
           }
 
@@ -215,8 +295,8 @@ export default class Tune {
           let spaceAdded = 0;
           for (let k = barsOnThisLine - 1; k >= 0; k -= 1) {
             const spaceToAdd = Math.floor(extraSpace / (k + 1));
-            this.bars[i - k].position.x += spaceAdded;
-            this.bars[i - k].position.width += spaceToAdd;
+            this.tuneData[i - k].position.x += spaceAdded;
+            this.tuneData[i - k].position.width += spaceToAdd;
             extraSpace -= spaceToAdd;
             spaceAdded += spaceToAdd;
           }
@@ -226,18 +306,17 @@ export default class Tune {
       }
       return positionedBar;
     });
-    this.bars = positionedBars;
   }
 
   // take positionedBars and draw it to the supplied VexFlow context
   drawToContext(context) {
-    if (!this.bars) {
+    if (!this.tuneData) {
       return;
     }
     const { clef, meter, vexKeySignature } = this.tuneAttrs;
     let stave;
     let tabStave;
-    this.bars.forEach((bar, index) => {
+    this.tuneData.forEach((bar, index) => {
       if (index === 0) {
         // to "split" the first stave w/ invisible bar line so that the modifiers don't mess up the tab note alignment
         const clefsStave = new Stave(bar.position.x, bar.position.y, this.renderOptions.clefsAndSigsWidth, { right_bar: false });
@@ -266,24 +345,22 @@ export default class Tune {
         tabStave.setContext(context);
       }
 
-      if (bar.volta.number != 0) {
+      if (bar.volta.type != 0) { // 0 is the initialized value. could init to 1 which is the same as type NONE
         stave.setVoltaType(bar.volta.type, bar.volta.number.toString(), 10);
       }
 
-      bar.decorations.forEach((decoration) => {
-        switch (decoration) {
-          case Vex.Flow.Barline.type.REPEAT_BEGIN:
-            stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
-            tabStave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
-            break;
-          case Vex.Flow.Barline.type.REPEAT_END:
-            stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
-            tabStave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
-            break;
-          default:
-            break;
-        }
-      });
+      if (bar.keySig != "") {
+        stave.setKeySignature(bar.keySig);
+      }
+
+      if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_BEGIN)) {
+        stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
+        tabStave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
+      }
+      if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_END)) {
+        stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
+        tabStave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);   
+      }
 
       // WHAT DOES VOICE EVEN DO? it seems like I wasn't doing anything wiht it before.
       const voice = new Voice({ num_beats: meter.charAt(0), beat_value: meter.charAt(2) });

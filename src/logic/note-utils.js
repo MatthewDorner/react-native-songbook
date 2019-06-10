@@ -37,11 +37,11 @@ export default {
 
   getSemitonesForAccidental(accidental) {
     const semitones = {
-      sharp: 1,
-      flat: -1,
-      dblsharp: 2,
-      dblflat: -2,
-      natural: 0
+      '#': 1,
+      'b': -1,
+      '##': 2,
+      'bb': -2,
+      'n': 0
     };
     return semitones[accidental];
   }

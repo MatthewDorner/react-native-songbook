@@ -73,11 +73,13 @@ export default class VexFlowScore extends PureComponent {
       xOffset: 3,
       widthFactor: 27,
       lineHeight: 190,
-      clefsAndSigsWidth: 90,
+      clefsAndSigsWidth: 100,
       repeatWidthModifier: 30, // can't figure out why this is necessary but...
+      minWidthMultiplier: 3, // minimum bar width should be that of a bar with 3 notes
       renderWidth
     };
 
+    // try/catch? to display error on screen or something
     const tuneParser = new Tune(tune, renderOptions);
     tuneParser.drawToContext(context);
 

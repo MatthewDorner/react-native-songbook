@@ -1,8 +1,6 @@
 import { Beam } from 'vexflow/src/beam';
 import Vex from 'vexflow';
 import NoteUtils from './note-utils';
-import { StaveNote } from 'vexflow/src/stavenote';
-import { TabNote } from 'vexflow/src/tabnote';
 
 export default {
 
@@ -37,37 +35,22 @@ export default {
         such as if C# was already in key signature but a C had a #
         accidental, it wouldn't do anything
     */
-  getTabPosition(keys, accidentals, keySignature) {
+  getTabPosition(keys, abcKeySignature, barContents, i) {
     const diatonicNote = NoteUtils.getDiatonicFromLetter(keys[0]);
     let chromaticNote = NoteUtils.getChromaticFromLetter(keys[0]);
 
-    // need double sharp and flat.. and natural actually
-    let noteIsSharped = false;
-    let noteIsFlatted = false;
+    let chromaticWithKeySigApplied = chromaticNote;
 
-    // encode 'sharp', 'flat', 'dblsharp', 'dblflat' as constants like +1, -1, +2, -2
-    // now USE THIS IN VexUtils:
-    // getSemitonesForAccidental(accidental) {
-    //   const semitones = {
-    //     sharp: 1,
-    //     flat: -1,
-    //     dblsharp: 2,
-    //     dblflat: -2,
-    //     natural: 0
-    //   };
-    //   return semitones[accidental];
-    // }
-
-    keySignature.accidentals.forEach((accidental) => {
+    abcKeySignature.accidentals.forEach((accidental) => {
       if (diatonicNote === NoteUtils.getDiatonicFromLetter(accidental.note)) {
         switch (accidental.acc) {
           case 'sharp':
-            chromaticNote += 1;
-            noteIsSharped = true;
+            chromaticWithKeySigApplied = chromaticNote + 1;
+            sharpedInKeySig = true;
             break;
           case 'flat':
-            chromaticNote -= 1;
-            noteIsFlatted = true;
+            chromaticWithKeySigApplied = chromaticNote - 1;
+            flattedInKeySig = true;
             break;
           default:
             break;
@@ -75,31 +58,22 @@ export default {
       }
     });
 
-    if (accidentals[0]) {
-      switch (accidentals[0]) {
-        case 'b':
-          if (!noteIsFlatted) {
-            chromaticNote -= 1;
+    let finalChromatic = chromaticWithKeySigApplied;
+
+    // the following code will need to be tested thoroughly, or simplified
+    barContents.forEach((previousObj, j) => {
+      if (previousObj.el_type === 'note') {
+        const previousKeys = this.getKeys(previousObj.pitches);      
+        if (i > j && this.getAccidentals(previousObj.pitches)[0]) {
+          if (diatonicNote === NoteUtils.getDiatonicFromLetter(previousKeys[0])) {
+            finalChromatic = chromaticNote + NoteUtils.getSemitonesForAccidental(this.getAccidentals(previousObj.pitches)[0]);
           }
-          break;
-        case 'bb':
-          chromaticNote -= 2;
-          break;
-        case '#':
-          if (!noteIsSharped) {
-            chromaticNote += 1;
-          }
-          break;
-        case '##':
-          chromaticNote += 2;
-          break;
-        default:
-          break;
+        }
       }
-    }
+    });
 
     const octave = keys[0].charAt(2);
-    const noteNumber = octave * 12 + chromaticNote;
+    const noteNumber = octave * 12 + finalChromatic;
     const lowestNoteNumber = 28; // number for e2, lowest note on guitar
     let fretsFromZero = noteNumber - lowestNoteNumber;
     // "guitar plays octave lower than it reads" so actually e3 will be the lowest supported
@@ -114,11 +88,14 @@ export default {
     let top = 6 - (Math.floor((fretsFromZero) / 5)); // math.floor?
 
     /*
-            i eventually want to handle it so that if there are a bunch of notes up higher
-            and mixed with lower notes, it'll put them all together in a higher position for
-            easier playing. then again most of these songs won't have that and those notes
-            will be pretty high above the treble clef..
-        */
+        i eventually want to handle it so that if there are a bunch of notes up higher
+        and mixed with lower notes, it'll put them all together in a higher position for
+        easier playing. then again most of these songs won't have that and those notes
+        will be pretty high above the treble clef..
+
+        however there are a couple notes where it would make sense to do this on the b string
+        so could just do it for those few cases
+    */
 
     if (top < 1) {
       left += (1 - top) * 5;
@@ -127,55 +104,35 @@ export default {
     return [{ str: top, fret: left }];
   },
 
-  /* used to convert the key sig returned from abcjs parser into what VexFlow takes.
-    */
-  convertKeySignature(abcKey) {
+  // used to convert the key sig returned from abcjs parser into what VexFlow takes.
+  convertKeySignature(abcKeySignature) {
     const { keySpecs } = Vex.Flow.keySignature;
-    if (abcKey.accidentals.length === 0) {
+    if (abcKeySignature.accidentals.length === 0) {
       return 'C';
     }
+
+    let numberOfAccidentals = 0;
+    let accidentalType = "";
+    abcKeySignature.accidentals.forEach(function(accidental) {
+      if (accidental.acc != 'natural') {
+        numberOfAccidentals += 1;
+        accidentalType = accidental.acc;
+      }
+    });
+
     for (const key in keySpecs) {
-      if (keySpecs[key].num == abcKey.accidentals.length) {
-        if (abcKey.accidentals[0].acc == 'sharp' && keySpecs[key].acc == '#'|| abcKey.accidentals[0].acc == 'flat' && keySpecs[key].acc == 'b') {
+      if (keySpecs[key].num == numberOfAccidentals) {
+        if (accidentalType == 'sharp' && keySpecs[key].acc == '#' || accidentalType == 'flat' && keySpecs[key].acc == 'b') {
           return key;
         }
       }
     }
     return false;
   },
-  
-  generateVexNotes(obj, tuneAttrs) {
-    // PROCESS PROPERTIES INTO VEXFLOW-FRIENDLY FORMS
-    const keys = this.getKeys(obj.pitches);
-    const accidentals = this.getAccidentals(obj.pitches);
-    const { duration, isDotted } = this.getVexDuration(obj.duration);
-
-    // CREATE AND ADD MODIFIERS TO STAVE NOTE
-    const noteToAdd = new StaveNote({
-      clef: tuneAttrs.clef, keys, duration, auto_stem: true
-    });
-    if (isDotted) { noteToAdd.addDotToAll(); }
-    accidentals.forEach((accidental, i) => {
-      if (accidental) { noteToAdd.addAccidental(i, new Vex.Flow.Accidental(accidental)); }
-    });
-    if (obj.chord) {
-      noteToAdd.addModifier(0, new Vex.Flow.Annotation(obj.chord[0].name) // why [0]
-        .setVerticalJustification(Vex.Flow.Annotation.VerticalJustify.TOP));
-    }
-
-    // CREATE AND ADD MODIFIERS TO TAB NOTE
-    const tabNoteToAdd = new TabNote({
-      positions: this.getTabPosition(keys, accidentals, tuneAttrs.abcKeySignature),
-      duration
-    });
-    if (isDotted) { tabNoteToAdd.addDot(); }
-
-    return { noteToAdd, tabNoteToAdd };
-  },
 
   /*
-        since the built in functions in abc parsed object doesn't seem to work
-    */
+    since the built in functions in abc parsed object doesn't seem to work
+  */
   getMeter(abcString) {
     const lines = abcString.split('\n');
     const meterLine = lines.filter(line => line.charAt(0) === 'M');
@@ -218,7 +175,7 @@ export default {
     } else if (obj.endBarLine.endEnding) {
       return { // not going to be able to know the number
         number: 0,
-        type: Vex.Flow.Voice.type.END
+        type: Vex.Flow.Volta.type.END
       };
     } else {
       return {

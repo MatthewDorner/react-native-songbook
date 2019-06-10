@@ -1,4 +1,5 @@
 import Constants from './constants';
+import Jigs from './jigs';
 
 export default {
   testCollections: [
@@ -22,7 +23,8 @@ export default {
       Type: Constants.CollectionTypes.SETLIST
     }
   ],
-  testTunes: 'X: 2\n\
+  testTunes: Jigs,
+  oldTestTunes: 'X: 2\n\
 T:Barry\'s Favourite\n\
 % Nottingham Music Database\n\
 S:Mick Peat\n\
@@ -134,6 +136,11 @@ dc|:"G"BGG DGG|BGB dcB|"Am"cAA EAA|cAc "D"edc|\n\
 "C"egg "G"dgg|"C"cgg "G"B2B|"Am"cBc "D"Adc|[1"G"BGG Gga:|[2"G"BGG G3|]\n\
 \n\
 \n\
+X:1\n\
+T:Accidentals\n\
+M:C\n\
+K:C\n\
+__A _A =A ^A ^^A|]\n\
 X: 307\n\
 T:Sweets of May\n\
 % Nottingham Music Database\n\

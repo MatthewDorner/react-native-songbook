@@ -4,7 +4,8 @@ export default class Bar {
     this.tabNotes = [];
     this.beams = [];
     this.decorations = [];
-    this.tabDecorations = [];
+    this.repeats = [];
+    this.keySig = "";
     this.volta = {
       type: 0,
       number: 0
