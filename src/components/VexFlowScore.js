@@ -5,6 +5,7 @@ import { Navigation } from 'react-native-navigation';
 import {
   StyleSheet,
   View,
+  Text,
   TouchableWithoutFeedback
 } from 'react-native';
 import Tune from '../logic/tune';
@@ -20,25 +21,26 @@ export default class VexFlowScore extends PureComponent {
 
   // log for unnecessary updates. think it should be good since switched to PureComponent though
   componentDidUpdate(prevProps, prevState) {
-    console.log('---------------------------------------------------');
-    console.log('VexFlowScore did update');
+    //console.log.log('---------------------------------------------------');
+    //console.log.log('VexFlowScore did update');
+    //console.log.log(new Date());
     Object.entries(this.props).forEach(([key, val]) => {
       if (prevProps[key] !== val) {
-        console.log(`Prop '${key}' changed`);
-        console.log(`${prevProps[key]} was not equal to ${val}`);
+        //console.log.log(`Prop '${key}' changed`);
+        //console.log.log(`${prevProps[key]} was not equal to ${val}`);
       }
     });
     Object.entries(this.state).forEach(([key, val]) => {
       if (prevState[key] !== val) {
-        console.log(`State '${key}' changed`);
-        console.log(`${prevState[key]} was not equal to ${val}`);
+        //console.log.log(`State '${key}' changed`);
+        //console.log.log(`${prevState[key]} was not equal to ${val}`);
       }
     });
-    console.log('---------------------------------------------------');
+    //console.log.log('---------------------------------------------------');
   }
 
   onPress() {
-    this.setState(prevState => ({ bottomTabsVisibility: !prevState.bottomTabsVisiblity }),
+    this.setState(prevState => ({ bottomTabsVisibility: !prevState.bottomTabsVisibility }),
       () => {
         const { bottomTabsVisibility } = this.state;
         Navigation.mergeOptions('CurrentTune', {
@@ -54,7 +56,7 @@ export default class VexFlowScore extends PureComponent {
     const { dimWidth, dimHeight, tune } = this.props;
     const context = new ReactNativeSVGContext(
       NotoFontPack,
-      { width: dimWidth * 0.90, height: dimHeight * 2 }
+      { width: dimWidth * 0.90, height: dimHeight * 3 }
     );
     let renderWidth;
     if (dimHeight > dimWidth) {
@@ -73,22 +75,31 @@ export default class VexFlowScore extends PureComponent {
       xOffset: 3,
       widthFactor: 27,
       lineHeight: 190,
-      clefsAndSigsWidth: 100,
-      repeatWidthModifier: 30, // can't figure out why this is necessary but...
-      minWidthMultiplier: 3, // minimum bar width should be that of a bar with 3 notes
+      clefWidth: 40,
+      meterWidth: 40,
+      repeatWidthModifier: 45, // can't figure out why this is necessary but...
+      // putting this to 2 makes it look better for the second part's lead-in, but makes it look worse
+      // for the lead-in notes in the very first bar........
+      minWidthMultiplier: 2, // minimum bar width should be that of a bar with 2 notes
       renderWidth
     };
 
     // try/catch? to display error on screen or something
     const tuneParser = new Tune(tune, renderOptions);
     tuneParser.drawToContext(context);
+    //console.log.log('after drawToContext: ' + new Date());
 
     return (
       <TouchableWithoutFeedback onPress={this.onPress}>
-        <View style={styles.container}>
-          {context.render()}
+        <View>
+          <View style={styles.container}>
+            {context.render()}
+          </View>
+          <View>
+            <Text style={styles.text}>{new Date().toString()}</Text>
+          </View>          
         </View>
-      </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>    
     );
   }
 }
@@ -97,4 +108,9 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
   },
+  text: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 100
+  }
 });

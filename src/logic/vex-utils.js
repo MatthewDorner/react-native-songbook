@@ -12,15 +12,42 @@ export default {
     beaming code ... this code only works right in 6/8 time
     though and I need all time signatures to work */
   generateBeams(notes) {
+
+    /* going to fix the issue of stem direction by mutating the notes themselves.. well reassigning
+    it would be meaningless, and returning it is unnecessary since I'm mutating it, but it clarifies.
+
+    so this works okay in 6/8 since it checks the first 3 notes and then the last 3. it has to be this
+    way because if there's 2 notes in the first half, then it won't accuratley check the second half if it
+    tries to do something like starting on note 4.
+
+    it'd have to actually check the duration and see what it adds up to... just because there's three
+    8th notes doesn't mean they should be beamed. only want to do it if it's the entire beat 1 or the
+    entire beat 2, or in 9/8 and 12/8, the entire 1, 2, 3, or 4 beat.  but the math wouldn't be that hard,
+    you just isolate the first 1, 2, 3, 4 and check if it consists of 3 8th notes, and if so, beam them.
+    if not... should it somehow run the auto-beam? it probably doesn't have to since I wouldn't want to beam
+    any set of 2 eighth notes in any situation, in this type of time signature, I don't think
+
+    ACTUALLY I WOULD WANT TO BEAM SETS OF 2 16TH NOTES, THOUGH... I GUESS AFTER CHECKING THAT THEY TOGETHER
+    FORM A 1/3 OF ONE OF THE MAJOR BEATS...
+    */
+
     const beams = [];
     if (notes[0] && notes[0].duration === '8' && notes[1] && notes[1].duration === '8' && notes[2] && notes[2].duration === '8') {
+      let direction = notes[0].getStemDirection();
+      notes[0].setStemDirection(direction);
+      notes[1].setStemDirection(direction);
+      notes[2].setStemDirection(direction)
       beams.push(new Beam([notes[0], notes[1], notes[2]]));
     }
     const l = notes.length;
     if (notes[l - 1] && notes[l - 1].duration === '8' && notes[l - 2] && notes[l - 2].duration === '8' && notes[l - 3] && notes[l - 3].duration === '8') {
+      let direction = notes[l-1].getStemDirection();
+      notes[l-1].setStemDirection(direction);
+      notes[l-2].setStemDirection(direction);
+      notes[l-3].setStemDirection(direction)
       beams.push(new Beam([notes[l - 1], notes[l - 2], notes[l - 3]]));
     }
-    return beams;
+    return { beams, notes };
   },
 
   /*
@@ -34,8 +61,17 @@ export default {
         APPLIED THAT is already in the key signature,
         such as if C# was already in key signature but a C had a #
         accidental, it wouldn't do anything
+
+        NOTE: it looks like abcjs includes the accidental every time, even if that note has already been
+        marked as the same accidental in the same bar. actually it's probably? doing whatever the abc 
+        music indicates. which means, we should check what the rules are when writing abc, are you
+        supposed to write an accidental each time you need one, or are you allowed to assume the
+        accidental will continue unless you use a natural. a good question is, does ABC include
+        a way of signing natural? yeah.. there are accidentals
+
     */
   getTabPosition(keys, abcKeySignature, barContents, i) {
+    // //console.log('getting tabPosition for note: ' + i);
     const diatonicNote = NoteUtils.getDiatonicFromLetter(keys[0]);
     let chromaticNote = NoteUtils.getChromaticFromLetter(keys[0]);
 
@@ -60,12 +96,23 @@ export default {
 
     let finalChromatic = chromaticWithKeySigApplied;
 
+    // will this work if there's one accidental eralier in the bar and then a different
+    // accidental later that overrides the first accidental for the same noot?
+
     // the following code will need to be tested thoroughly, or simplified
     barContents.forEach((previousObj, j) => {
-      if (previousObj.el_type === 'note') {
+      // //console.log('checking bar contents for accidentals: ' + j);
+      // //console.log('can this note apply to current one? ' + (i >= j));
+      if (previousObj.el_type === 'note' && !previousObj.rest) {
         const previousKeys = this.getKeys(previousObj.pitches);      
-        if (i > j && this.getAccidentals(previousObj.pitches)[0]) {
+        if (i >= j && this.getAccidentals(previousObj.pitches)[0]) {
           if (diatonicNote === NoteUtils.getDiatonicFromLetter(previousKeys[0])) {
+            if (j != i) {
+              //console.log('NOTICE!!!!!!! THIS ACCIDENTAL WAS APPLIED FROM 1 NOTE TO ANOTHER');
+            }
+            //console.log('applied accidental from: ' + j + ' to note: ' + i);
+            //console.log('accidental semitones change was: ' + NoteUtils.getSemitonesForAccidental(this.getAccidentals(previousObj.pitches)[0]));
+            //console.log('accidental was: ' + this.getAccidentals(previousObj.pitches)[0]);
             finalChromatic = chromaticNote + NoteUtils.getSemitonesForAccidental(this.getAccidentals(previousObj.pitches)[0]);
           }
         }

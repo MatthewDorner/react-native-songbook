@@ -6,9 +6,11 @@ import { Voice } from 'vexflow/src/voice';
 import { Formatter } from 'vexflow/src/formatter';
 import ABCJS from 'abcjs';
 import Bar from './bar';
+import Part from './part';
 import VexUtils from './vex-utils';
 import { StaveNote } from 'vexflow/src/stavenote';
 import { TabNote } from 'vexflow/src/tabnote';
+import TuneArrayParser from './tune-array-parser';
 
 export default class Tune {
   constructor(abcString, renderOptions) {
@@ -37,128 +39,56 @@ export default class Tune {
       vexKeySignature: VexUtils.convertKeySignature(parsedObject[0].lines[0].staff[0].key)
     };
 
+    /*
+      the idea I had of there being a "global" key signature vs. the local one that appears as an
+      element in the tune object array is not correct, see above tuneAttrs. actually there's a key
+      signature attached to staff[], and then there's one that can appear in the tune object array
+
+      consider how to treat these, and this can be done along with deciding whether to stop flattening
+      out the parsedObject, since will think about lines[], staff[], etc
+    */
+
     // PROCESS AND RENDER
-    const structuredTune = this.parseTuneStructure(tuneObjArray);
-    console.log('got structured tune: ');
+    const structuredTune = TuneArrayParser.parseTuneStructure(tuneObjArray);
+    console.log('got structuredTune: ' + new Date());
     console.log(structuredTune);
     this.tuneData = this.generateVexObjects(structuredTune);
-    console.log('got tuneData: ');
+    console.log('got tuneData: ' + new Date());
     console.log(this.tuneData);
     this.removeEmptyBars();
-    console.log('after removing: ');
+    console.log('removed emptyBars: ' + new Date());
     console.log(this.tuneData);
     this.setBarPositions();
-    console.log('positioned bars: ');
+    console.log('set positionings: ' + new Date());
     console.log(this.tuneData);
-  }
-
-  parsePartStructure(partObjArray) {
-    let bars = []; // array of BarRegion objects to return
-    function BarRegion() {
-      this.startBarLine = {};
-      this.endBarLine = {};
-      this.contents = [];
-    }
-
-    // variables that hold parser state + initialization of those
-    let currentBar = new BarRegion();
-    let currentBarObjects = [];
-
-    partObjArray.forEach((obj, i) => {
-      switch (obj.el_type) {
-        case 'bar':
-          if (i === 0) { // if it's the very first obj, just apply it to the (empty) currentBar
-            currentBar.startBarLine = obj;
-          } else { // apply the current bar and push
-            currentBar.endBarLine = obj;
-            currentBar.contents = currentBarObjects;
-            bars.push(currentBar);
-          }
-          if (i !== obj.length) { // reset the state 2 prepare for next bar
-            currentBar = new BarRegion();
-            currentBarObjects = [];
-            currentBar.startBarLine = obj;
-          }
-          break;
-        default:
-          currentBarObjects.push(obj);
-          break;
-      }
-    });
-
-    // deal with the last bar (if the last object was a barline, this shouldn't execute)
-    if (currentBarObjects.length > 0) {
-      currentBar.contents = currentBarObjects;
-      bars.push(currentBar);
-    }
-
-    return bars;
-  }
-
-  parseTuneStructure(tuneObjArray) {
-    let partRegions = []; // array of PartRegion objects to return
-    function PartRegion(title) {
-      this.title = title;
-      this.barRegions = []; // the BarRegion object defined in parsePartStructure()
-    }
-
-    // variables that hold parser state + initialization of those
-    let currentPart = new PartRegion("default");
-    let currentPartObjects = [];
-
-    tuneObjArray.forEach((obj) => {
-      switch (obj.el_type) {
-        case 'part':
-          if (currentPartObjects.length === 0) {
-            // if the current part is still empty, just rename the current part
-            currentPart.title = obj.title;
-          } else {
-            // convert and apply bars to part, push to partRegions[]
-            currentPart.barRegions = this.parsePartStructure(currentPartObjects);            
-            partRegions.push(currentPart);
-            // reset the state variables
-            currentPartObjects = [];
-            currentPart = new PartRegion(obj.title);
-          }
-          break;
-        default:
-          currentPartObjects.push(obj);
-          break;
-      }
-    });
-
-    // deal with the final part also ignore final part if it's empty
-    if (currentPartObjects.length > 0) {
-      currentPart.barRegions = this.parsePartStructure(currentPartObjects);            
-      partRegions.push(currentPart);
-    }
-    return partRegions;
   }
 
   generateVexObjects(partRegions) {
     // array of VexPart objects to return
     const parts = [];
-    function Part(title) {
-      this.title = title;
-      this.bars = []; // the Bar class from bar.js
-    }
 
     // state to keep track of through entire tune, reluctantly
     let currentVexKeySignature = this.tuneAttrs.vexKeySignature;
+    let currentAbcKeySignature = this.tuneAttrs.abcKeySignature;
 
-    partRegions.forEach((partRegion, i) => {
+    partRegions.forEach((partRegion, partIndex) => {
       const currentPart = new Part(partRegion.title);
       parts.push(currentPart);
 
-      partRegion.barRegions.forEach((barRegion, i) => {
+      // console.log('in generateVexObjects, part: ' + partIndex);
+
+      partRegion.barRegions.forEach((barRegion, barIndex) => {
         const currentBar = new Bar();
         currentPart.bars.push(currentBar);
 
-        barRegion.contents.forEach((obj, i) => {
+        //console.log('in generateVexObjects, bar: ' + barIndex);
+
+        barRegion.contents.forEach((obj, objIndex) => {
           if (obj.el_type == 'key') {
             currentAbcKeySignature = obj;
             currentVexKeySignature = VexUtils.convertKeySignature(obj);
-            currentBar.keySig = currentVexKeySignature;
+            currentBar.vexKeySignature = currentVexKeySignature;
+            currentBar.abcKeySignature = currentAbcKeySignature;
             return;
           }
 
@@ -170,7 +100,7 @@ export default class Tune {
           const keys = VexUtils.getKeys(obj.pitches);
           const accidentals = VexUtils.getAccidentals(obj.pitches);
           const { duration, isDotted } = VexUtils.getVexDuration(obj.duration);
-      
+
           // CREATE AND ADD MODIFIERS TO STAVE NOTE
           const noteToAdd = new StaveNote({
             clef: this.tuneAttrs.clef, keys, duration, auto_stem: true
@@ -186,7 +116,7 @@ export default class Tune {
 
           // CREATE AND ADD MODIFIERS TO TAB NOTE
           const tabNoteToAdd = new TabNote({
-            positions: VexUtils.getTabPosition(keys, this.tuneAttrs.abcKeySignature, barRegion.contents, i),
+            positions: VexUtils.getTabPosition(keys, this.tuneAttrs.abcKeySignature, barRegion.contents, objIndex),
             duration
           });
           if (isDotted) { tabNoteToAdd.addDot(); }
@@ -195,6 +125,19 @@ export default class Tune {
           currentBar.tabNotes.push(tabNoteToAdd);
 
         }); // end of bar.contents.forEach
+
+        if (partIndex === 0 && barIndex === 0) {
+          const { meter, clef, abcKeySignature, vexKeySignature } = this.tuneAttrs;
+          currentBar.clef = clef;
+          currentBar.meter = meter;
+          if (currentBar.vexKeySignature == '') {
+            // must avoid running this code if it's already got a key signature set due to the 'key' object
+            // being found in array... this check could be avoided if this code was placed above?? is there
+            // a reason all the bar stuff is down here?
+            currentBar.abcKeySignature = abcKeySignature;
+            currentBar.vexKeySignature = vexKeySignature;
+          }
+        }
 
         currentBar.volta = VexUtils.getVolta(barRegion);
 
@@ -205,28 +148,61 @@ export default class Tune {
           currentBar.repeats.push(Vex.Flow.Barline.type.REPEAT_BEGIN);
         }
 
-        currentBar.beams = Beam.generateBeams(currentBar.notes);
+        // only works right for 6/8 right now.
+        let { beams, notes } = VexUtils.generateBeams(currentBar.notes);
+        currentBar.beams = beams;
+        // because stem_direction is set (even though it gets mutated so it doesn't need to be assigned)
+        currentBar.notes = notes;
+
+        if (currentBar.beams.length === 0) {
+          currentBar.beams = Beam.generateBeams(currentBar.notes);
+        }
       }); // end of part.bars.forEach
     }); // end of parts.forEach
     return parts;
   }
 
   removeEmptyBars() {
-    this.tuneData = this.tuneData.map(function(part) {
-      let bars = part.bars.filter(function(bar, i) {
+    this.tuneData = this.tuneData.map((part, partIndex) => {
+      // ////console.log('removeEmptyBars going to part: ' + partIndex);
+      let bars = part.bars.filter((bar, i) => {
+        // ////console.log('removeEmptyBars going into part: ' + i);
         if (bar.notes.length == 0) {
 
           // NEED THIS TO ALSO SHIFT KEY-SIG CHANGES, AS WELL AS REMEMBER THAT THERE MIGHT BE
           // ADDITIONAL THINGS IN THE FUTURE THAT WILL NEED TO BE INCLUDED
+          // remember this could be avoided IF we stop collapsing all the lines together..
+
+          if (bar.vexKeySignature != '') {
+            if (i + 1 < part.bars.length) { // fiddle hill jig fails
+              bars[i+1].vexKeySignature = bar.vexKeySignature;
+              bars[i+1].abcKeySignature = bar.abcKeySignature;
+            } else {
+              ////console.log('partIndex was: ' + partIndex);
+              if (partIndex < (this.tuneData.length - 1) && this.tuneData[partIndex + 1].bars.length > 0) {
+                // shouldn't mutate this.tuneData here... how else can this be done?
+                // with a state that keeps record of whether a key sig change prepends the start
+                // of the next bar? that's not much better
+                this.tuneData[partIndex + 1].bars[0].vexKeySignature = bar.vexKeySignature;
+                this.tuneData[partIndex + 1].bars[0].abcKeySignature = bar.abcKeySignature;
+              } else {
+                ////console.log('LOST A KEY SIGNATURE'); // how to handle htis?
+              }
+            }
+          }
 
           if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_END)) {
-            if (bars[i - 1]) {
+            if (i > 0) {
               bars[i - 1].repeats.push(Vex.Flow.Barline.type.REPEAT_END);
+            } else {
+              console.log('LOST A REPEAT_END');
             }
           }
           if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_BEGIN)) {
-            if (bars[i + 1]) {
+            if (i > 0) {
               bars[i + 1].repeats.push(Vex.Flow.Barline.type.REPEAT_BEGIN);
+            } else {
+              console.log('LOST A REPEAT_BEGIN');
             }
           }
 
@@ -243,7 +219,7 @@ export default class Tune {
 
   setBarPositions() {
     const {
-      renderWidth, xOffset, widthFactor, lineHeight, clefsAndSigsWidth, repeatWidthModifier, minWidthMultiplier
+      renderWidth, xOffset, widthFactor, lineHeight, clefWidth, meterWidth, repeatWidthModifier, minWidthMultiplier
     } = this.renderOptions;
 
     // flatten out the parts for now until I do option to separate parts
@@ -259,18 +235,26 @@ export default class Tune {
         minWidth += repeatWidthModifier;
       }
 
-      if (minWidth > renderWidth) {
-        minWidth = renderWidth;
-      }
+      if (minWidth > renderWidth) { minWidth = renderWidth; }
 
       if (minWidth < widthFactor * minWidthMultiplier) {
         minWidth = widthFactor * minWidthMultiplier;
       }
+      if (bar.clef) { bar.clefSigMeterWidth += clefWidth; }
+      if (bar.meter) { bar.clefSigMeterWidth += meterWidth; }
+
+      if (bar.vexKeySignature != "") { // checking 4 vex because I check for it in other cases...
+        bar.clefSigMeterWidth += bar.abcKeySignature.accidentals.length * 12; // 12... but this will be changed
+      }
+
+      // clefSigMeterWidth is left on the bar object becuase it's used in drawToContext
+      minWidth += bar.clefSigMeterWidth;
 
       if (i === 0) { // first bar
         positionedBar.position.x = xOffset;
         positionedBar.position.y = 0;
-        positionedBar.position.width = minWidth + clefsAndSigsWidth;
+        // positionedBar.position.width = minWidth + clefsAndSigsWidth;
+        positionedBar.position.width = minWidth; // already applied the clef, meter and sigs above
       } else if (this.tuneData[i - 1].position.x + this.tuneData[i - 1].position.width >= renderWidth) { // first bar on a new line
         positionedBar.position.x = xOffset;
         positionedBar.position.y = this.tuneData[i - 1].position.y + lineHeight;
@@ -313,26 +297,27 @@ export default class Tune {
     if (!this.tuneData) {
       return;
     }
-    const { clef, meter, vexKeySignature } = this.tuneAttrs;
+
     let stave;
     let tabStave;
+
     this.tuneData.forEach((bar, index) => {
-      if (index === 0) {
+      if (bar.clefSigMeterWidth > 0) {
         // to "split" the first stave w/ invisible bar line so that the modifiers don't mess up the tab note alignment
-        const clefsStave = new Stave(bar.position.x, bar.position.y, this.renderOptions.clefsAndSigsWidth, { right_bar: false });
-        const clefsTabStave = new TabStave(bar.position.x, bar.position.y + 50, this.renderOptions.clefsAndSigsWidth, { right_bar: false });
-
+        const clefsStave = new Stave(bar.position.x, bar.position.y, bar.clefSigMeterWidth, { right_bar: false });
+        const clefsTabStave = new TabStave(bar.position.x, bar.position.y + 50, bar.clefSigMeterWidth, { right_bar: false });
         clefsStave.setContext(context);
-        clefsStave.setClef(clef);
-        clefsStave.setKeySignature(vexKeySignature);
-        clefsStave.setTimeSignature(meter);
-        clefsStave.draw();
-
         clefsTabStave.setContext(context);
+
+        if (bar.clef != "") { clefsStave.setClef(bar.clef); }
+        if (bar.vexKeySignature != "") { clefsStave.setKeySignature(bar.vexKeySignature); }
+        if (bar.meter != "") { clefsStave.setTimeSignature(bar.meter); }
+
+        clefsStave.draw();
         clefsTabStave.draw();
 
-        bar.position.x += this.renderOptions.clefsAndSigsWidth;
-        bar.position.width -= this.renderOptions.clefsAndSigsWidth;
+        bar.position.x += bar.clefSigMeterWidth;
+        bar.position.width -= bar.clefSigMeterWidth;
 
         stave = new Stave(bar.position.x, bar.position.y, bar.position.width, { left_bar: false });
         stave.setContext(context);
@@ -346,11 +331,7 @@ export default class Tune {
       }
 
       if (bar.volta.type != 0) { // 0 is the initialized value. could init to 1 which is the same as type NONE
-        stave.setVoltaType(bar.volta.type, bar.volta.number.toString(), 10);
-      }
-
-      if (bar.keySig != "") {
-        stave.setKeySignature(bar.keySig);
+        stave.setVoltaType(bar.volta.type, bar.volta.number.toString(), 15);
       }
 
       if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_BEGIN)) {
@@ -363,9 +344,9 @@ export default class Tune {
       }
 
       // WHAT DOES VOICE EVEN DO? it seems like I wasn't doing anything wiht it before.
-      const voice = new Voice({ num_beats: meter.charAt(0), beat_value: meter.charAt(2) });
-      voice.setStrict(false);
-      voice.addTickables(bar.notes);
+      // const voice = new Voice({ num_beats: meter.charAt(0), beat_value: meter.charAt(2) });
+      // voice.setStrict(false);
+      // voice.addTickables(bar.notes);
 
       // DRAW
       stave.draw();
