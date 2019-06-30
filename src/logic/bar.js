@@ -9,10 +9,12 @@ export default class Bar {
     this.abcKeySignature = {};
     this.clef = "";
     this.meter = "";
+    this.dottedNotesCount = 0;
     this.volta = {
       type: 0,
       number: 0
     };
+    // this should be in .position
     this.clefSigMeterWidth = 0; // this is the width of the "invisible" extra bar to be drawn if necessary
     this.position = {
       x: 0,

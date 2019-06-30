@@ -4,6 +4,7 @@ import { Stave } from 'vexflow/src/stave';
 import { TabStave } from 'vexflow/src/tabstave';
 import { Voice } from 'vexflow/src/voice';
 import { Formatter } from 'vexflow/src/formatter';
+import { StaveTie } from 'vexflow/src/stavetie';
 import ABCJS from 'abcjs';
 import Bar from './bar';
 import Part from './part';
@@ -18,14 +19,14 @@ export default class Tune {
 
     // GET THE PARSED OBJECT AND PROPERTIES
     const parsedObject = ABCJS.parseOnly(abcString);
-    console.log('got parsedObject:');
-    console.log(parsedObject);
+    // console.log('got parsedObject:');
+    // console.log(parsedObject);
 
     const tuneObjArray = parsedObject[0].lines
       .map(line => line.staff[0].voices[0])
       .reduce((acc, val) => acc.concat(val), []);
-    console.log('got tuneObjArray:');
-    console.log(tuneObjArray);
+    // console.log('got tuneObjArray:');
+    // console.log(tuneObjArray);
 
     if (!parsedObject[0].lines[0]) {
       return; // context will be empty and can be rendered to blank
@@ -39,28 +40,19 @@ export default class Tune {
       vexKeySignature: VexUtils.convertKeySignature(parsedObject[0].lines[0].staff[0].key)
     };
 
-    /*
-      the idea I had of there being a "global" key signature vs. the local one that appears as an
-      element in the tune object array is not correct, see above tuneAttrs. actually there's a key
-      signature attached to staff[], and then there's one that can appear in the tune object array
-
-      consider how to treat these, and this can be done along with deciding whether to stop flattening
-      out the parsedObject, since will think about lines[], staff[], etc
-    */
-
     // PROCESS AND RENDER
     const structuredTune = TuneArrayParser.parseTuneStructure(tuneObjArray);
-    console.log('got structuredTune: ' + new Date());
-    console.log(structuredTune);
+    // console.log('got structuredTune: ' + new Date());
+    // console.log(structuredTune);
     this.tuneData = this.generateVexObjects(structuredTune);
-    console.log('got tuneData: ' + new Date());
-    console.log(this.tuneData);
+    // console.log('got tuneData: ' + new Date());
+    // console.log(this.tuneData);
     this.removeEmptyBars();
-    console.log('removed emptyBars: ' + new Date());
-    console.log(this.tuneData);
+    // console.log('removed emptyBars: ' + new Date());
+    // console.log(this.tuneData);
     this.setBarPositions();
-    console.log('set positionings: ' + new Date());
-    console.log(this.tuneData);
+    // console.log('set positionings: ' + new Date());
+    // console.log(this.tuneData);
   }
 
   generateVexObjects(partRegions) {
@@ -75,13 +67,9 @@ export default class Tune {
       const currentPart = new Part(partRegion.title);
       parts.push(currentPart);
 
-      // console.log('in generateVexObjects, part: ' + partIndex);
-
       partRegion.barRegions.forEach((barRegion, barIndex) => {
         const currentBar = new Bar();
         currentPart.bars.push(currentBar);
-
-        //console.log('in generateVexObjects, bar: ' + barIndex);
 
         barRegion.contents.forEach((obj, objIndex) => {
           if (obj.el_type == 'key') {
@@ -92,8 +80,39 @@ export default class Tune {
             return;
           }
 
-          if (obj.rest || obj.el_type != 'note') {
-            return; // TODO implement
+          if (obj.rest) {
+            /*
+              assume it's just .duration...
+              new VF.StaveNote({clef: "treble", keys: ["b/4"], duration: "qr" })
+              keys defines its vertical position, so always b/4 I guess
+
+
+            */
+
+            const { duration, isDotted } = VexUtils.getVexDuration(obj.duration);
+            const noteToAdd = new StaveNote({
+              clef: this.tuneAttrs.clef, keys: ["b/4"], duration: duration + 'r'
+            });
+            if (isDotted) {
+              noteToAdd.addDotToAll();
+              currentBar.dottedNotesCount += 1;
+            }
+            if (obj.chord) {
+              let chordName = obj.chord[0].name;
+              if (chordName.includes('♭')) {
+                chordName = chordName.replace('♭', 'b');
+              } // sharps don't cause a problem
+  
+              noteToAdd.addModifier(0, new Vex.Flow.Annotation(chordName)
+                .setVerticalJustification(Vex.Flow.Annotation.VerticalJustify.TOP));
+            }
+
+            currentBar.notes.push(noteToAdd);
+            return;
+          }
+
+          if (obj.el_type != 'note') {
+            return; // what else could it be?
           }
 
           // PROCESS PROPERTIES INTO VEXFLOW-FRIENDLY FORMS
@@ -105,12 +124,21 @@ export default class Tune {
           const noteToAdd = new StaveNote({
             clef: this.tuneAttrs.clef, keys, duration, auto_stem: true
           });
-          if (isDotted) { noteToAdd.addDotToAll(); }
+          if (isDotted) {
+            noteToAdd.addDotToAll();
+            currentBar.dottedNotesCount += 1;
+          }
           accidentals.forEach((accidental, i) => {
             if (accidental) { noteToAdd.addAccidental(i, new Vex.Flow.Accidental(accidental)); }
           });
+
           if (obj.chord) {
-            noteToAdd.addModifier(0, new Vex.Flow.Annotation(obj.chord[0].name) // why [0]
+            let chordName = obj.chord[0].name;
+            if (chordName.includes('♭')) {
+              chordName = chordName.replace('♭', 'b');
+            } // sharps don't cause a problem
+
+            noteToAdd.addModifier(0, new Vex.Flow.Annotation(chordName)
               .setVerticalJustification(Vex.Flow.Annotation.VerticalJustify.TOP));
           }
 
@@ -149,14 +177,21 @@ export default class Tune {
         }
 
         // only works right for 6/8 right now.
-        let { beams, notes } = VexUtils.generateBeams(currentBar.notes);
-        currentBar.beams = beams;
-        // because stem_direction is set (even though it gets mutated so it doesn't need to be assigned)
-        currentBar.notes = notes;
-
-        if (currentBar.beams.length === 0) {
+        const { meter } = this.tuneAttrs;
+        if (meter == '3/8' || meter == '6/8' || meter == '9/8' || meter == '12/8') {
+          currentBar.beams = VexUtils.generateBeamsCompound(currentBar.notes);
+        } else {
           currentBar.beams = Beam.generateBeams(currentBar.notes);
         }
+
+        // let { beams, notes } = VexUtils.generateBeams(currentBar.notes); 
+        // currentBar.beams = beams;
+        // because stem_direction is set (even though it gets mutated so it doesn't need to be assigned)
+        // currentBar.notes = notes;
+
+        // if (currentBar.beams.length === 0) {
+        //   currentBar.beams = Beam.generateBeams(currentBar.notes);
+        // }
       }); // end of part.bars.forEach
     }); // end of parts.forEach
     return parts;
@@ -164,29 +199,19 @@ export default class Tune {
 
   removeEmptyBars() {
     this.tuneData = this.tuneData.map((part, partIndex) => {
-      // ////console.log('removeEmptyBars going to part: ' + partIndex);
       let bars = part.bars.filter((bar, i) => {
-        // ////console.log('removeEmptyBars going into part: ' + i);
         if (bar.notes.length == 0) {
-
-          // NEED THIS TO ALSO SHIFT KEY-SIG CHANGES, AS WELL AS REMEMBER THAT THERE MIGHT BE
-          // ADDITIONAL THINGS IN THE FUTURE THAT WILL NEED TO BE INCLUDED
-          // remember this could be avoided IF we stop collapsing all the lines together..
-
           if (bar.vexKeySignature != '') {
             if (i + 1 < part.bars.length) { // fiddle hill jig fails
-              bars[i+1].vexKeySignature = bar.vexKeySignature;
-              bars[i+1].abcKeySignature = bar.abcKeySignature;
+              part.bars[i+1].vexKeySignature = bar.vexKeySignature;
+              part.bars[i+1].abcKeySignature = bar.abcKeySignature;
             } else {
-              ////console.log('partIndex was: ' + partIndex);
               if (partIndex < (this.tuneData.length - 1) && this.tuneData[partIndex + 1].bars.length > 0) {
                 // shouldn't mutate this.tuneData here... how else can this be done?
-                // with a state that keeps record of whether a key sig change prepends the start
-                // of the next bar? that's not much better
                 this.tuneData[partIndex + 1].bars[0].vexKeySignature = bar.vexKeySignature;
                 this.tuneData[partIndex + 1].bars[0].abcKeySignature = bar.abcKeySignature;
               } else {
-                ////console.log('LOST A KEY SIGNATURE'); // how to handle htis?
+                // key signature gets lost?
               }
             }
           }
@@ -195,14 +220,14 @@ export default class Tune {
             if (i > 0) {
               bars[i - 1].repeats.push(Vex.Flow.Barline.type.REPEAT_END);
             } else {
-              console.log('LOST A REPEAT_END');
+              // console.log('LOST A REPEAT_END');
             }
           }
           if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_BEGIN)) {
             if (i > 0) {
               bars[i + 1].repeats.push(Vex.Flow.Barline.type.REPEAT_BEGIN);
             } else {
-              console.log('LOST A REPEAT_BEGIN');
+              // console.log('LOST A REPEAT_BEGIN');
             }
           }
 
@@ -219,76 +244,81 @@ export default class Tune {
 
   setBarPositions() {
     const {
-      renderWidth, xOffset, widthFactor, lineHeight, clefWidth, meterWidth, repeatWidthModifier, minWidthMultiplier
+      renderWidth, xOffset, widthFactor, lineHeight, clefWidth, meterWidth, repeatWidthModifier, minWidthMultiplier, dottedNotesModifier
     } = this.renderOptions;
 
-    // flatten out the parts for now until I do option to separate parts
-    this.tuneData = this.tuneData
-      .map(part => part.bars)
-      .reduce((acc, val) => acc.concat(val), []);
+    let yCursor = (0 - (lineHeight * 1.25));
 
-    this.tuneData = this.tuneData.map((bar, i) => {
-      const positionedBar = bar;
-      let minWidth = bar.notes.length * widthFactor;
+    this.tuneData = this.tuneData.map((part) => {
+      let bars = part.bars.map((bar, i) => {
+        const positionedBar = bar;
+        let minWidth = bar.notes.length * widthFactor;
 
-      if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_END)) {
-        minWidth += repeatWidthModifier;
-      }
-
-      if (minWidth > renderWidth) { minWidth = renderWidth; }
-
-      if (minWidth < widthFactor * minWidthMultiplier) {
-        minWidth = widthFactor * minWidthMultiplier;
-      }
-      if (bar.clef) { bar.clefSigMeterWidth += clefWidth; }
-      if (bar.meter) { bar.clefSigMeterWidth += meterWidth; }
-
-      if (bar.vexKeySignature != "") { // checking 4 vex because I check for it in other cases...
-        bar.clefSigMeterWidth += bar.abcKeySignature.accidentals.length * 12; // 12... but this will be changed
-      }
-
-      // clefSigMeterWidth is left on the bar object becuase it's used in drawToContext
-      minWidth += bar.clefSigMeterWidth;
-
-      if (i === 0) { // first bar
-        positionedBar.position.x = xOffset;
-        positionedBar.position.y = 0;
-        // positionedBar.position.width = minWidth + clefsAndSigsWidth;
-        positionedBar.position.width = minWidth; // already applied the clef, meter and sigs above
-      } else if (this.tuneData[i - 1].position.x + this.tuneData[i - 1].position.width >= renderWidth) { // first bar on a new line
-        positionedBar.position.x = xOffset;
-        positionedBar.position.y = this.tuneData[i - 1].position.y + lineHeight;
-        positionedBar.position.width = minWidth;
-      } else { // bar on an incomplete line
-        positionedBar.position.x = this.tuneData[i - 1].position.x + this.tuneData[i - 1].position.width;
-        positionedBar.position.y = this.tuneData[i - 1].position.y;
-        positionedBar.position.width = minWidth;
-
-        // check if next bar won't fit or there is no next bar. actually this doesn't work
-        // if there's only one bar on the final line
-        if (!this.tuneData[i + 1] || bar.position.x + minWidth + (this.tuneData[i + 1].notes.length * widthFactor) > renderWidth) {
-          let extraSpace = (renderWidth - bar.position.x) - minWidth;
-          let barsOnThisLine = 1;
-
-          for (let j = i - 1; this.tuneData[j] && this.tuneData[j].position.y === bar.position.y; j -= 1) {
-            barsOnThisLine += 1;
-          }
-
-          // if there will be extra space at the end because the next bar won't fit,
-          // divide the extra space equally between all the bars on this line
-          let spaceAdded = 0;
-          for (let k = barsOnThisLine - 1; k >= 0; k -= 1) {
-            const spaceToAdd = Math.floor(extraSpace / (k + 1));
-            this.tuneData[i - k].position.x += spaceAdded;
-            this.tuneData[i - k].position.width += spaceToAdd;
-            extraSpace -= spaceToAdd;
-            spaceAdded += spaceToAdd;
-          }
-        } else {
-          positionedBar.position.width = minWidth;
+        if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_END)) {
+          minWidth += repeatWidthModifier;
         }
+
+        minWidth += (dottedNotesModifier * bar.dottedNotesCount);
+  
+        if (minWidth > renderWidth) { minWidth = renderWidth; }
+  
+        if (minWidth < widthFactor * minWidthMultiplier) {
+          minWidth = widthFactor * minWidthMultiplier;
+        }
+        if (bar.clef) { bar.clefSigMeterWidth += clefWidth; }
+        if (bar.meter) { bar.clefSigMeterWidth += meterWidth; }
+  
+        if (bar.vexKeySignature != "") { // checking 4 vex because I check for it in other cases...
+          bar.clefSigMeterWidth += bar.abcKeySignature.accidentals.length * 14; // maybe 14 should be put in constant or renderOptions
+        }
+  
+        // clefSigMeterWidth is left on the bar object becuase it's used in drawToContext
+        minWidth += bar.clefSigMeterWidth;
+  
+        if (i === 0) { // first bar
+          positionedBar.position.x = xOffset;
+          positionedBar.position.y = (yCursor += (lineHeight * 1.25));
+          // positionedBar.position.width = minWidth + clefsAndSigsWidth;
+          positionedBar.position.width = minWidth; // already applied the clef, meter and sigs above
+        } else if (part.bars[i - 1].position.x + part.bars[i - 1].position.width >= renderWidth) { // first bar on a new line
+          positionedBar.position.x = xOffset;
+          positionedBar.position.y = (yCursor += lineHeight);
+          positionedBar.position.width = minWidth;
+        } else { // bar on an incomplete line
+          positionedBar.position.x = part.bars[i - 1].position.x + part.bars[i - 1].position.width;
+          positionedBar.position.y = yCursor;
+          positionedBar.position.width = minWidth;
+  
+          // check if next bar won't fit or there is no next bar. actually this doesn't work
+          // if there's only one bar on the final line
+          if (!part.bars[i + 1] || bar.position.x + minWidth + (part.bars[i + 1].notes.length * widthFactor) > renderWidth) {
+            let extraSpace = (renderWidth - bar.position.x) - minWidth;
+            let barsOnThisLine = 1;
+  
+            for (let j = i - 1; part.bars[j] && part.bars[j].position.y === bar.position.y; j -= 1) {
+              barsOnThisLine += 1;
+            }
+  
+            // if there will be extra space at the end because the next bar won't fit,
+            // divide the extra space equally between all the bars on this line
+            let spaceAdded = 0;
+            for (let k = barsOnThisLine - 1; k >= 0; k -= 1) {
+              const spaceToAdd = Math.floor(extraSpace / (k + 1));
+              part.bars[i - k].position.x += spaceAdded;
+              part.bars[i - k].position.width += spaceToAdd;
+              extraSpace -= spaceToAdd;
+              spaceAdded += spaceToAdd;
+            }
+          } else {
+            positionedBar.position.width = minWidth;
+          }
+        }
+        return positionedBar;
+      });
+      return {
+        title: part.title,
+        bars: bars
       }
-      return positionedBar;
     });
   }
 
@@ -301,59 +331,69 @@ export default class Tune {
     let stave;
     let tabStave;
 
-    this.tuneData.forEach((bar, index) => {
-      if (bar.clefSigMeterWidth > 0) {
-        // to "split" the first stave w/ invisible bar line so that the modifiers don't mess up the tab note alignment
-        const clefsStave = new Stave(bar.position.x, bar.position.y, bar.clefSigMeterWidth, { right_bar: false });
-        const clefsTabStave = new TabStave(bar.position.x, bar.position.y + 50, bar.clefSigMeterWidth, { right_bar: false });
-        clefsStave.setContext(context);
-        clefsTabStave.setContext(context);
+    this.tuneData.forEach((part) => {
+      part.bars.forEach((bar) => {
+        if (bar.clefSigMeterWidth > 0) {
+          const clefsStave = new Stave(bar.position.x, bar.position.y, bar.clefSigMeterWidth, { right_bar: false });
+          const clefsTabStave = new TabStave(bar.position.x, bar.position.y + 50, bar.clefSigMeterWidth, { right_bar: false });
 
-        if (bar.clef != "") { clefsStave.setClef(bar.clef); }
-        if (bar.vexKeySignature != "") { clefsStave.setKeySignature(bar.vexKeySignature); }
-        if (bar.meter != "") { clefsStave.setTimeSignature(bar.meter); }
+          // if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_BEGIN)) {
+          //   clefsStave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
+          //   clefsTabStave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
+          // }
 
-        clefsStave.draw();
-        clefsTabStave.draw();
+          // // begbar is always modifiers[0] endbar is always modifiers[1]
+          // // key sig gets set to modifiers[1]
 
-        bar.position.x += bar.clefSigMeterWidth;
-        bar.position.width -= bar.clefSigMeterWidth;
+          clefsStave.setContext(context);
+          clefsTabStave.setContext(context);
 
-        stave = new Stave(bar.position.x, bar.position.y, bar.position.width, { left_bar: false });
-        stave.setContext(context);
-        tabStave = new TabStave(bar.position.x, bar.position.y + 50, bar.position.width, { left_bar: false });
-        tabStave.setContext(context);
-      } else {
-        stave = new Stave(bar.position.x, bar.position.y, bar.position.width);
-        stave.setContext(context);
-        tabStave = new TabStave(bar.position.x, bar.position.y + 50, bar.position.width);
-        tabStave.setContext(context);
-      }
+          if (bar.clef != "") { clefsStave.setClef(bar.clef); }
+          if (bar.vexKeySignature != "") { clefsStave.setKeySignature(bar.vexKeySignature); }
+          if (bar.meter != "") { clefsStave.setTimeSignature(bar.meter); }
 
-      if (bar.volta.type != 0) { // 0 is the initialized value. could init to 1 which is the same as type NONE
-        stave.setVoltaType(bar.volta.type, bar.volta.number.toString(), 15);
-      }
+          clefsStave.draw();
+          clefsTabStave.draw();
+  
+          bar.position.x += bar.clefSigMeterWidth;
+          bar.position.width -= bar.clefSigMeterWidth;
+  
+          stave = new Stave(bar.position.x, bar.position.y, bar.position.width, { left_bar: false });
+          stave.setContext(context);
+          tabStave = new TabStave(bar.position.x, bar.position.y + 50, bar.position.width, { left_bar: false });
+          tabStave.setContext(context);
+        } else {
+          stave = new Stave(bar.position.x, bar.position.y, bar.position.width);
+          stave.setContext(context);
+          tabStave = new TabStave(bar.position.x, bar.position.y + 50, bar.position.width);
+          tabStave.setContext(context);
+        }
+  
+        if (bar.volta.type != 0) { // 0 is the initialized value. could init to 1 which is the same as type NONE
+          stave.setVoltaType(bar.volta.type, bar.volta.number.toString(), 15);
+        }
+  
+        if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_BEGIN)) {
+          stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
+          tabStave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
+        }
+        if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_END)) {
+          stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
+          tabStave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);   
+        }    
+  
+        // WHAT DOES VOICE EVEN DO? it seems like I wasn't doing anything wiht it before.
+        const voice = new Voice({ num_beats: this.tuneAttrs.meter.charAt(0), beat_value: this.tuneAttrs.meter.charAt(2) });
+        voice.setStrict(false);
+        voice.addTickables(bar.notes);
 
-      if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_BEGIN)) {
-        stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
-        tabStave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
-      }
-      if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_END)) {
-        stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
-        tabStave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);   
-      }
-
-      // WHAT DOES VOICE EVEN DO? it seems like I wasn't doing anything wiht it before.
-      // const voice = new Voice({ num_beats: meter.charAt(0), beat_value: meter.charAt(2) });
-      // voice.setStrict(false);
-      // voice.addTickables(bar.notes);
-
-      // DRAW
-      stave.draw();
-      Formatter.FormatAndDraw(context, stave, bar.notes);
-      bar.beams.forEach((b) => { b.setContext(context).draw(); });
-      tabStave.draw();
-      Formatter.FormatAndDraw(context, tabStave, bar.tabNotes);
+        // DRAW
+        stave.draw();
+        Formatter.FormatAndDraw(context, stave, bar.notes);
+        bar.beams.forEach((b) => { b.setContext(context).draw(); });
+        tabStave.draw();
+        Formatter.FormatAndDraw(context, tabStave, bar.tabNotes);
+      });
     });
   }
 }

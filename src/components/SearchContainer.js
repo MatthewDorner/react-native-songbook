@@ -12,28 +12,22 @@ export default class SearchContainer extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      keyFilter: '',
-      rhythmFilter: ''
-    };
   }
 
   render() {
     return (
       <View>
-        <Search ref="search_box" onSearch={this.props.onSearch} />
-        <View style={styles.searchContainer}>
+        <Search ref="search_box" onSearch={(searchText) => this.props.setSearchText(searchText)} onCancel={() => this.props.setSearchText('')} backgroundColor={'#fafafa'} titleCancelColor={'gray'}/>
+        <View style={styles.searchFiltersContainer}>
           <TextInput
-            onSubmitEditing={() => this.props.onSearch(this.refs.search_box.value, { rhythm: this.state.rhythmFilter, key: this.state.keyFilter })}
             style={[styles.searchFilter, { marginRight: 2.5 }]}
             placeholder="Rhythm"
-            onChangeText={text => this.setState({ rhythmFilter: text })}
+            onChangeText={text => this.props.setRhythmFilter(text)}
           />
           <TextInput
-            onSubmitEditing={() => this.props.onSearch(this.refs.search_box.value, { rhythm: this.state.rhythmFilter, key: this.state.keyFilter })}
             style={[styles.searchFilter, { marginLeft: 2.5 }]}
             placeholder="Key"
-            onChangeText={text => this.setState({ keyFilter: text })}
+            onChangeText={text => this.props.setKeyFilter(text)}
           />
         </View>
       </View>
@@ -42,29 +36,26 @@ export default class SearchContainer extends Component {
 }
 
 const styles = StyleSheet.create({
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
   searchFilter: {
     textAlign: 'center',
     flex: 1,
     height: 30,
     paddingTop: 5,
     paddingBottom: 5,
-    // width: '45%',
-    borderColor: '#444',
-    backgroundColor: '#f7f7f7',
-    borderRadius: 5,
-    fontSize: 13,
-    borderWidth: 0,
-    marginLeft: 5,
-    marginRight: 5
+    width: '100%',
+    fontSize: 13
   },
-  searchContainer: {
-    height: 35,
+  searchFiltersContainer: {
+    
+    height: 40,
     flexDirection: 'row',
-    backgroundColor: 'grey'
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fafafa',
+    borderBottomWidth: 2,
+    borderTopWidth: 2,
+    borderBottomColor: 'lightgray',
+    borderTopColor: 'lightgray'
+
   }
 });

@@ -1,5 +1,6 @@
 import Constants from './constants';
 import Jigs from './jigs';
+import TiesAndSlurs from './ties-and-slurs';
 
 export default {
   defaultCollections: [

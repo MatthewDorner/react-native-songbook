@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import AbstractModal from './AbstractModal';
-import ModalStyles from '../styles/modal-styles';
-import Database from '../data-access/database';
-import Constants from '../logic/constants';
+import AbstractModal from '..//modals/AbstractModal';
+import ModalStyles from '../../styles/modal-styles';
+import Database from '../../data-access/database';
+import Constants from '../../logic/constants';
 
 import {
   Text,
@@ -52,9 +52,9 @@ export default class AddCollectionModal extends Component {
           onChangeText={text => this.setState({ name: text })}
         />
 
-        {/* <Text style={ModalStyles.message}>
-          Songs can belong to any number of Setlists.
-        </Text> */}
+        <Text style={ModalStyles.message}>
+          A Tune can belong to any number of Setlists.
+        </Text>
 
       </AbstractModal>
     );

@@ -8,14 +8,6 @@ import Constants from '../logic/constants';
 export default {
   db: null,
 
-  /*
-    every db function returns a promise
-
-    get something from database: resolve with records
-    input single record: resolve with res of individual statement (has insertId)
-    input multiple records: resolve with res of transaction
-  */
-
   init() {
     return new Promise((resolve, reject) => {
       this.db = SQLite.openDatabase('tunebook.db', '1.0', '', 1);
@@ -120,6 +112,13 @@ export default {
               key = line.slice(2, line.length);
             }
           });
+          // these lines starting with 'Y:' cause abcjs to error, but should be replaced by 'P:'
+          cleanedTune = tune.split('\n').filter((line) => {
+            if (line.startsWith('Y:')) {
+              return false;
+            }
+            return true;
+          }).join('\n');
 
           let collectionDest, setlists;
           if (!collection) {
@@ -129,7 +128,7 @@ export default {
             collectionDest = collection;
             setlists = '';
           }
-          txn.executeSql(`insert into Tunes (Tune, Title, Rhythm, Key, Collection, Setlists) VALUES ("${tune}", "${title}", "${rhythm}", "${key}", "${collectionDest}", "${setlists}")`, [], (tx, res) => {
+          txn.executeSql(`insert into Tunes (Tune, Title, Rhythm, Key, Collection, Setlists) VALUES ("${cleanedTune}", "${title}", "${rhythm}", "${key}", "${collectionDest}", "${setlists}")`, [], (tx, res) => {
             songsAdded += 1;
           });
         });
@@ -156,14 +155,74 @@ export default {
     });
   },
 
+  deleteTune(tune) {
+    return new Promise((resolve, reject) => {
+      let sqlResult;
+      this.db.transaction((txn) => {
+        txn.executeSql(`delete from Tunes where rowid = "${tune.rowid}"`, [], (tx, res) => {
+          sqlResult = res;
+        });
+      }, (error) => {
+        reject(error);
+      }, () => {
+        resolve(sqlResult);
+      });
+    });
+  },
+
+  deleteCollection(rowid) {
+    return new Promise((resolve, reject) => {
+      let sqlResult;
+      this.db.transaction((txn) => {
+        txn.executeSql(`delete from Collections where rowid = "${rowid}"`, [], (tx, res) => {
+          sqlResult = res;
+        });
+      }, (error) => {
+        reject(error);
+      }, () => {
+        resolve(sqlResult);
+      });
+    });
+  },
+
+  removeTuneFromSetlist(tune, setlistId) {
+    return new Promise((resolve, reject) => {
+      let rowid = tune.rowid;
+      let prevSetlists = tune.Setlists;
+      let newSetlists;
+
+      let setlistSubstr = ',' + setlistId + ',';
+
+      if (prevSetlists.indexOf(setlistSubstr) != -1) {
+        if (prevSetlists == setlistSubstr) { // it's the only one
+          newSetlists = ''; 
+        } else {
+          newSetlists = prevSetlists.replace(setlistSubstr + ',', '');
+        }
+      } else {
+        // error, tune does not belong to setlist (how did you get here?)
+      }
+
+      let sql = 'update Tunes set Setlists = "' + newSetlists + '" where rowid = ' + rowid;
+
+      this.db.transaction((txn) => {
+        txn.executeSql(sql, [], (tx, res) => {
+          result = res;
+        });
+      }, (error) => {
+        reject(error)
+      }, () => {
+        resolve(result);
+      });
+    });
+  },
+
+  // still use this to add to setlist, not sure how want this to work w/ removeTuneFromSetlist
+  // maybe removeTuneFromSetlist can be a wrapper around this, or maybe all database operation
+  // methods should be moved to single place, such as db-operations.js, that use methods of
+  // database.js. would just need to pass some of the props into the db-operations.js methods
   updateTune(rowid, delta) {
     return new Promise((resolve, reject) => {
-
-      // should handle tune doesn't exist, delta empty, fields not in object
-
-      // UPDATE table_name
-      // SET column1 = value1, column2 = value2, ...
-      // WHERE condition;
 
       let update = 'update Tunes set ';
       let fields = '';
@@ -171,16 +230,10 @@ export default {
         fields += field + ' = "' + delta[field] + '",';
       }
       fields = fields.substring(0, fields.length - 1);
-    
       let where = ' where rowid = ' + rowid;
-
       let sql = update + fields + where;
 
-      //console.log('Database::updateTune, sql constructed: ');
-      //console.log(sql);
-
       let result;
-
       this.db.transaction((txn) => {
         txn.executeSql(sql, [], (tx, res) => {
           result = res;

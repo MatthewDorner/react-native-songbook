@@ -4,79 +4,51 @@ export default StyleSheet.create({
   title: {
     fontSize: 30,
     textAlign: 'center',
-    margin: 15,
+    margin: 15
   },
   nameInput: {
     fontSize: 20,
     margin: 15,
     backgroundColor: 'white',
-    borderRadius: 4,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: 'black',
+    width: '90%'
   },
   message: {
     fontSize: 20,
-    margin: 15
-    // textAlign: 'center',
-    // flex: 1,
-    // height: 30,
-    // paddingTop: 5,
-    // paddingBottom: 5,
-    // // width: '45%',
-    // borderColor: '#444',
-    // backgroundColor: '#f7f7f7',
-    // borderRadius: 5,
-    // fontSize: 13,
-    // borderWidth: 0,
-    // marginLeft: 5,
-    // marginRight: 5
+    margin: 15,
+    width: '90%'
   },
   infoContainer: {
-    margin: 15,
+    marginTop: 15,
+    marginBottom: 15,
+    marginLeft: 10,
+    marginRight: 10,
     flexDirection: 'row'
   },
-  // infoLabel: {
-  //   fontSize: 18,
-  //   backgroundColor: 'lightgrey'
-  // },
   infoItem: {
     fontSize: 18,
     backgroundColor: 'lightyellow',
     width: '100%',
     padding: 5
-    // height: 35,
-    // flexDirection: 'row',
-    // backgroundColor: 'grey'
   },
   modalFooter: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'flex-end',
-    height: 100
+    height: 80
   },
   modalContainer: {
-    textAlign: 'center',
+    // textAlign: 'center',
+    alignItems: 'center'
   },
-  modalButton: { // touchablehighlight
-    backgroundColor: 'white',
-    margin: 15,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: '#696969',
-    padding: 7
-  },
-  modalFooterButton: {
-    // backgroundColor: '#C6E2FF',
-    margin: 15,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: 'white',
-    padding: 7,
-    width: '80%'
-  },
-  modalButtonTitle: {
-    fontSize: 20,
-    color: '#696969'
+  tuneDetails: {
+    fontSize: 14,
+    fontFamily: 'monospace',
+    padding: 10,
+    margin: 10,
+    backgroundColor: 'lightyellow'
   }
 });
 

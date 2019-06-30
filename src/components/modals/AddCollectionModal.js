@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
 import RNFS from "react-native-fs";
-import AbstractModal from './AbstractModal';
-import ModalStyles from '../styles/modal-styles';
-import Database from '../data-access/database';
-import Constants from '../logic/constants';
+import AbstractModal from '../modals/AbstractModal';
+import ModalStyles from '../../styles/modal-styles';
+import ButtonStyles from '../../styles/button-styles';
+import Database from '../../data-access/database';
+import Constants from '../../logic/constants';
 
 import {
   Text,
@@ -31,10 +32,6 @@ export default class AddCollectionModal extends Component {
   async createCollectionOperation() {
     try {
       Database.addCollection(this.state.name, Constants.CollectionTypes.COLLECTION).then((res) => {
-        // res needs to contain the database obj with like the rowId...
-        //console.log('back in addCollectionModal, the response for addCollection was: ');
-        //console.log(res);
-
         if (this.state.importFilePath != '') {
           RNFS.readFile(this.state.importFilePath, "utf8").then((contents) => {
             // //console.log('got file contents: ');
@@ -62,7 +59,7 @@ export default class AddCollectionModal extends Component {
     DocumentPicker.show({
       filetype: [DocumentPickerUtil.allFiles()],
     },(error,res) => {
-      if (!res.fileName.endsWith('.abc') || res.fileName.endsWith('.txt')) {
+      if (!(res.fileName.endsWith('.abc') || res.fileName.endsWith('.txt'))) {
         // test that this works
         Alert.alert('Please select a file of type .abc or .txt');
       } else if (!error) {
@@ -86,19 +83,18 @@ export default class AddCollectionModal extends Component {
         />
 
         <Text style={ModalStyles.message}>
-          Select an ABC songbook from your device storage or leave File blank to create an empty Collection:
+          Select an ABC tunebook from your device storage or leave File blank to create an empty Collection:
         </Text>
 
         <TouchableHighlight
           underlayColor="lightgray"
           onPress={() => this.pickFile()}
-          style={ModalStyles.modalButton}
+          style={ButtonStyles.pickFileButton}
         >
-          <Text style={ModalStyles.modalButtonTitle}>Select a File</Text>
+          <Text style={ButtonStyles.buttonTitle}>Select a File</Text>
         </TouchableHighlight>
 
         <View style={ModalStyles.infoContainer}>
-          {/* <Text style={ModalStyles.infoLabel}>File:</Text> */}
           <Text style={ModalStyles.infoItem}>File: {this.state.importFileName}</Text>
         </View>
       </AbstractModal>

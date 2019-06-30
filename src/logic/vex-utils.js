@@ -4,50 +4,55 @@ import NoteUtils from './note-utils';
 
 export default {
 
-  /* this is to get the notes to group together correctly in jig timing, although there was a post
-    suggesting that the automatic beaming would work
-    for compound signatures (such as jig I think) but
-    it doesn't seem to. so instead I was going to use this code and if it doesn't find any beams of
-    3 eighth notes in either the first or second half of the measure, it will run the automatic
-    beaming code ... this code only works right in 6/8 time
-    though and I need all time signatures to work */
-  generateBeams(notes) {
+  /* calculate beams for compound time signatures */
+  generateBeamsCompound(notes) {
 
-    /* going to fix the issue of stem direction by mutating the notes themselves.. well reassigning
-    it would be meaningless, and returning it is unnecessary since I'm mutating it, but it clarifies.
+    let timeLeft = .375;
+    let notesToBeam = [];
+    let beams = [];
 
-    so this works okay in 6/8 since it checks the first 3 notes and then the last 3. it has to be this
-    way because if there's 2 notes in the first half, then it won't accuratley check the second half if it
-    tries to do something like starting on note 4.
+    notes.forEach((note, i) => {
+      let duration, isRest;
 
-    it'd have to actually check the duration and see what it adds up to... just because there's three
-    8th notes doesn't mean they should be beamed. only want to do it if it's the entire beat 1 or the
-    entire beat 2, or in 9/8 and 12/8, the entire 1, 2, 3, or 4 beat.  but the math wouldn't be that hard,
-    you just isolate the first 1, 2, 3, 4 and check if it consists of 3 8th notes, and if so, beam them.
-    if not... should it somehow run the auto-beam? it probably doesn't have to since I wouldn't want to beam
-    any set of 2 eighth notes in any situation, in this type of time signature, I don't think
+      if (note.duration.includes('r')) {
+        duration = 1 / (note.duration.slice(0,note.duration.indexOf('r')));
+        isRest = true;
+      } else {
+        duration = 1 / note.duration;
+        isRest = false;
+      }
 
-    ACTUALLY I WOULD WANT TO BEAM SETS OF 2 16TH NOTES, THOUGH... I GUESS AFTER CHECKING THAT THEY TOGETHER
-    FORM A 1/3 OF ONE OF THE MAJOR BEATS...
-    */
+      if (duration >= .250 || timeLeft <= 0) { // purge existing beams
+        if (notesToBeam.length > 1) {
+          let direction = notesToBeam[0].getStemDirection();
+          notesToBeam.forEach((note) => {
+            note.setStemDirection(direction);
+          });
+          beams.push(new Beam(notesToBeam));
+        }
+        if (timeLeft <= 0) {
+          timeLeft += .375;
+        }
+        notesToBeam = [];
+      }
 
-    const beams = [];
-    if (notes[0] && notes[0].duration === '8' && notes[1] && notes[1].duration === '8' && notes[2] && notes[2].duration === '8') {
-      let direction = notes[0].getStemDirection();
-      notes[0].setStemDirection(direction);
-      notes[1].setStemDirection(direction);
-      notes[2].setStemDirection(direction)
-      beams.push(new Beam([notes[0], notes[1], notes[2]]));
+      if (duration < .250 && timeLeft >= duration && !isRest) {
+        notesToBeam.push(note);
+      }
+      timeLeft -= duration;      
+    });
+
+    // deal w/ notes left over at end of iteration
+    if (notesToBeam.length > 1) {
+      let direction = notesToBeam[0].getStemDirection();
+      notesToBeam.forEach((note) => {
+        note.setStemDirection(direction);
+      });
+      
+      beams.push(new Beam(notesToBeam));
     }
-    const l = notes.length;
-    if (notes[l - 1] && notes[l - 1].duration === '8' && notes[l - 2] && notes[l - 2].duration === '8' && notes[l - 3] && notes[l - 3].duration === '8') {
-      let direction = notes[l-1].getStemDirection();
-      notes[l-1].setStemDirection(direction);
-      notes[l-2].setStemDirection(direction);
-      notes[l-3].setStemDirection(direction)
-      beams.push(new Beam([notes[l - 1], notes[l - 2], notes[l - 3]]));
-    }
-    return { beams, notes };
+
+    return beams;
   },
 
   /*

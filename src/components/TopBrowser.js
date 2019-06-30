@@ -9,16 +9,19 @@ import {
   Text,
   ScrollView,
   View,
-  TouchableHighlight
+  TouchableHighlight,
+  TouchableOpacity
 } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import Database from '../data-access/database';
 import Constants from '../logic/constants';
+import ButtonStyles from '../styles/button-styles';
 
-import AddCollectionModal from './AddCollectionModal';
-import AddSetlistModal from './AddSetlistModal';
-import DeleteCollectionModal from './DeleteCollectionModal';
-import DeleteSetlistModal from './DeleteSetlistModal';
+import AddCollectionModal from './modals/AddCollectionModal';
+import AddSetlistModal from './modals/AddSetlistModal';
+import DeleteCollectionModal from './modals/DeleteCollectionModal';
+import DeleteSetlistModal from './modals/DeleteSetlistModal';
+
 
 export default class TopBrowser extends Component {
   constructor(props) {
@@ -40,21 +43,23 @@ export default class TopBrowser extends Component {
     this.queryDatabaseState();
   }
 
-  showModal(action, type) {
+  showModal(action, item) {
+    console.log('showModal: ');
+    console.log('action: ' + action);
+    console.log('item: ' + item);
     let modalToShow;
     switch (action) {
-      case 'add':
-        if (type == Constants.CollectionTypes.COLLECTION) {
-          modalToShow = <AddCollectionModal closeModal={() => this.closeModal()} />;
-        } else if (type == Constants.CollectionTypes.SETLIST) {
-          modalToShow = <AddSetlistModal closeModal={() => this.closeModal()} />;
-        }
+      case 'addCollection':
+        modalToShow = <AddCollectionModal closeModal={() => this.closeModal()} />;
+        break;
+      case 'addSetlist':
+        modalToShow = <AddSetlistModal closeModal={() => this.closeModal()} />;
         break;
       case 'delete':
-        if (type == Constants.CollectionTypes.COLLECTION) {
-          modalToShow = <DeleteCollectionModal closeModal={() => this.closeModal()} />;
-        } else if (type == Constants.CollectionTypes.SETLIST) {
-          modalToShow = <DeleteSetlistModal closeModal={() => this.closeModal()} />;
+        if (item.Type == Constants.CollectionTypes.COLLECTION) {
+          modalToShow = <DeleteCollectionModal closeModal={() => this.closeModal()} item={item} />;
+        } else if (item.Type == Constants.CollectionTypes.SETLIST) {
+          modalToShow = <DeleteSetlistModal closeModal={() => this.closeModal()} item={item}/>;
         }
         break;
       default:
@@ -94,8 +99,7 @@ export default class TopBrowser extends Component {
 
   _renderCollectionsItem = ({ item }) => (
     <View style={styles.listItem}>
-      <TouchableHighlight
-        underlayColor="lightgray"
+      <TouchableOpacity
         onPress={() => {
           //console.log.log('pressed collection, the info was: ');
           //console.log.log(item);
@@ -114,7 +118,7 @@ export default class TopBrowser extends Component {
         <Text style={styles.listItemText}>
           {item.Name}
         </Text>
-      </TouchableHighlight>
+      </TouchableOpacity>
       <Picker
         // selectedValue={''}
         style={{height: 50, width: 30}}
@@ -122,11 +126,10 @@ export default class TopBrowser extends Component {
           //console.log.log('in picker onValueChange');
           //console.log.log('itemValue: ' + itemValue);
           //console.log.log('item.type: ' + item.Type);
-          this.showModal(itemValue, item.Type);
+          this.showModal(itemValue, item);
       }}>
         <Picker.Item label="Cancel" value="cancel" />
         <Picker.Item label="Delete" value="delete" />
-        <Picker.Item label="Merge" value="merge" />
       </Picker>
     </View>
   );
@@ -151,25 +154,17 @@ export default class TopBrowser extends Component {
             Collections
           </Text>
 
-
-          {/* <Button
-            onPress={() => this.showModal('add', Constants.CollectionTypes.COLLECTION)}
-            title="Add"
-            color="#841584"
-          /> */}
-
-
           <TouchableHighlight
-            style={styles.addCollectionButton}
+            style={ButtonStyles.addCollectionButton}
             underlayColor="lightgray"
-            onPress={() => this.showModal('add', Constants.CollectionTypes.COLLECTION)}
+            onPress={() => this.showModal('addCollection')}
           >
-            <Text style={styles.addCollectionButtonTitle}>Add</Text>
+            <Text style={ButtonStyles.buttonTitle}>+</Text>
           </TouchableHighlight>
 
         </View>
         <FlatList
-          contentContainerStyle={{ alignItems: 'center' }}
+          contentContainerStyle={{ alignItems: 'flex-start' }}
           extraData={this.state}
           data={this.state.collections}
           renderItem={this._renderCollectionsItem}
@@ -181,24 +176,18 @@ export default class TopBrowser extends Component {
             Setlists
           </Text>
 
-
-          {/* <Button
-            onPress={() => this.showModal('add', Constants.CollectionTypes.SETLIST)}
-            title="Add"
-            color="#841584"
-          /> */}
           <TouchableHighlight
-            style={styles.addCollectionButton}
+            style={ButtonStyles.addCollectionButton}
             underlayColor="lightgray"
-            onPress={() => this.showModal('add', Constants.CollectionTypes.SETLIST)}
+            onPress={() => this.showModal('addSetlist')}
           >
-            <Text style={styles.addCollectionButtonTitle}>Add</Text>
+            <Text style={ButtonStyles.buttonTitle}>+</Text>
           </TouchableHighlight>
 
 
         </View>
         <FlatList
-          contentContainerStyle={{ alignItems: 'center' }}
+          contentContainerStyle={{ alignItems: 'flex-start' }}
           extraData={this.state}
           data={this.state.setlists}
           renderItem={this._renderCollectionsItem}
@@ -210,36 +199,25 @@ export default class TopBrowser extends Component {
 }
 
 const styles = StyleSheet.create({
-  addCollectionButton: { // TouchableHighlight
-    backgroundColor: 'white',
-    margin: 15,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: '#696969',
-    padding: 7
-  },
-  addCollectionButtonTitle: { // Text
-    fontSize: 20,
-    color: '#696969'
-  },
   listItem: {
     flexDirection: 'row'
   },
   listItemText: {
     fontSize: 20,
     textAlign: 'left',
-    margin: 10,
+    margin: 10
   },
   sectionHeaderTitle: {
     fontSize: 30,
     textAlign: 'left',
-    margin: 10,
+    margin: 10
   },
   sectionHeaderContainer: {
     flexDirection: 'row'
   },
   modal: {
-    margin: 20,
+    marginTop: 15,
+    marginBottom: 5,
     borderRadius: 20,
     borderColor: 'black',
     borderWidth: 1
