@@ -31,7 +31,7 @@ export default StyleSheet.create({
     borderColor: 'silver',
     backgroundColor: 'white',
     padding: 7,
-    width: '80%',
+    width: '60%',
     alignItems: 'center',
     justifyContent: 'center'
   },

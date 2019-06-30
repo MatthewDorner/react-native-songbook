@@ -83,6 +83,7 @@ export default class VexFlowScore extends Component {
       // putting this to 2 makes it look better for the second part's lead-in, but makes it look worse
       // for the lead-in notes in the very first bar........
       dottedNotesModifier: 23,
+      keySigAccidentalWidth: 20, // used to be 14 or 16...
       minWidthMultiplier: 2, // minimum bar width should be that of a bar with 2 notes
       renderWidth
     };

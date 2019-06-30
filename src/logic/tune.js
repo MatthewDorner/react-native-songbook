@@ -244,7 +244,7 @@ export default class Tune {
 
   setBarPositions() {
     const {
-      renderWidth, xOffset, widthFactor, lineHeight, clefWidth, meterWidth, repeatWidthModifier, minWidthMultiplier, dottedNotesModifier
+      renderWidth, xOffset, widthFactor, lineHeight, clefWidth, meterWidth, repeatWidthModifier, minWidthMultiplier, dottedNotesModifier, keySigAccidentalWidth
     } = this.renderOptions;
 
     let yCursor = (0 - (lineHeight * 1.25));
@@ -269,7 +269,7 @@ export default class Tune {
         if (bar.meter) { bar.clefSigMeterWidth += meterWidth; }
   
         if (bar.vexKeySignature != "") { // checking 4 vex because I check for it in other cases...
-          bar.clefSigMeterWidth += bar.abcKeySignature.accidentals.length * 14; // maybe 14 should be put in constant or renderOptions
+          bar.clefSigMeterWidth += bar.abcKeySignature.accidentals.length * keySigAccidentalWidth;
         }
   
         // clefSigMeterWidth is left on the bar object becuase it's used in drawToContext

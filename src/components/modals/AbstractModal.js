@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import ModalStyles from '../styles/modal-styles';
-import ButtonStyles from '../styles/button-styles';
+import ModalStyles from '../../styles/modal-styles';
+import ButtonStyles from '../../styles/button-styles';
 
 import {
   StyleSheet,
