@@ -5,6 +5,7 @@ import AbstractModal from '../modals/AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
 import ButtonStyles from '../../styles/button-styles';
 import Database from '../../data-access/database';
+import DBOperations from '../../data-access/db-operations';
 import Constants from '../../logic/constants';
 
 import {
@@ -34,18 +35,12 @@ export default class AddCollectionModal extends Component {
       Database.addCollection(this.state.name, Constants.CollectionTypes.COLLECTION).then((res) => {
         if (this.state.importFilePath != '') {
           RNFS.readFile(this.state.importFilePath, "utf8").then((contents) => {
-            // //console.log('got file contents: ');
-            // //console.log(contents);
-            Database.importTuneBook(contents, res.insertId).then((songsAdded) => {
-              // alert that file was successfully imported?
+            DBOperations.importTuneBook(contents, res.insertId).then((songsAdded) => {
               Alert.alert('Imported Songbook Successfully', 'Imported ' + songsAdded + ' songs.');
-              // this.props.closeModal();
             });
           });
         }
-
         this.props.closeModal();
-
       }).catch((e) => {
         //console.log('failed to create collection, error was: ');
         //console.log(e);

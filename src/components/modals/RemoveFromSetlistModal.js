@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import AbstractModal from '../modals/AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
+import DBOperations from '../../data-access/db-operations';
 
 import {
   Text
@@ -11,19 +11,15 @@ export default class RemoveFromSetlistModal extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-    };
-
     this.removeFromSetlistOperation = this.removeFromSetlistOperation.bind(this);
   }
 
   async removeFromSetlistOperation() {
     try {
-      await Database.removeTuneFromSetlist(this.props.tune, this.props.collectionId);
+      await DBOperations.removeTuneFromSetlist(this.props.tune, this.props.collectionId);
     } catch (e) {
-      alert("exception in createSetlistOperation" + e);
+      alert("exception in removeFromSetlistOperation" + e);
     }
-
     this.props.closeModal();
   }
 

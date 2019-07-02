@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import AbstractModal from '../modals/AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
+import DBOperations from '../../data-access/db-operations';
 import Constants from '../../logic/constants';
 
 import {
@@ -28,38 +29,14 @@ export default class AddToSetlistModal extends Component {
     });
   }
 
-  addToSetlistOperation() {
+  async addToSetlistOperation() {
     try {
-      let rowid = this.props.tune.rowid;
-      let prevSetlists = this.props.tune.Setlists;
-      let newSetlists;
-
-      // bug prone, should find a better way
-      if (!prevSetlists.includes(',' + this.state.selectedSetlist + ',')) {
-        if (prevSetlists == '') {
-          newSetlists = ',' + this.state.selectedSetlist + ',';
-        } else {
-          newSetlists = prevSetlists + this.state.selectedSetlist + ',';
-        }
-      } else {
-        newSetlists = prevSetlists;
-      } // or make an error "already in setlist"
-
-      let tuneDelta = {
-        Setlists: newSetlists
-      };
-
-      Database.updateTune(rowid, tuneDelta).then((res) => {
-        this.props.closeModal();
-      }).catch((e) => {
-        //console.log('failed to add to setlist, error was: ');
-        //console.log(e);
-      });
+      await DBOperations.addTuneToSetlist(this.props.tune, this.state.selectedSetlist);
     } catch (e) {
-      alert("exception in createSetlistOperation" + e);
+      alert("exception in addToSetlistOperation" + e);
     }
+    this.props.closeModal();
   }
-
 
   render() {
     const setlistPickerOptions = this.state.setlists.map((setlist) => {

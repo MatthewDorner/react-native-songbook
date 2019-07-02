@@ -47,7 +47,6 @@ export default class MoveToCollectionModal extends Component {
     }
   }
 
-
   render() {
     const collectionPickerOptions = this.state.collections.map((collection) => {
       return <Picker.Item label={collection.Name} value={collection.rowid} key={collection.rowid} />

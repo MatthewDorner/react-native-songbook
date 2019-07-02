@@ -14,6 +14,7 @@ export default class CurrentTune extends Component {
     super(props);
 
     this.state = {
+      waiting: false,
       dimWidth: Dimensions.get('window').width,
       dimHeight: Dimensions.get('window').height,
       tune: {
@@ -26,27 +27,58 @@ export default class CurrentTune extends Component {
       const { width, height } = e.window;
       this.setState({
         dimWidth: width,
-        dimHeight: height
+        dimHeight: height,
+        waiting: true
+      }, () => {
+        setTimeout(() => {
+          this.setState({waiting: false});
+        }, 1);
       });
     });
 
     props.tuneChangeCallback.setCallback((tune) => {
-      Navigation.mergeOptions('CurrentTune', {
-        bottomTabs: {
-          currentTabIndex: 0
-        }
+      console.log('in tuneChangeCallack');
+      this.setState({ waiting: true }, () => {
+        setTimeout(() => {
+          console.log('in tuneChangeCallback, setState callback');
+          Navigation.mergeOptions('CurrentTune', {
+            bottomTabs: {
+              currentTabIndex: 0
+            }
+          });
+          console.log('going to set state waiting to false');
+          this.setState({ tune: tune, waiting: false });
+        }, 1); // timeout to allow it to render the wait message
       });
-      this.setState({ tune });
     });
   }
 
+
   render() {
+    // WHY IS THIS RUNNING WHEN I OPEN UP A COLLECTION IN THE OTHER TAB!!!!!
+    console.log('in render of currentTune, waiting was: ' + this.state.waiting);
+    let content;
+    if (this.state.waiting == false) {
+      content = [
+        <Text style={styles.welcome} key='welcome'>
+          {this.state.tune.Title}
+        </Text>,
+        <VexFlowScore tune={this.state.tune.Tune} dimHeight={this.state.dimHeight} dimWidth={this.state.dimWidth} key='vexflowscore'/>
+      ];
+    } else {
+      content = [
+        <Text style={styles.welcome} key='welcome'>
+          PLEASE WAIT...
+        </Text>
+      ];
+    }
+
+    console.log('content was: ');
+    console.log(content);
+
     return (
       <ScrollView>
-        <Text style={styles.welcome}>
-          {this.state.tune.Title}
-        </Text>
-        <VexFlowScore tune={this.state.tune.Tune} dimHeight={this.state.dimHeight} dimWidth={this.state.dimWidth} />
+        {content}
       </ScrollView>
     );
   }

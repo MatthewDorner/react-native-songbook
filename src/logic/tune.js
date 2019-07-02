@@ -4,7 +4,6 @@ import { Stave } from 'vexflow/src/stave';
 import { TabStave } from 'vexflow/src/tabstave';
 import { Voice } from 'vexflow/src/voice';
 import { Formatter } from 'vexflow/src/formatter';
-import { StaveTie } from 'vexflow/src/stavetie';
 import ABCJS from 'abcjs';
 import Bar from './bar';
 import Part from './part';
@@ -81,14 +80,6 @@ export default class Tune {
           }
 
           if (obj.rest) {
-            /*
-              assume it's just .duration...
-              new VF.StaveNote({clef: "treble", keys: ["b/4"], duration: "qr" })
-              keys defines its vertical position, so always b/4 I guess
-
-
-            */
-
             const { duration, isDotted } = VexUtils.getVexDuration(obj.duration);
             const noteToAdd = new StaveNote({
               clef: this.tuneAttrs.clef, keys: ["b/4"], duration: duration + 'r'
@@ -101,7 +92,7 @@ export default class Tune {
               let chordName = obj.chord[0].name;
               if (chordName.includes('♭')) {
                 chordName = chordName.replace('♭', 'b');
-              } // sharps don't cause a problem
+              } // sharps don't cause a problem but the flat symbol can't be displayed
   
               noteToAdd.addModifier(0, new Vex.Flow.Annotation(chordName)
                 .setVerticalJustification(Vex.Flow.Annotation.VerticalJustify.TOP));
@@ -151,7 +142,6 @@ export default class Tune {
 
           currentBar.notes.push(noteToAdd);
           currentBar.tabNotes.push(tabNoteToAdd);
-
         }); // end of bar.contents.forEach
 
         if (partIndex === 0 && barIndex === 0) {
@@ -183,15 +173,6 @@ export default class Tune {
         } else {
           currentBar.beams = Beam.generateBeams(currentBar.notes);
         }
-
-        // let { beams, notes } = VexUtils.generateBeams(currentBar.notes); 
-        // currentBar.beams = beams;
-        // because stem_direction is set (even though it gets mutated so it doesn't need to be assigned)
-        // currentBar.notes = notes;
-
-        // if (currentBar.beams.length === 0) {
-        //   currentBar.beams = Beam.generateBeams(currentBar.notes);
-        // }
       }); // end of part.bars.forEach
     }); // end of parts.forEach
     return parts;
@@ -337,14 +318,6 @@ export default class Tune {
           const clefsStave = new Stave(bar.position.x, bar.position.y, bar.clefSigMeterWidth, { right_bar: false });
           const clefsTabStave = new TabStave(bar.position.x, bar.position.y + 50, bar.clefSigMeterWidth, { right_bar: false });
 
-          // if (bar.repeats.includes(Vex.Flow.Barline.type.REPEAT_BEGIN)) {
-          //   clefsStave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
-          //   clefsTabStave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
-          // }
-
-          // // begbar is always modifiers[0] endbar is always modifiers[1]
-          // // key sig gets set to modifiers[1]
-
           clefsStave.setContext(context);
           clefsTabStave.setContext(context);
 
@@ -383,16 +356,16 @@ export default class Tune {
         }    
   
         // WHAT DOES VOICE EVEN DO? it seems like I wasn't doing anything wiht it before.
-        const voice = new Voice({ num_beats: this.tuneAttrs.meter.charAt(0), beat_value: this.tuneAttrs.meter.charAt(2) });
-        voice.setStrict(false);
-        voice.addTickables(bar.notes);
+        // const voice = new Voice({ num_beats: this.tuneAttrs.meter.charAt(0), beat_value: this.tuneAttrs.meter.charAt(2) });
+        // voice.setStrict(false);
+        // voice.addTickables(bar.notes);
 
         // DRAW
+        tabStave.draw(); // drawing this first fixes the artiface w/ beams overlapping tab stave lines
+        Formatter.FormatAndDraw(context, tabStave, bar.tabNotes);
         stave.draw();
         Formatter.FormatAndDraw(context, stave, bar.notes);
         bar.beams.forEach((b) => { b.setContext(context).draw(); });
-        tabStave.draw();
-        Formatter.FormatAndDraw(context, tabStave, bar.tabNotes);
       });
     });
   }

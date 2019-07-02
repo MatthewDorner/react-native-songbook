@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import {
   Modal,
-  Alert,
   Picker,
-  Button,
   FlatList,
   StyleSheet,
   Text,
@@ -76,7 +74,6 @@ export default class TopBrowser extends Component {
   }
 
   closeModal() {
-    //console.log.log('in closeModal()');
     this.setState({
       modalVisible: false
     }, () => {
@@ -86,13 +83,9 @@ export default class TopBrowser extends Component {
 
   queryDatabaseState() {
     Database.getCollections(Constants.CollectionTypes.COLLECTION).then((collections) => {
-      //console.log.log('setting collections to: ');
-      //console.log.log(collections);
       this.setState({ collections });
     });
     Database.getCollections(Constants.CollectionTypes.SETLIST).then((setlists) => {
-      //console.log.log('setting setlists to: ');
-      //console.log.log(setlists);
       this.setState({ setlists });
     });
   }
@@ -101,8 +94,6 @@ export default class TopBrowser extends Component {
     <View style={styles.listItem}>
       <TouchableOpacity
         onPress={() => {
-          //console.log.log('pressed collection, the info was: ');
-          //console.log.log(item);
           Navigation.push('BrowserStack', {
             component: {
               name: 'CollectionBrowser',
@@ -120,12 +111,8 @@ export default class TopBrowser extends Component {
         </Text>
       </TouchableOpacity>
       <Picker
-        // selectedValue={''}
         style={{height: 50, width: 30}}
         onValueChange={(itemValue) => {
-          //console.log.log('in picker onValueChange');
-          //console.log.log('itemValue: ' + itemValue);
-          //console.log.log('item.type: ' + item.Type);
           this.showModal(itemValue, item);
       }}>
         <Picker.Item label="Cancel" value="cancel" />
@@ -139,13 +126,11 @@ export default class TopBrowser extends Component {
       <ScrollView>
 
         <Modal
-          style={styles.modal} // should these be in the AbstractModal instead?
+          style={styles.modal}
           animationType="slide"
           transparent={false}
           visible={this.state.modalVisible}
-          onRequestClose={() => {
-            // would I actually want to do anything here?
-        }}>
+        >
           {this.state.modalContents}
         </Modal>
 

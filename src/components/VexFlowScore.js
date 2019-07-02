@@ -70,9 +70,6 @@ export default class VexFlowScore extends Component {
       renderWidth = 850;
     }
 
-    // for now, eventually some of these will be integrated into display settings functionality
-    // should these be expressed as fraction of renderWidth? aren't they changing relative
-    // size depending on the device the way it is now?
     const renderOptions = {
       xOffset: 3,
       widthFactor: 27,
@@ -91,28 +88,22 @@ export default class VexFlowScore extends Component {
 let context, tuneParser, exception, content;
 
     try {
-
-    tuneParser = new Tune(tune, renderOptions);
-
-    context = new ReactNativeSVGContext(
-      NotoFontPack,
-      { width: dimWidth * 0.90, height: 2000 }
-    );
-    // why does setting a positive x value cause the thing to move up on the screen?
-    // it's being rendered, by default, halfway down the screen? why? i'm positioning
-    // it in vexflow startin at 0, so what's the problem?
-    context.setViewBox(0, 200, renderWidth + 5, 500);
-
-
-    tuneParser.drawToContext(context);
-    //console.log.log('after drawToContext: ' + new Date());
-
+      tuneParser = new Tune(tune, renderOptions);
+      context = new ReactNativeSVGContext(
+        NotoFontPack,
+        { width: dimWidth * 0.90, height: 3000 }
+      );
+      context.setViewBox(0, 0, renderWidth + 5, renderWidth + 5); //250 500
+      context.svg.setAttribute("preserveAspectRatio", "xMinYMin meet");
+      tuneParser.drawToContext(context);
     } catch(e) {
       exception = e;
     }
 
     if (!exception) {
+      console.log('getting context.render, before: ' + new Date());
       content = context.render();
+      console.log('after context.render(), after: ' + new Date());
     } else {
       content = 
         <View style={styles.errorContainer}>
@@ -125,12 +116,10 @@ let context, tuneParser, exception, content;
 
     return (
       <TouchableWithoutFeedback onPress={this.onPress}>
-        <View>
-          <View style={styles.container}>
-            {content}
-          </View>
+        <View style={styles.container}>
+          {content}
         </View>
-      </TouchableWithoutFeedback>    
+      </TouchableWithoutFeedback>
     );
   }
 }

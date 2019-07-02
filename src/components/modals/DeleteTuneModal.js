@@ -11,17 +11,6 @@ import {
 export default class DeleteTuneModal extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-    };
-
-    /*
-      what do I have access to here?
-      item.Name
-      item.Type
-      item.rowid
-    */
-
     this.deleteTuneOperation = this.deleteTuneOperation.bind(this);
   }
 

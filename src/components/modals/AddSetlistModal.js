@@ -6,12 +6,10 @@ import Constants from '../../logic/constants';
 
 import {
   Text,
-  TextInput,
-  TouchableHighlight,
-  View
+  TextInput
 } from 'react-native';
 
-export default class AddCollectionModal extends Component {
+export default class AddSetlistModal extends Component {
   constructor(props) {
     super(props);
 
@@ -25,12 +23,7 @@ export default class AddCollectionModal extends Component {
   async createSetlistOperation() {
     try {
       Database.addCollection(this.state.name, Constants.CollectionTypes.SETLIST).then((res) => {
-        // res needs to contain the database obj with like the rowId...
-        //console.log('back in addSetlistModal, the response for addSetlistModal was: ');
-        //console.log(res);
-
         this.props.closeModal();
-
       }).catch((e) => {
         //console.log('failed to create setlist, error was: ');
         //console.log(e);
@@ -39,7 +32,6 @@ export default class AddCollectionModal extends Component {
       alert("exception in createSetlistOperation" + e);
     }
   }
-
 
   render() {
     return (

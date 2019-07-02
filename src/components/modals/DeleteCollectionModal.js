@@ -13,16 +13,6 @@ export default class deleteCollectionModal extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-    };
-
-    /*
-      what do I have access to here?
-      item.Name
-      item.Type
-      item.rowid
-    */
-
     this.deleteCollectionOperation = this.deleteCollectionOperation.bind(this);
   }
 

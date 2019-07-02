@@ -13,16 +13,6 @@ export default class DeleteSetlistModal extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-    };
-
-    /*
-      what do I have access to here?
-      item.Name
-      item.Type
-      item.rowid
-    */
-
     this.deleteSetlistOperation = this.deleteSetlistOperation.bind(this);
   }
 
@@ -56,7 +46,6 @@ export default class DeleteSetlistModal extends Component {
         <Text style={ModalStyles.message}>
           Tunes in the setlist will not be deleted as they reside in their collection.
         </Text>
-
       </AbstractModal>
     );
   }
