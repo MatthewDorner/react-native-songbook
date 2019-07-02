@@ -8,13 +8,14 @@ Uses [abcjs](https://github.com/paulrosen/abcjs) to parse and [VexFlow](https://
 
 Current features:
 - Generate sheet music and guitar tablature from ABC notation
-- SQLite database with [test data](https://github.com/jukedeck/nottingham-dataset), search and filter
-- Reflow for portrait vs. landscape.
+- SQLite database with [default data](https://github.com/jukedeck/nottingham-dataset)
+- Database title search and filter on key and rhythm type
+- Reflow for portrait vs. landscape
+- Import ABC songbooks into database
+- Features for managing songs collection: create, edit, move, etc
 
 Future features:
 - Display options including auto-scroll, zoom, note density
-- Import ABC songbooks into database
-- Features for managing songs collection: create, edit, move, etc.
 
 ABC features currently supported:
 - Repeat signs
@@ -24,3 +25,6 @@ ABC features currently supported:
 ABC features not supported:
 - Multiple voices
 - Lyrics
+- Ties
+- Slurs
+- Grace Notes
