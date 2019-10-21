@@ -33,7 +33,7 @@ export default {
       const collections = [];
       this.db.transaction((txn) => {
         txn.executeSql(`select rowid, Name, Type from Collections where Type = ${type}`, [], (tx, res) => {
-          for (let i = 0; i < res.rows.length; ++i) {
+          for (let i = 0; i < res.rows.length; ++i) { // why did I use ++i?
             const collection = res.rows.item(i);
             collections.push(collection);
           }
@@ -98,14 +98,14 @@ export default {
       // field that require the value to be in quotes vs those that don't. but there may
       // never be another need to use this function..
 
-      let update = 'update Tunes set ';
+      const update = 'update Tunes set ';
       let fields = '';
-      for (field in delta) {  
-        fields += field + ' = "' + delta[field] + '",';
+      for (field in delta) {
+        fields += `${field} = "${delta[field]}",`;
       }
       fields = fields.substring(0, fields.length - 1);
-      let where = ' where rowid = ' + rowid;
-      let sql = update + fields + where;
+      const where = ` where rowid = ${rowid}`;
+      const sql = update + fields + where;
 
       let result;
       this.db.transaction((txn) => {
@@ -113,7 +113,7 @@ export default {
           result = res;
         });
       }, (error) => {
-        reject(error)
+        reject(error);
       }, () => {
         resolve(result);
       });

@@ -38,10 +38,10 @@ export default {
   getSemitonesForAccidental(accidental) {
     const semitones = {
       '#': 1,
-      'b': -1,
+      b: -1,
       '##': 2,
-      'bb': -2,
-      'n': 0
+      bb: -2,
+      n: 0
     };
     return semitones[accidental];
   }

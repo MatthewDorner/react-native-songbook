@@ -1,6 +1,6 @@
 export default {
   parsePartStructure(partObjArray) {
-    let barRegions = []; // array of BarRegion objects to return
+    const barRegions = []; // array of BarRegion objects to return
     function BarRegion() {
       this.startBarLine = {};
       this.endBarLine = {};
@@ -43,14 +43,14 @@ export default {
   },
 
   parseTuneStructure(tuneObjArray) {
-    let partRegions = []; // array of PartRegion objects to return
+    const partRegions = []; // array of PartRegion objects to return
     function PartRegion(title) {
       this.title = title;
       this.barRegions = []; // the BarRegion object defined in parsePartStructure()
     }
 
     // variables that hold parser state + initialization of those
-    let currentPart = new PartRegion("default");
+    let currentPart = new PartRegion('default');
     let currentPartObjects = [];
 
     tuneObjArray.forEach((obj) => {
@@ -61,7 +61,7 @@ export default {
             currentPart.title = obj.title;
           } else {
             // convert and apply bars to part, push to partRegions[]
-            currentPart.barRegions = this.parsePartStructure(currentPartObjects);            
+            currentPart.barRegions = this.parsePartStructure(currentPartObjects);
             partRegions.push(currentPart);
             // reset the state variables
             currentPartObjects = [];
@@ -76,7 +76,7 @@ export default {
 
     // deal with the final part also ignore final part if it's empty
     if (currentPartObjects.length > 0) {
-      currentPart.barRegions = this.parsePartStructure(currentPartObjects);            
+      currentPart.barRegions = this.parsePartStructure(currentPartObjects);
       partRegions.push(currentPart);
     }
     return partRegions;

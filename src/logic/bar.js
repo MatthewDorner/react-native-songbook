@@ -5,10 +5,10 @@ export default class Bar {
     this.beams = [];
     this.decorations = [];
     this.repeats = [];
-    this.vexKeySignature = ""; // think all of these are strings, although maybe should init to null
+    this.vexKeySignature = ''; // think all of these are strings, although maybe should init to null
     this.abcKeySignature = {};
-    this.clef = "";
-    this.meter = "";
+    this.clef = '';
+    this.meter = '';
     this.dottedNotesCount = 0;
     this.volta = {
       type: 0,

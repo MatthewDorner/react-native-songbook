@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
-import AbstractModal from '../modals/AbstractModal';
+import { Text } from 'react-native';
+import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
 import DBOperations from '../../data-access/db-operations';
-
-import {
-  Text
-} from 'react-native';
 
 export default class RemoveFromSetlistModal extends Component {
   constructor(props) {
@@ -15,17 +12,20 @@ export default class RemoveFromSetlistModal extends Component {
   }
 
   async removeFromSetlistOperation() {
+    const { tune, closeModal, collectionId } = this.props;
     try {
-      await DBOperations.removeTuneFromSetlist(this.props.tune, this.props.collectionId);
+      await DBOperations.removeTuneFromSetlist(tune, collectionId);
     } catch (e) {
-      alert("exception in removeFromSetlistOperation" + e);
+      alert(`exception in removeFromSetlistOperation${e}`);
     }
-    this.props.closeModal();
+    closeModal();
   }
 
   render() {
+    const { closeModal } = this.props;
+
     return (
-      <AbstractModal submit={this.removeFromSetlistOperation} cancel={this.props.closeModal}>
+      <AbstractModal submit={this.removeFromSetlistOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Remove From Setlist</Text>
         <Text style={ModalStyles.message}>
           Remove from setlist? Tune will remain available via its collection.

@@ -1,13 +1,6 @@
 import React, { Component } from 'react';
 import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
-import RNFS from "react-native-fs";
-import AbstractModal from '../modals/AbstractModal';
-import ModalStyles from '../../styles/modal-styles';
-import ButtonStyles from '../../styles/button-styles';
-import Database from '../../data-access/database';
-import DBOperations from '../../data-access/db-operations';
-import Constants from '../../logic/constants';
-
+import RNFS from 'react-native-fs';
 import {
   Text,
   TextInput,
@@ -15,6 +8,13 @@ import {
   TouchableHighlight,
   View
 } from 'react-native';
+import AbstractModal from './AbstractModal';
+import ModalStyles from '../../styles/modal-styles';
+import ButtonStyles from '../../styles/button-styles';
+import Database from '../../data-access/database';
+import DBOperations from '../../data-access/db-operations';
+import Constants from '../../logic/constants';
+
 
 export default class AddCollectionModal extends Component {
   constructor(props) {
@@ -31,29 +31,33 @@ export default class AddCollectionModal extends Component {
   }
 
   async createCollectionOperation() {
+    const { name, importFilePath } = this.state;
+    const { closeModal } = this.props;
+
     try {
-      Database.addCollection(this.state.name, Constants.CollectionTypes.COLLECTION).then((res) => {
-        if (this.state.importFilePath != '') {
-          RNFS.readFile(this.state.importFilePath, "utf8").then((contents) => {
+      Database.addCollection(name, Constants.CollectionTypes.COLLECTION).then((res) => {
+        if (importFilePath !== '') {
+          RNFS.readFile(importFilePath, 'utf8').then((contents) => {
             DBOperations.importTuneBook(contents, res.insertId).then((songsAdded) => {
-              Alert.alert('Imported Songbook Successfully', 'Imported ' + songsAdded + ' songs.');
+              Alert.alert('Imported Songbook Successfully', `Imported ${songsAdded} songs.`);
             });
           });
         }
-        this.props.closeModal();
+        closeModal();
       }).catch((e) => {
-        //console.log('failed to create collection, error was: ');
-        //console.log(e);
+        // console.log('failed to create collection, error was: ');
+        // console.log(e);
       });
     } catch (e) {
-      alert("exception in createCollection Operation" + e);
+      // does alert even work here? clean up error handling in general at some point
+      alert(`exception in createCollection Operation${e}`);
     }
   }
 
   pickFile() {
     DocumentPicker.show({
       filetype: [DocumentPickerUtil.allFiles()],
-    },(error,res) => {
+    }, (error, res) => {
       if (!(res.fileName.endsWith('.abc') || res.fileName.endsWith('.txt'))) {
         // test that this works
         Alert.alert('Please select a file of type .abc or .txt');
@@ -63,12 +67,15 @@ export default class AddCollectionModal extends Component {
           importFileName: res.fileName
         });
       }
-    });    
+    });
   }
 
   render() {
+    const { closeModal } = this.props;
+    const { importFileName } = this.state;
+
     return (
-      <AbstractModal submit={this.createCollectionOperation} cancel={this.props.closeModal}>
+      <AbstractModal submit={this.createCollectionOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Add Collection</Text>
 
         <TextInput
@@ -90,7 +97,9 @@ export default class AddCollectionModal extends Component {
         </TouchableHighlight>
 
         <View style={ModalStyles.infoContainer}>
-          <Text style={ModalStyles.infoItem}>File: {this.state.importFileName}</Text>
+          <Text style={ModalStyles.infoItem}>
+            {`File: ${importFileName}`}
+          </Text>
         </View>
       </AbstractModal>
     );

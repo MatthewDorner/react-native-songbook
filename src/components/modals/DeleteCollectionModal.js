@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import AbstractModal from '../modals/AbstractModal';
-import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
-import Constants from '../../logic/constants';
-
 import {
   Text,
   View
 } from 'react-native';
+import AbstractModal from './AbstractModal';
+import ModalStyles from '../../styles/modal-styles';
+import Database from '../../data-access/database';
+import Constants from '../../logic/constants';
+
 
 export default class deleteCollectionModal extends Component {
   constructor(props) {
@@ -17,17 +17,19 @@ export default class deleteCollectionModal extends Component {
   }
 
   deleteCollectionOperation() {
-    Database.getTunesForCollection(this.props.item.rowid, Constants.CollectionTypes.SETLIST).then((tunesForSetlist) => {
-      let promises = [];
-      
+    const { item, closeModal } = this.props;
+
+    Database.getTunesForCollection(item.rowid, Constants.CollectionTypes.SETLIST).then((tunesForSetlist) => {
+      const promises = [];
+
       tunesForSetlist.forEach((tune) => {
         promises.push(Database.deleteTune(tune));
       });
-  
+
       Promise.all(promises).then(() => {
-        Database.deleteCollection(this.props.item.rowid);
+        Database.deleteCollection(item.rowid);
       }).then((values) => {
-        this.props.closeModal();
+        closeModal();
       }).catch((error) => {
         // handle error
       });
@@ -35,12 +37,16 @@ export default class deleteCollectionModal extends Component {
   }
 
   render() {
+    const { item, closeModal } = this.props;
+
     return (
-      <AbstractModal submit={this.deleteCollectionOperation} cancel={this.props.closeModal}>
+      <AbstractModal submit={this.deleteCollectionOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Delete Collection</Text>
 
         <View style={ModalStyles.infoContainer}>
-          <Text style={ModalStyles.infoItem}>Collection Name: {this.props.item.Name}</Text>
+          <Text style={ModalStyles.infoItem}>
+            {`Collection Name:${item.Name}`}
+          </Text>
         </View>
 
         <Text style={ModalStyles.message}>

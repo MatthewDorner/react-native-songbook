@@ -55,4 +55,3 @@ export default StyleSheet.create({
     color: '#696969'
   },
 });
-

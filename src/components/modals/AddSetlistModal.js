@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import AbstractModal from '..//modals/AbstractModal';
-import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
-import Constants from '../../logic/constants';
-
 import {
   Text,
   TextInput
 } from 'react-native';
+import AbstractModal from './AbstractModal';
+import ModalStyles from '../../styles/modal-styles';
+import Database from '../../data-access/database';
+import Constants from '../../logic/constants';
+
 
 export default class AddSetlistModal extends Component {
   constructor(props) {
@@ -21,21 +21,26 @@ export default class AddSetlistModal extends Component {
   }
 
   async createSetlistOperation() {
+    const { name } = this.state;
+    const { closeModal } = this.props;
+
     try {
-      Database.addCollection(this.state.name, Constants.CollectionTypes.SETLIST).then((res) => {
-        this.props.closeModal();
+      Database.addCollection(name, Constants.CollectionTypes.SETLIST).then((res) => {
+        closeModal();
       }).catch((e) => {
-        //console.log('failed to create setlist, error was: ');
-        //console.log(e);
+        // console.log('failed to create setlist, error was: ');
+        // console.log(e);
       });
     } catch (e) {
-      alert("exception in createSetlistOperation" + e);
+      alert(`exception in createSetlistOperation${e}`);
     }
   }
 
   render() {
+    const { closeModal } = this.props;
+
     return (
-      <AbstractModal submit={this.createSetlistOperation} cancel={this.props.closeModal}>
+      <AbstractModal submit={this.createSetlistOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Add Setlist</Text>
 
         <TextInput

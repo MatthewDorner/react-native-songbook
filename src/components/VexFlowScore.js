@@ -20,12 +20,11 @@ export default class VexFlowScore extends Component {
     };
   }
 
-  shouldComponentUpdate (nextProps) {
+  shouldComponentUpdate(nextProps) {
     if (nextProps.dimWidth != this.props.dimWidth || nextProps.dimHeight != this.props.dimHeight || nextProps.tune != this.props.tune) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -85,7 +84,8 @@ export default class VexFlowScore extends Component {
       renderWidth
     };
 
-let context, tuneParser, exception, content;
+    let context; let tuneParser; let exception; let
+      content;
 
     try {
       tuneParser = new Tune(tune, renderOptions);
@@ -93,25 +93,31 @@ let context, tuneParser, exception, content;
         NotoFontPack,
         { width: dimWidth * 0.90, height: 3000 }
       );
-      context.setViewBox(0, 0, renderWidth + 5, renderWidth + 5); //250 500
-      context.svg.setAttribute("preserveAspectRatio", "xMinYMin meet");
+      context.setViewBox(0, 0, renderWidth + 5, renderWidth + 5); // 250 500
+      context.svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
       tuneParser.drawToContext(context);
-    } catch(e) {
+    } catch (e) {
       exception = e;
     }
 
     if (!exception) {
-      console.log('getting context.render, before: ' + new Date());
+      console.log(`getting context.render, before: ${new Date()}`);
       content = context.render();
-      console.log('after context.render(), after: ' + new Date());
+      console.log(`after context.render(), after: ${new Date()}`);
     } else {
-      content = 
+      content = (
         <View style={styles.errorContainer}>
           <Text>Error</Text>
-          <Text>Code: {exception.code}</Text>
-          <Text>Message: {exception.message}</Text>
+          <Text>
+Code:
+            {exception.code}
+          </Text>
+          <Text>
+Message:
+            {exception.message}
+          </Text>
         </View>
-      ;
+      );
     }
 
     return (

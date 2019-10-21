@@ -1,63 +1,56 @@
-import React, { Component } from 'react';
-import ModalStyles from '../../styles/modal-styles';
-import ButtonStyles from '../../styles/button-styles';
-
+import React from 'react';
 import {
   TouchableHighlight,
   Text,
   View,
   ScrollView
 } from 'react-native';
+import ModalStyles from '../../styles/modal-styles';
+import ButtonStyles from '../../styles/button-styles';
 
-export default class AbstractModal extends Component {
-  constructor(props) {
-    super(props);
+export default function AbstractModal({ submit, cancel, close, children }) {
+  let buttons = [];
+
+  // if props.close is passed, override the default "submit / cancel" controls with just "close"
+  if (submit) {
+    buttons = [
+      <TouchableHighlight
+        underlayColor="lightgray"
+        style={ButtonStyles.button}
+        onPress={() => submit()}
+        key="submit"
+      >
+        <Text style={ButtonStyles.buttonTitle}>Submit</Text>
+      </TouchableHighlight>,
+
+      <TouchableHighlight
+        underlayColor="lightgray"
+        style={ButtonStyles.button}
+        onPress={() => cancel()}
+        key="cancel"
+      >
+        <Text style={ButtonStyles.buttonTitle}>Cancel</Text>
+      </TouchableHighlight>
+    ];
+  } else {
+    buttons = [
+      <TouchableHighlight
+        underlayColor="lightgray"
+        style={ButtonStyles.button}
+        onPress={() => close()}
+        key="close"
+      >
+        <Text style={ButtonStyles.buttonTitle}>Close</Text>
+      </TouchableHighlight>
+    ];
   }
 
-  render() {
-    let buttons = [];
-
-    // if props.close is passed, override the default "submit / cancel" controls with just "close"
-    if (this.props.submit) {
-      buttons = [
-        <TouchableHighlight
-          underlayColor="lightgray"
-          style={ButtonStyles.button}
-          onPress={() => this.props.submit()}
-          key="submit"
-          >
-          <Text style={ButtonStyles.buttonTitle}>Submit</Text>
-        </TouchableHighlight>,
-
-        <TouchableHighlight
-          underlayColor="lightgray"
-          style={ButtonStyles.button}
-          onPress={() => this.props.cancel()}
-          key="cancel"
-        >
-          <Text style={ButtonStyles.buttonTitle}>Cancel</Text>
-        </TouchableHighlight>
-      ];
-    } else {
-      buttons = [
-        <TouchableHighlight
-          underlayColor="lightgray"
-          style={ButtonStyles.button}
-          onPress={() => this.props.close()}
-          key="close"
-        >
-          <Text style={ButtonStyles.buttonTitle}>Close</Text>
-        </TouchableHighlight>
-      ];
-    }
-
-    return (
-        <ScrollView contentContainerStyle={ModalStyles.modalContainer}>
-          {this.props.children}
-          <View style={ModalStyles.modalFooter}>
-            {buttons}
-          </View>
-        </ScrollView>
-    );
-  }
+  return (
+    <ScrollView contentContainerStyle={ModalStyles.modalContainer}>
+      {children}
+      <View style={ModalStyles.modalFooter}>
+        {buttons}
+      </View>
+    </ScrollView>
+  );
 }

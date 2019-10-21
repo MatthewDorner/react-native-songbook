@@ -3,31 +3,27 @@ import Search from 'react-native-search-box';
 
 import {
   StyleSheet,
-  Text,
   TextInput,
   View
 } from 'react-native';
 
 export default class SearchContainer extends Component {
-  constructor(props) {
-    super(props);
-
-  }
-
   render() {
+    const { setSearchText, setRhythmFilter, setKeyFilter } = this.props;
+
     return (
       <View>
-        <Search ref="search_box" onSearch={(searchText) => this.props.setSearchText(searchText)} onCancel={() => this.props.setSearchText('')} backgroundColor={'#fafafa'} titleCancelColor={'gray'}/>
+        <Search ref="search_box" onSearch={searchText => setSearchText(searchText)} onCancel={() => setSearchText('')} backgroundColor="#fafafa" titleCancelColor="gray" />
         <View style={styles.searchFiltersContainer}>
           <TextInput
             style={[styles.searchFilter, { marginRight: 2.5 }]}
             placeholder="Rhythm"
-            onChangeText={text => this.props.setRhythmFilter(text)}
+            onChangeText={text => setRhythmFilter(text)}
           />
           <TextInput
             style={[styles.searchFilter, { marginLeft: 2.5 }]}
             placeholder="Key"
-            onChangeText={text => this.props.setKeyFilter(text)}
+            onChangeText={text => setKeyFilter(text)}
           />
         </View>
       </View>
@@ -46,7 +42,7 @@ const styles = StyleSheet.create({
     fontSize: 13
   },
   searchFiltersContainer: {
-    
+
     height: 40,
     flexDirection: 'row',
     alignItems: 'center',
@@ -56,6 +52,5 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderBottomColor: 'lightgray',
     borderTopColor: 'lightgray'
-
   }
 });

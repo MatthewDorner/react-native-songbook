@@ -31,23 +31,20 @@ export default class CurrentTune extends Component {
         waiting: true
       }, () => {
         setTimeout(() => {
-          this.setState({waiting: false});
+          this.setState({ waiting: false });
         }, 1);
       });
     });
 
     props.tuneChangeCallback.setCallback((tune) => {
-      console.log('in tuneChangeCallack');
       this.setState({ waiting: true }, () => {
         setTimeout(() => {
-          console.log('in tuneChangeCallback, setState callback');
           Navigation.mergeOptions('CurrentTune', {
             bottomTabs: {
               currentTabIndex: 0
             }
           });
-          console.log('going to set state waiting to false');
-          this.setState({ tune: tune, waiting: false });
+          this.setState({ tune, waiting: false });
         }, 1); // timeout to allow it to render the wait message
       });
     });
@@ -55,26 +52,27 @@ export default class CurrentTune extends Component {
 
 
   render() {
+    const {
+      waiting, tune, dimHeight, dimWidth
+    } = this.state;
+
     // WHY IS THIS RUNNING WHEN I OPEN UP A COLLECTION IN THE OTHER TAB!!!!!
-    console.log('in render of currentTune, waiting was: ' + this.state.waiting);
+    console.log(`in render of currentTune, waiting was: ${waiting}`);
     let content;
-    if (this.state.waiting == false) {
+    if (waiting === false) {
       content = [
-        <Text style={styles.welcome} key='welcome'>
-          {this.state.tune.Title}
+        <Text style={styles.welcome} key="welcome">
+          {tune.Title}
         </Text>,
-        <VexFlowScore tune={this.state.tune.Tune} dimHeight={this.state.dimHeight} dimWidth={this.state.dimWidth} key='vexflowscore'/>
+        <VexFlowScore tune={tune.Tune} dimHeight={dimHeight} dimWidth={dimWidth} key="vexflowscore" />
       ];
     } else {
       content = [
-        <Text style={styles.welcome} key='welcome'>
+        <Text style={styles.welcome} key="welcome">
           PLEASE WAIT...
         </Text>
       ];
     }
-
-    console.log('content was: ');
-    console.log(content);
 
     return (
       <ScrollView>

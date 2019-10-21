@@ -6,49 +6,49 @@ export default {
 
   /* calculate beams for compound time signatures */
   generateBeamsCompound(notes) {
-
-    let timeLeft = .375;
+    let timeLeft = 0.375;
     let notesToBeam = [];
-    let beams = [];
+    const beams = [];
 
     notes.forEach((note, i) => {
-      let duration, isRest;
+      let duration; let
+        isRest;
 
       if (note.duration.includes('r')) {
-        duration = 1 / (note.duration.slice(0,note.duration.indexOf('r')));
+        duration = 1 / (note.duration.slice(0, note.duration.indexOf('r')));
         isRest = true;
       } else {
         duration = 1 / note.duration;
         isRest = false;
       }
 
-      if (duration >= .250 || timeLeft <= 0) { // purge existing beams
+      if (duration >= 0.250 || timeLeft <= 0) { // purge existing beams
         if (notesToBeam.length > 1) {
-          let direction = notesToBeam[0].getStemDirection();
-          notesToBeam.forEach((note) => {
-            note.setStemDirection(direction);
+          const direction = notesToBeam[0].getStemDirection();
+          notesToBeam.forEach((noteToBeam) => {
+            noteToBeam.setStemDirection(direction);
           });
           beams.push(new Beam(notesToBeam));
         }
         if (timeLeft <= 0) {
-          timeLeft += .375;
+          timeLeft += 0.375;
         }
         notesToBeam = [];
       }
 
-      if (duration < .250 && timeLeft >= duration && !isRest) {
+      if (duration < 0.250 && timeLeft >= duration && !isRest) {
         notesToBeam.push(note);
       }
-      timeLeft -= duration;      
+      timeLeft -= duration;
     });
 
     // deal w/ notes left over at end of iteration
     if (notesToBeam.length > 1) {
-      let direction = notesToBeam[0].getStemDirection();
+      const direction = notesToBeam[0].getStemDirection();
       notesToBeam.forEach((note) => {
         note.setStemDirection(direction);
       });
-      
+
       beams.push(new Beam(notesToBeam));
     }
 
@@ -68,7 +68,7 @@ export default {
         accidental, it wouldn't do anything
 
         NOTE: it looks like abcjs includes the accidental every time, even if that note has already been
-        marked as the same accidental in the same bar. actually it's probably? doing whatever the abc 
+        marked as the same accidental in the same bar. actually it's probably? doing whatever the abc
         music indicates. which means, we should check what the rules are when writing abc, are you
         supposed to write an accidental each time you need one, or are you allowed to assume the
         accidental will continue unless you use a natural. a good question is, does ABC include
@@ -78,7 +78,7 @@ export default {
   getTabPosition(keys, abcKeySignature, barContents, i) {
     // //console.log('getting tabPosition for note: ' + i);
     const diatonicNote = NoteUtils.getDiatonicFromLetter(keys[0]);
-    let chromaticNote = NoteUtils.getChromaticFromLetter(keys[0]);
+    const chromaticNote = NoteUtils.getChromaticFromLetter(keys[0]);
 
     let chromaticWithKeySigApplied = chromaticNote;
 
@@ -87,11 +87,11 @@ export default {
         switch (accidental.acc) {
           case 'sharp':
             chromaticWithKeySigApplied = chromaticNote + 1;
-            sharpedInKeySig = true;
+            // sharpedInKeySig = true; I don't need these?
             break;
           case 'flat':
             chromaticWithKeySigApplied = chromaticNote - 1;
-            flattedInKeySig = true;
+            // flattedInKeySig = true;
             break;
           default:
             break;
@@ -109,15 +109,15 @@ export default {
       // //console.log('checking bar contents for accidentals: ' + j);
       // //console.log('can this note apply to current one? ' + (i >= j));
       if (previousObj.el_type === 'note' && !previousObj.rest) {
-        const previousKeys = this.getKeys(previousObj.pitches);      
+        const previousKeys = this.getKeys(previousObj.pitches);
         if (i >= j && this.getAccidentals(previousObj.pitches)[0]) {
           if (diatonicNote === NoteUtils.getDiatonicFromLetter(previousKeys[0])) {
-            if (j != i) {
-              //console.log('NOTICE!!!!!!! THIS ACCIDENTAL WAS APPLIED FROM 1 NOTE TO ANOTHER');
+            if (j !== i) {
+              // console.log('NOTICE!!!!!!! THIS ACCIDENTAL WAS APPLIED FROM 1 NOTE TO ANOTHER');
             }
-            //console.log('applied accidental from: ' + j + ' to note: ' + i);
-            //console.log('accidental semitones change was: ' + NoteUtils.getSemitonesForAccidental(this.getAccidentals(previousObj.pitches)[0]));
-            //console.log('accidental was: ' + this.getAccidentals(previousObj.pitches)[0]);
+            // console.log('applied accidental from: ' + j + ' to note: ' + i);
+            // console.log('accidental semitones change was: ' + NoteUtils.getSemitonesForAccidental(this.getAccidentals(previousObj.pitches)[0]));
+            // console.log('accidental was: ' + this.getAccidentals(previousObj.pitches)[0]);
             finalChromatic = chromaticNote + NoteUtils.getSemitonesForAccidental(this.getAccidentals(previousObj.pitches)[0]);
           }
         }
@@ -164,17 +164,17 @@ export default {
     }
 
     let numberOfAccidentals = 0;
-    let accidentalType = "";
-    abcKeySignature.accidentals.forEach(function(accidental) {
-      if (accidental.acc != 'natural') {
+    let accidentalType = '';
+    abcKeySignature.accidentals.forEach((accidental) => {
+      if (accidental.acc !== 'natural') {
         numberOfAccidentals += 1;
         accidentalType = accidental.acc;
       }
     });
 
     for (const key in keySpecs) {
-      if (keySpecs[key].num == numberOfAccidentals) {
-        if (accidentalType == 'sharp' && keySpecs[key].acc == '#' || accidentalType == 'flat' && keySpecs[key].acc == 'b') {
+      if (keySpecs[key].num === numberOfAccidentals) {
+        if (accidentalType === 'sharp' && keySpecs[key].acc === '#' || accidentalType === 'flat' && keySpecs[key].acc === 'b') {
           return key;
         }
       }
@@ -219,22 +219,21 @@ export default {
         number: obj.startBarLine.startEnding,
         type: Vex.Flow.Volta.type.BEGIN_END
       };
-    } else if (obj.startBarLine.startEnding) {
+    } if (obj.startBarLine.startEnding) {
       return {
         number: obj.startBarLine.startEnding,
         type: Vex.Flow.Volta.type.BEGIN
-      };  
-    } else if (obj.endBarLine.endEnding) {
+      };
+    } if (obj.endBarLine.endEnding) {
       return { // not going to be able to know the number
         number: 0,
         type: Vex.Flow.Volta.type.END
       };
-    } else {
-      return {
-        number: 0,
-        type: 0
-      };
     }
+    return {
+      number: 0,
+      type: 0
+    };
   },
 
   getVexDuration(abcDuration) {

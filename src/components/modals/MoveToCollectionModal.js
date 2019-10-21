@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import AbstractModal from '../modals/AbstractModal';
-import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
-import Constants from '../../logic/constants';
-
 import {
   Text,
   Picker
 } from 'react-native';
+import AbstractModal from './AbstractModal';
+import ModalStyles from '../../styles/modal-styles';
+import Database from '../../data-access/database';
+import Constants from '../../logic/constants';
 
 export default class MoveToCollectionModal extends Component {
   constructor(props) {
@@ -23,47 +22,51 @@ export default class MoveToCollectionModal extends Component {
     Database.getCollections(Constants.CollectionTypes.COLLECTION).then((collections) => {
       this.setState({
         collections,
-        selectedCollections: collections[0].rowid
+        selectedCollection: collections[0].rowid
       });
     });
   }
 
   moveToCollectionModal() {
+    const { tune, closeModal } = this.props;
+    const { selectedCollection } = this.state;
+    const { rowid } = tune;
+
+    const tuneDelta = {
+      Collection: selectedCollection
+    };
+
     try {
-      let rowid = this.props.tune.rowid;
-
-      let tuneDelta = {
-        Collection: this.state.selectedCollection
-      };
-
       Database.updateTune(rowid, tuneDelta).then((res) => {
-        this.props.closeModal();
+        closeModal();
       }).catch((e) => {
-        //console.log('failed to add to setlist, error was: ');
-        //console.log(e);
+        // console.log('failed to add to setlist, error was: ');
+        // console.log(e);
       });
     } catch (e) {
-      alert("exception in createCollectionOperation" + e);
+      alert(`exception in createCollectionOperation${e}`);
     }
   }
 
   render() {
-    const collectionPickerOptions = this.state.collections.map((collection) => {
-      return <Picker.Item label={collection.Name} value={collection.rowid} key={collection.rowid} />
-    });
+    const { closeModal } = this.props;
+    const { collections, selectedCollection } = this.state;
+
+    const collectionPickerOptions = collections.map(collection => <Picker.Item label={collection.Name} value={collection.rowid} key={collection.rowid} />);
 
     return (
-      <AbstractModal submit={this.moveToCollectionModal} cancel={this.props.closeModal}>
+      <AbstractModal submit={this.moveToCollectionModal} cancel={closeModal}>
         <Text style={ModalStyles.title}>Move To Collection</Text>
 
         <Picker
-          style={{height: 50, width: '80%'}}
-          selectedValue={this.state.selectedCollection}
+          style={{ height: 50, width: '80%' }}
+          selectedValue={selectedCollection}
           onValueChange={(itemValue) => {
             this.setState({
               selectedCollection: itemValue
             });
-        }}>
+          }}
+        >
           {collectionPickerOptions}
         </Picker>
 

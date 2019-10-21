@@ -51,4 +51,3 @@ export default StyleSheet.create({
     backgroundColor: 'lightyellow'
   }
 });
-

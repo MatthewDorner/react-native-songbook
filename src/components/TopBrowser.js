@@ -5,7 +5,6 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  ScrollView,
   View,
   TouchableHighlight,
   TouchableOpacity
@@ -28,7 +27,7 @@ export default class TopBrowser extends Component {
     this.state = {
       collections: [],
       setlists: [],
-      modalContents: <View></View>, // dont know what this shold be
+      modalContents: <View />, // dont know what this shold be
       modalVisible: false,
     };
 
@@ -41,10 +40,51 @@ export default class TopBrowser extends Component {
     this.queryDatabaseState();
   }
 
+  renderCollectionsItem = ({ item }) => (
+    <View style={styles.listItem}>
+      <TouchableOpacity
+        onPress={() => {
+          Navigation.push('BrowserStack', {
+            component: {
+              name: 'CollectionBrowser',
+              passProps: {
+                collectionId: item.rowid,
+                queriedBy: item.Type,
+                tuneChangeCallback: this.props.tuneChangeCallback
+              }
+            }
+          });
+        }}
+      >
+        <Text style={styles.listItemText}>
+          {item.Name}
+        </Text>
+      </TouchableOpacity>
+      <Picker
+        style={{ height: 50, width: 30 }}
+        onValueChange={(itemValue) => {
+          this.showModal(itemValue, item);
+        }}
+      >
+        <Picker.Item label="Cancel" value="cancel" />
+        <Picker.Item label="Delete" value="delete" />
+      </Picker>
+    </View>
+  );
+
+  queryDatabaseState() {
+    Database.getCollections(Constants.CollectionTypes.COLLECTION).then((collections) => {
+      this.setState({ collections });
+    });
+    Database.getCollections(Constants.CollectionTypes.SETLIST).then((setlists) => {
+      this.setState({ setlists });
+    });
+  }
+
   showModal(action, item) {
-    console.log('showModal: ');
-    console.log('action: ' + action);
-    console.log('item: ' + item);
+    // console.log('showModal: ');
+    // console.log('action: ' + action);
+    // console.log('item: ' + item);
     let modalToShow;
     switch (action) {
       case 'addCollection':
@@ -57,7 +97,7 @@ export default class TopBrowser extends Component {
         if (item.Type == Constants.CollectionTypes.COLLECTION) {
           modalToShow = <DeleteCollectionModal closeModal={() => this.closeModal()} item={item} />;
         } else if (item.Type == Constants.CollectionTypes.SETLIST) {
-          modalToShow = <DeleteSetlistModal closeModal={() => this.closeModal()} item={item}/>;
+          modalToShow = <DeleteSetlistModal closeModal={() => this.closeModal()} item={item} />;
         }
         break;
       default:
@@ -81,50 +121,9 @@ export default class TopBrowser extends Component {
     });
   }
 
-  queryDatabaseState() {
-    Database.getCollections(Constants.CollectionTypes.COLLECTION).then((collections) => {
-      this.setState({ collections });
-    });
-    Database.getCollections(Constants.CollectionTypes.SETLIST).then((setlists) => {
-      this.setState({ setlists });
-    });
-  }
-
-  _renderCollectionsItem = ({ item }) => (
-    <View style={styles.listItem}>
-      <TouchableOpacity
-        onPress={() => {
-          Navigation.push('BrowserStack', {
-            component: {
-              name: 'CollectionBrowser',
-              passProps: {
-                collectionId: item.rowid,
-                queriedBy: item.Type,
-                tuneChangeCallback: this.props.tuneChangeCallback
-              }
-            }
-          });
-        }}
-      >
-        <Text style={styles.listItemText}>
-          {item.Name}
-        </Text>
-      </TouchableOpacity>
-      <Picker
-        style={{height: 50, width: 30}}
-        onValueChange={(itemValue) => {
-          this.showModal(itemValue, item);
-      }}>
-        <Picker.Item label="Cancel" value="cancel" />
-        <Picker.Item label="Delete" value="delete" />
-      </Picker>
-    </View>
-  );
-
   render() {
     return (
-      <ScrollView>
-
+      <View>
         <Modal
           style={styles.modal}
           animationType="slide"
@@ -152,7 +151,7 @@ export default class TopBrowser extends Component {
           contentContainerStyle={{ alignItems: 'flex-start' }}
           extraData={this.state}
           data={this.state.collections}
-          renderItem={this._renderCollectionsItem}
+          renderItem={this.renderCollectionsItem}
           keyExtractor={(item, index) => index.toString()} // is this really right
         />
 
@@ -175,10 +174,10 @@ export default class TopBrowser extends Component {
           contentContainerStyle={{ alignItems: 'flex-start' }}
           extraData={this.state}
           data={this.state.setlists}
-          renderItem={this._renderCollectionsItem}
+          renderItem={this.renderCollectionsItem}
           keyExtractor={(item, index) => index.toString()} // is this really right
         />
-      </ScrollView>
+      </View>
     );
   }
 }

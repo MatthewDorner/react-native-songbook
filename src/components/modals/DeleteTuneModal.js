@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import AbstractModal from '../modals/AbstractModal';
-import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
-
 import {
   Text,
   View
 } from 'react-native';
+import AbstractModal from './AbstractModal';
+import ModalStyles from '../../styles/modal-styles';
+import Database from '../../data-access/database';
+
 
 export default class DeleteTuneModal extends Component {
   constructor(props) {
@@ -15,20 +15,26 @@ export default class DeleteTuneModal extends Component {
   }
 
   deleteTuneOperation() {
-    Database.deleteTune(this.props.tune).then((result) => {
-      this.props.closeModal();
-    }).catch((error) => {
+    const { tune, closeModal } = this.props;
+
+    Database.deleteTune(tune).then((result) => {
+      closeModal();
+    }).catch((e) => {
       // handle error
     });
   }
 
   render() {
+    const { tune, closeModal } = this.props;
+
     return (
-      <AbstractModal submit={this.deleteTuneOperation} cancel={this.props.closeModal}>
+      <AbstractModal submit={this.deleteTuneOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Delete Tune</Text>
 
         <View style={ModalStyles.infoContainer}>
-          <Text style={ModalStyles.infoItem}>Tune Name: {this.props.tune.Title}</Text>
+          <Text style={ModalStyles.infoItem}>
+            {`Tune Name: ${tune.Title}`}
+          </Text>
         </View>
 
         <Text style={ModalStyles.message}>
