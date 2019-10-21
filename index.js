@@ -1,7 +1,7 @@
 import { Navigation } from 'react-native-navigation';
 import { YellowBox } from 'react-native';
 import RegisterScreens from './src/screens';
-import Database from './src/data-access/database';
+import DBOperations from './src/data-access/db-operations';
 
 YellowBox.ignoreWarnings([
   'Require cycle:',
@@ -21,7 +21,7 @@ cb.prototype.setCallback = function (callback) {
 const tuneChangeCallback = new cb();
 
 Navigation.events().registerAppLaunchedListener(() => {
-  Database.init().then(() => {
+  DBOperations.init().then(() => {
     Navigation.setRoot({
       root: {
         bottomTabs: {

@@ -1,6 +1,6 @@
 import Constants from './constants';
-import Jigs from './jigs';
-import TiesAndSlurs from './ties-and-slurs';
+
+import Ashover from '../../node_modules/nottingham-dataset/ABC_cleaned/ashover.abc';
 
 export default {
   defaultCollections: [
@@ -12,5 +12,5 @@ export default {
       Type: Constants.CollectionTypes.SETLIST
     }
   ],
-  defaultTunes: Jigs
+  defaultTunes: Ashover
 };

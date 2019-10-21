@@ -123,7 +123,7 @@ android {
         applicationId "com.reactnativesongbook"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        missingDimensionStrategy "RNN.reactNativeVersion", "reactNative57_5"
+        missingDimensionStrategy "RNN.reactNativeVersion", "reactNative60" // https://github.com/wix/react-native-navigation/issues/5171
         versionCode 1
         versionName "1.0"
     }

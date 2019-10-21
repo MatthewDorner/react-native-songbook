@@ -9,14 +9,14 @@
     "android": "cd ./android && ./gradlew app:assembleDebug && ./gradlew installDebug"
   },
   "dependencies": {
-    "abcjs": "^5.6.9",
+    "abcjs": "git+https://github.com/MatthewDorner/abcjs.git",
     "buffer": "^5.2.1",
     "jsc-android": "^241213.2.0",
-    "react": "16.8.3",
-    "react-native": "0.59.9",
+    "react": "16.9.0",
+    "react-native": "0.61.2",
     "react-native-document-picker": "^2.3.0",
-    "react-native-fs": "^2.13.3",
-    "react-native-navigation": "^2.13.1",
+    "react-native-fs": "^2.15.1",
+    "react-native-navigation": "3.2.0-snapshot.524",
     "react-native-search-box": "0.0.19",
     "react-native-sqlite-2": "^2.0.1",
     "react-native-svg": "^9.2.4",
@@ -27,7 +27,9 @@
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/runtime": "^7.4.5",
+    "babel-eslint": "^10.0.3",
     "babel-jest": "^24.8.0",
+    "babel-plugin-inline-import": "^3.0.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.17.3",
@@ -35,7 +37,8 @@
     "eslint-plugin-react": "^7.13.0",
     "jest": "^24.8.0",
     "metro-react-native-babel-preset": "^0.54.1",
-    "react-test-renderer": "16.8.3"
+    "react-test-renderer": "16.8.3",
+    "nottingham-dataset": "git+https://github.com/MatthewDorner/nottingham-dataset.git"
   },
   "jest": {
     "preset": "react-native"
