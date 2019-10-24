@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { ReactNativeSVGContext, NotoFontPack } from 'standalone-vexflow-context';
 import { Navigation } from 'react-native-navigation';
+import { Tune } from 'abcjs-vexflow-renderer';
 
 import {
   StyleSheet,
@@ -8,7 +9,6 @@ import {
   Text,
   TouchableWithoutFeedback
 } from 'react-native';
-import Tune from '../logic/tune';
 
 
 export default class VexFlowScore extends Component {
@@ -21,7 +21,9 @@ export default class VexFlowScore extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    if (nextProps.dimWidth != this.props.dimWidth || nextProps.dimHeight != this.props.dimHeight || nextProps.tune != this.props.tune) {
+    const { dimWidth, dimHeight, tune } = this.props;
+
+    if (nextProps.dimWidth !== dimWidth || nextProps.dimHeight !== dimHeight || nextProps.tune !== tune) {
       return true;
     }
     return false;

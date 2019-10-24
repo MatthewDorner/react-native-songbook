@@ -1,5 +1,4 @@
 import Constants from './constants';
-
 import Ashover from '../../node_modules/nottingham-dataset/ABC_cleaned/ashover.abc';
 
 export default {

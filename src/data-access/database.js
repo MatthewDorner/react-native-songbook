@@ -1,4 +1,4 @@
-import Constants from '../logic/constants';
+import Constants from './constants';
 
 export default {
   db: null, // gets set by init() in db-operations, for now
@@ -16,7 +16,7 @@ export default {
         txn.executeSql(query, [], (tx, res) => {
           for (let i = 0; i < res.rows.length; ++i) {
             const tune = res.rows.item(i);
-            tune.Tune = tune.Tune.replace(/\"\"/g, '"');
+            tune.Tune = tune.Tune.replace(/""/g, '"');
             tunes.push(tune);
           }
         });

@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import {
   Text,
-  Picker
+  Picker,
+  Alert
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
 import DBOperations from '../../data-access/db-operations';
-import Constants from '../../logic/constants';
+import Constants from '../../data-access/constants';
 
 
 export default class AddToSetlistModal extends Component {
@@ -36,7 +37,7 @@ export default class AddToSetlistModal extends Component {
     try {
       await DBOperations.addTuneToSetlist(tune, selectedSetlist);
     } catch (e) {
-      alert(`exception in addToSetlistOperation${e}`);
+      Alert.alert(`exception in addToSetlistOperation${e}`);
     }
     closeModal();
   }

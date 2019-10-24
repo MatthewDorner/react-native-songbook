@@ -2,7 +2,7 @@
 // Your query %searchword% cause table scan, it will get slower as number of records increase. Use searchword% query to get index base fast query.
 
 import SQLite from 'react-native-sqlite-2';
-import DefaultData from '../logic/default-data';
+import DefaultData from './default-data';
 import Database from './database';
 
 /*
@@ -46,7 +46,7 @@ export default {
     return new Promise((resolve, reject) => {
       // "The tune header should start with an X:(reference number) field followed
       // by a T:(title) field and finish with a K:(key) field."
-      const escapedTuneBook = tuneBook.replace(/\"/g, '""');
+      const escapedTuneBook = tuneBook.replace(/"/g, '""');
       const tunes = escapedTuneBook.split('\nX:'); // TODO: trim whitespace somewhere around here....
       tunes.forEach((tune, i) => { // very sloppy
         if (!tunes[i].startsWith('X:')) {
@@ -76,13 +76,15 @@ export default {
               key = line.slice(2, line.length);
             }
           });
+
+          // SHOULD NOW BE REPLACED IN SOURCE FILE
           // these lines starting with 'Y:' cause abcjs to error, but should be replaced by 'P:'
-          const cleanedTune = tune.split('\n').filter((line) => {
-            if (line.startsWith('Y:')) {
-              return false;
-            }
-            return true;
-          }).join('\n');
+          // const cleanedTune = tune.split('\n').filter((line) => {
+          //   if (line.startsWith('Y:')) {
+          //     return false;
+          //   }
+          //   return true;
+          // }).join('\n');
 
           let collectionDest; let
             setlists;
@@ -94,7 +96,7 @@ export default {
             collectionDest = collection;
             setlists = '';
           }
-          txn.executeSql(`insert into Tunes (Tune, Title, Rhythm, Key, Collection, Setlists) VALUES ("${cleanedTune}", "${title}", "${rhythm}", "${key}", "${collectionDest}", "${setlists}")`, [], (tx, res) => {
+          txn.executeSql(`insert into Tunes (Tune, Title, Rhythm, Key, Collection, Setlists) VALUES ("${tune}", "${title}", "${rhythm}", "${key}", "${collectionDest}", "${setlists}")`, [], (tx, res) => {
             songsAdded += 1;
           });
         });

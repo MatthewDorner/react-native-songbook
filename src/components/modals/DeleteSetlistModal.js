@@ -6,7 +6,7 @@ import {
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
-import Constants from '../../logic/constants';
+import Constants from '../../data-access/constants';
 
 
 export default class DeleteSetlistModal extends Component {

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import {
   Text,
-  TextInput
+  TextInput,
+  Alert
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
-import Constants from '../../logic/constants';
+import Constants from '../../data-access/constants';
 
 
 export default class AddSetlistModal extends Component {
@@ -32,7 +33,7 @@ export default class AddSetlistModal extends Component {
         // console.log(e);
       });
     } catch (e) {
-      alert(`exception in createSetlistOperation${e}`);
+      Alert.alert(`exception in createSetlistOperation${e}`);
     }
   }
 

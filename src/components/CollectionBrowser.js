@@ -15,7 +15,7 @@ import RemoveFromSetlistModal from './modals/RemoveFromSetlistModal';
 import MoveToCollectionModal from './modals/MoveToCollectionModal';
 import DeleteTuneModal from './modals/DeleteTuneModal';
 import DetailsModal from './modals/DetailsModal';
-import Constants from '../logic/constants';
+import Constants from '../data-access/constants';
 
 export default class CollectionBrowser extends PureComponent {
   constructor(props) {

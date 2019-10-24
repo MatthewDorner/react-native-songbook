@@ -13,7 +13,7 @@ import ModalStyles from '../../styles/modal-styles';
 import ButtonStyles from '../../styles/button-styles';
 import Database from '../../data-access/database';
 import DBOperations from '../../data-access/db-operations';
-import Constants from '../../logic/constants';
+import Constants from '../../data-access/constants';
 
 
 export default class AddCollectionModal extends Component {
@@ -50,7 +50,7 @@ export default class AddCollectionModal extends Component {
       });
     } catch (e) {
       // does alert even work here? clean up error handling in general at some point
-      alert(`exception in createCollection Operation${e}`);
+      Alert.alert(`exception in createCollection Operation${e}`);
     }
   }
 

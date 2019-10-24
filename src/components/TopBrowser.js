@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import Database from '../data-access/database';
-import Constants from '../logic/constants';
+import Constants from '../data-access/constants';
 import ButtonStyles from '../styles/button-styles';
 
 import AddCollectionModal from './modals/AddCollectionModal';

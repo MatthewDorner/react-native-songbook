@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text } from 'react-native';
+import { Text, Alert } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
 import DBOperations from '../../data-access/db-operations';
@@ -16,7 +16,7 @@ export default class RemoveFromSetlistModal extends Component {
     try {
       await DBOperations.removeTuneFromSetlist(tune, collectionId);
     } catch (e) {
-      alert(`exception in removeFromSetlistOperation${e}`);
+      Alert.alert(`exception in removeFromSetlistOperation${e}`);
     }
     closeModal();
   }

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import {
   Text,
-  Picker
+  Picker,
+  Alert
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
-import Constants from '../../logic/constants';
+import Constants from '../../data-access/constants';
 
 export default class MoveToCollectionModal extends Component {
   constructor(props) {
@@ -44,7 +45,7 @@ export default class MoveToCollectionModal extends Component {
         // console.log(e);
       });
     } catch (e) {
-      alert(`exception in createCollectionOperation${e}`);
+      Alert.alert(`exception in createCollectionOperation${e}`);
     }
   }
 
