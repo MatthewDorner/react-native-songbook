@@ -3,16 +3,19 @@ import Constants from './constants';
 export default {
   db: null, // gets set by init() in db-operations, for now
 
+  // idea: additional argument "orderBy" would go here...
   getTunesForCollection(collection, queriedBy) {
     return new Promise((resolve, reject) => {
       const tunes = [];
       let query = '';
       this.db.transaction((txn) => {
         if (queriedBy === Constants.CollectionTypes.COLLECTION) {
-          query = `select rowid, Collection, Key, Rhythm, Setlists, Title, Tune from Tunes where Collection = ${collection}`;
+          query = `select rowid, Collection, Key, Rhythm, Setlists, Title, Tune from Tunes where Collection = ${collection} order by Title`;
         } else if (queriedBy === Constants.CollectionTypes.SETLIST) {
-          query = `select rowid, Collection, Key, Rhythm, Setlists, Title, Tune from Tunes where Setlists like "%,${collection},%"`;
+          query = `select rowid, Collection, Key, Rhythm, Setlists, Title, Tune from Tunes where (Setlists like "%[${collection}]%" or Setlists like "%[${collection}," or Setlists like "%,${collection}]") order by Title`;
         }
+
+        // are there any other characters that need to be escaped??
         txn.executeSql(query, [], (tx, res) => {
           for (let i = 0; i < res.rows.length; ++i) {
             const tune = res.rows.item(i);

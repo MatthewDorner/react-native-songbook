@@ -77,24 +77,14 @@ export default {
             }
           });
 
-          // SHOULD NOW BE REPLACED IN SOURCE FILE
-          // these lines starting with 'Y:' cause abcjs to error, but should be replaced by 'P:'
-          // const cleanedTune = tune.split('\n').filter((line) => {
-          //   if (line.startsWith('Y:')) {
-          //     return false;
-          //   }
-          //   return true;
-          // }).join('\n');
+          let collectionDest;
+          const setlists = '[]';
 
-          let collectionDest; let
-            setlists;
           // change this cheap way of detecting whether we're doing init or user import
           if (!collection) {
             collectionDest = 1; // should be the rowId for nottingham default data
-            setlists = '';
           } else { // it's a new collection added by user
             collectionDest = collection;
-            setlists = '';
           }
           txn.executeSql(`insert into Tunes (Tune, Title, Rhythm, Key, Collection, Setlists) VALUES ("${tune}", "${title}", "${rhythm}", "${key}", "${collectionDest}", "${setlists}")`, [], (tx, res) => {
             songsAdded += 1;
@@ -111,20 +101,16 @@ export default {
   addTuneToSetlist(tune, setlistId) {
     return new Promise((resolve, reject) => {
       const { rowid } = tune;
-      const prevSetlists = tune.Setlists;
-      let newSetlists;
+      const prevSetlists = JSON.parse(tune.Setlists);
+      let newSetlists = [];
 
-      if (!prevSetlists.includes(`,${setlistId},`)) {
-        if (prevSetlists === '') {
-          newSetlists = `,${setlistId},`;
-        } else {
-          newSetlists = `${prevSetlists + setlistId},`;
-        }
-      } else {
+      if (prevSetlists.includes(setlistId)) {
         newSetlists = prevSetlists;
-      } // or make an error "already in setlist"
+      } else {
+        newSetlists = prevSetlists.concat(setlistId);
+      }
 
-      const delta = { Setlists: newSetlists };
+      const delta = { Setlists: JSON.stringify(newSetlists) };
       Database.updateTune(rowid, delta).then((result) => {
         resolve(result);
       }).catch((error) => {
@@ -136,22 +122,12 @@ export default {
   removeTuneFromSetlist(tune, setlistId) {
     return new Promise((resolve, reject) => {
       const { rowid } = tune;
-      const prevSetlists = tune.Setlists;
-      let newSetlists;
+      const prevSetlists = JSON.parse(tune.Setlists);
+      let newSetlists = [];
 
-      const setlistSubstr = `,${setlistId},`;
+      newSetlists = prevSetlists.filter(setlist => setlist !== setlistId);
 
-      if (prevSetlists.indexOf(setlistSubstr) !== -1) {
-        if (prevSetlists === setlistSubstr) { // it's the only one
-          newSetlists = '';
-        } else {
-          newSetlists = prevSetlists.replace(`${setlistSubstr},`, '');
-        }
-      } else {
-        // error, tune does not belong to setlist (how did you get here?)
-      }
-
-      const delta = { Setlists: newSetlists };
+      const delta = { Setlists: JSON.stringify(newSetlists) };
       Database.updateTune(rowid, delta).then((result) => {
         resolve(result);
       }).catch((error) => {
