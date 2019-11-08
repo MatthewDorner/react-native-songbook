@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { ReactNativeSVGContext, NotoFontPack } from 'standalone-vexflow-context';
 import { Navigation } from 'react-native-navigation';
-import { Tune } from 'abcjs-vexflow-renderer';
+import { AbcjsVexFlowRenderer } from 'abcjs-vexflow-renderer';
 
 import {
   StyleSheet,
@@ -30,9 +30,6 @@ export default class VexFlowScore extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('---------------------------------------------------');
-    console.log('VexFlowScore did update');
-    console.log(new Date());
     Object.entries(this.props).forEach(([key, val]) => {
       if (prevProps[key] !== val) {
         console.log(`Prop '${key}' changed`);
@@ -61,15 +58,7 @@ export default class VexFlowScore extends Component {
   }
 
   render() {
-    const { dimWidth, dimHeight, tune } = this.props;
-    let renderWidth;
-    if (dimHeight > dimWidth) {
-      // portrait
-      renderWidth = 500;
-    } else {
-      // landscape
-      renderWidth = 850;
-    }
+    const { dimWidth, tune } = this.props;
 
     const renderOptions = {
       xOffset: 3,
@@ -83,39 +72,57 @@ export default class VexFlowScore extends Component {
       dottedNotesModifier: 23,
       keySigAccidentalWidth: 20, // used to be 14 or 16...
       minWidthMultiplier: 2, // minimum bar width should be that of a bar with 2 notes
-      renderWidth
+      renderWidth: dimWidth * 1.2
     };
 
-    let context; let tuneParser; let exception; let
-      content;
+    let context; let exception; let content;
 
     try {
-      tuneParser = new Tune(tune, renderOptions);
+      const tuneObject = AbcjsVexFlowRenderer.getTune(tune, renderOptions);
+      if (tuneObject === null) {
+        return null; // what, what else to do other than return null?
+      }
+      const lastPart = tuneObject.parts[tuneObject.parts.length - 1];
+      const lastBar = lastPart.bars[lastPart.bars.length - 1];
+
+      /*
+        explaining the math here. earlier, I did: const renderWidth = dimWidth * 1.2; this is just because
+        if I don't * 1.2, the music ends up bigger than I'd prefer.
+
+        for the context size here, since I set context width to dimWidth * 0.90 (right below this),
+        I need to multiply by 0.75 for the height. This is because:
+        1 / 1.2 === .83333, and then .83333 * .9 === 0.75
+
+        why don't I reference dimWidth in the height argument? Because it's already factored in by the
+        lastBar.position.y???
+
+        really all this math should be moved into the abcjs-vexflow-renderer library, and it shouldn't
+        use magic numbers yeah blah blah
+      */
       context = new ReactNativeSVGContext(
         NotoFontPack,
-        { width: dimWidth * 0.90, height: 3000 }
+        { width: dimWidth * 0.90, height: (lastBar.position.y + renderOptions.lineHeight) * 0.75 }
       );
-      context.setViewBox(0, 0, renderWidth + 5, renderWidth + 5); // 250 500
+
+      context.setViewBox(0, 0, renderOptions.renderWidth + 6, (lastBar.position.y + renderOptions.lineHeight) + 5);
       context.svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
-      tuneParser.drawToContext(context);
+      AbcjsVexFlowRenderer.drawToContext(context, tuneObject);
     } catch (e) {
       exception = e;
     }
 
     if (!exception) {
-      console.log(`getting context.render, before: ${new Date()}`);
       content = context.render();
-      console.log(`after context.render(), after: ${new Date()}`);
     } else {
       content = (
         <View style={styles.errorContainer}>
           <Text>Error</Text>
           <Text>
-Code:
+            Code:
             {exception.code}
           </Text>
           <Text>
-Message:
+            Message:
             {exception.message}
           </Text>
         </View>

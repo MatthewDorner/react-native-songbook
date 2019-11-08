@@ -8,6 +8,7 @@ import {
   ScrollView
 } from 'react-native';
 import VexFlowScore from './VexFlowScore';
+import TuneAttributes from './TuneAttributes';
 
 export default class CurrentTune extends Component {
   constructor(props) {
@@ -61,14 +62,16 @@ export default class CurrentTune extends Component {
     let content;
     if (waiting === false) {
       content = [
-        <Text style={styles.welcome} key="welcome">
+        <Text style={styles.title} key="welcome">
           {tune.Title}
         </Text>,
-        <VexFlowScore tune={tune.Tune} dimHeight={dimHeight} dimWidth={dimWidth} key="vexflowscore" />
+        // tune={tune.Tune} is really not ideal here
+        <VexFlowScore tune={tune.Tune} dimHeight={dimHeight} dimWidth={dimWidth} key="vexflowscore" />,
+        <TuneAttributes tune={tune.Tune} />
       ];
     } else {
       content = [
-        <Text style={styles.welcome} key="welcome">
+        <Text style={styles.title} key="welcome">
           PLEASE WAIT...
         </Text>
       ];
@@ -83,7 +86,7 @@ export default class CurrentTune extends Component {
 }
 
 const styles = StyleSheet.create({
-  welcome: {
+  title: {
     fontSize: 20,
     textAlign: 'center',
     margin: 10,
