@@ -44,13 +44,9 @@ export default class AddCollectionModal extends Component {
           });
         }
         closeModal();
-      }).catch((e) => {
-        // console.log('failed to create collection, error was: ');
-        // console.log(e);
       });
     } catch (e) {
-      // does alert even work here? clean up error handling in general at some point
-      Alert.alert(`exception in createCollection Operation${e}`);
+      Alert.alert(`Failed to create collection: ${e}`);
     }
   }
 
@@ -58,7 +54,7 @@ export default class AddCollectionModal extends Component {
     DocumentPicker.show({
       filetype: [DocumentPickerUtil.allFiles()],
     }, (error, res) => {
-      if (!(res.fileName.endsWith('.abc') || res.fileName.endsWith('.txt'))) {
+      if (res && !(res.fileName.endsWith('.abc') || res.fileName.endsWith('.txt'))) {
         // test that this works
         Alert.alert('Please select a file of type .abc or .txt');
       } else if (!error) {
@@ -77,17 +73,14 @@ export default class AddCollectionModal extends Component {
     return (
       <AbstractModal submit={this.createCollectionOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Add Collection</Text>
-
+        <Text style={ModalStyles.message}>
+          Select an ABC tunebook from your device storage or leave File blank to create an empty Collection:
+        </Text>
         <TextInput
           style={ModalStyles.nameInput}
           placeholder="Name"
           onChangeText={text => this.setState({ name: text })}
         />
-
-        <Text style={ModalStyles.message}>
-          Select an ABC tunebook from your device storage or leave File blank to create an empty Collection:
-        </Text>
-
         <TouchableHighlight
           underlayColor="lightgray"
           onPress={() => this.pickFile()}
@@ -95,12 +88,9 @@ export default class AddCollectionModal extends Component {
         >
           <Text style={ButtonStyles.buttonTitle}>Select a File</Text>
         </TouchableHighlight>
-
-        <View style={ModalStyles.infoContainer}>
-          <Text style={ModalStyles.infoItem}>
-            {`File: ${importFileName}`}
-          </Text>
-        </View>
+        <Text style={ModalStyles.infoItem}>
+          {`File: ${importFileName}`}
+        </Text>
       </AbstractModal>
     );
   }

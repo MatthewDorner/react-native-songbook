@@ -16,7 +16,7 @@ export default class RemoveFromSetlistModal extends Component {
     try {
       await DBOperations.removeTuneFromSetlist(tune, collectionId);
     } catch (e) {
-      Alert.alert(`exception in removeFromSetlistOperation${e}`);
+      Alert.alert(`Failed to remove from setlist: ${e}`);
     }
     closeModal();
   }

@@ -40,12 +40,9 @@ export default class MoveToCollectionModal extends Component {
     try {
       Database.updateTune(rowid, tuneDelta).then((res) => {
         closeModal();
-      }).catch((e) => {
-        // console.log('failed to add to setlist, error was: ');
-        // console.log(e);
       });
     } catch (e) {
-      Alert.alert(`exception in createCollectionOperation${e}`);
+      Alert.alert(`Failed to move to collection: ${e}`);
     }
   }
 
@@ -58,9 +55,11 @@ export default class MoveToCollectionModal extends Component {
     return (
       <AbstractModal submit={this.moveToCollectionModal} cancel={closeModal}>
         <Text style={ModalStyles.title}>Move To Collection</Text>
-
+        <Text style={ModalStyles.message}>
+          Select a Collection to add this Tune to.
+        </Text>
         <Picker
-          style={{ height: 50, width: '80%' }}
+          style={ModalStyles.picker}
           selectedValue={selectedCollection}
           onValueChange={(itemValue) => {
             this.setState({
@@ -70,11 +69,6 @@ export default class MoveToCollectionModal extends Component {
         >
           {collectionPickerOptions}
         </Picker>
-
-        <Text style={ModalStyles.message}>
-          Select a Collection to add this Tune to.
-        </Text>
-
       </AbstractModal>
     );
   }

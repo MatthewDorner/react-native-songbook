@@ -21,9 +21,9 @@ export default class VexFlowScore extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { dimWidth, dimHeight, tune } = this.props;
+    const { dimWidth, dimHeight, tune, tabsVisibility } = this.props;
 
-    if (nextProps.dimWidth !== dimWidth || nextProps.dimHeight !== dimHeight || nextProps.tune !== tune) {
+    if (nextProps.dimWidth !== dimWidth || nextProps.dimHeight !== dimHeight || nextProps.tune !== tune || nextProps.tabsVisibility !== tabsVisibility) {
       return true;
     }
     return false;
@@ -58,12 +58,12 @@ export default class VexFlowScore extends Component {
   }
 
   render() {
-    const { dimWidth, tune } = this.props;
+    const { dimWidth, tune, tabsVisibility } = this.props;
 
     const renderOptions = {
       xOffset: 3,
       widthFactor: 27,
-      lineHeight: 180,
+      lineHeight: 170, // this should be a factor proportional to renderWidth?
       clefWidth: 40,
       meterWidth: 40,
       repeatWidthModifier: 35, // can't figure out why this is necessary but...
@@ -72,6 +72,8 @@ export default class VexFlowScore extends Component {
       dottedNotesModifier: 23,
       keySigAccidentalWidth: 20, // used to be 14 or 16...
       minWidthMultiplier: 2, // minimum bar width should be that of a bar with 2 notes
+      voltaHeight: 25,
+      tabsVisibility,
       renderWidth: dimWidth * 1.2
     };
 

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import {
   Text,
-  View
+  View,
+  Alert
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
@@ -28,10 +29,10 @@ export default class deleteCollectionModal extends Component {
 
       Promise.all(promises).then(() => {
         Database.deleteCollection(item.rowid);
-      }).then((values) => {
+      }).then(() => {
         closeModal();
-      }).catch((error) => {
-        // handle error
+      }).catch((e) => {
+        Alert(`Failed to delete collection: ${e}`);
       });
     });
   }
@@ -42,17 +43,12 @@ export default class deleteCollectionModal extends Component {
     return (
       <AbstractModal submit={this.deleteCollectionOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Delete Collection</Text>
-
-        <View style={ModalStyles.infoContainer}>
-          <Text style={ModalStyles.infoItem}>
-            {`Collection Name:${item.Name}`}
-          </Text>
-        </View>
-
         <Text style={ModalStyles.message}>
           Tunes in the collection will be deleted.
         </Text>
-
+        <Text style={ModalStyles.infoItem}>
+          {`Collection Name:${item.Name}`}
+        </Text>
       </AbstractModal>
     );
   }

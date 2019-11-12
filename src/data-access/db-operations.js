@@ -47,33 +47,40 @@ export default {
       // "The tune header should start with an X:(reference number) field followed
       // by a T:(title) field and finish with a K:(key) field."
       const escapedTuneBook = tuneBook.replace(/"/g, '""');
+
       const tunes = escapedTuneBook.split('\nX:'); // TODO: trim whitespace somewhere around here....
-      tunes.forEach((tune, i) => { // very sloppy
-        if (!tunes[i].startsWith('X:')) {
-          tunes[i] = `X:${tune}`;
+      const correctedTunes = tunes.filter((tune) => {
+        if (tune) {
+          return true;
         }
+        return false;
+      }).map((tune) => {
+        if (!tune.startsWith('X:')) {
+          return `X:${tune}`;
+        }
+        return tune;
       });
 
       let songsAdded = 0;
 
       Database.db.transaction((txn) => {
-        tunes.forEach((tune) => {
+        correctedTunes.forEach((tune) => {
           let rhythm = '';
           tune.split('\n').forEach((line) => {
             if (line.startsWith('R:')) { // will it work if there's a line that's just 'R:' ??
-              rhythm = line.slice(2, line.length);
+              rhythm = line.slice(2, line.length).trim();
             }
           });
           let title = '';
           tune.split('\n').forEach((line) => {
             if (line.startsWith('T:')) {
-              title = line.slice(2, line.length);
+              title = line.slice(2, line.length).trim();
             }
           });
           let key = '';
           tune.split('\n').forEach((line) => {
             if (line.startsWith('K:')) {
-              key = line.slice(2, line.length);
+              key = line.slice(2, line.length).trim();
             }
           });
 

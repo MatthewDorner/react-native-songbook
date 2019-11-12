@@ -7,7 +7,7 @@ export default function DetailsModal({ tune, closeModal }) {
   return (
     <AbstractModal close={closeModal}>
       <Text style={ModalStyles.title}>Tune Details</Text>
-      <Text style={ModalStyles.tuneDetails}>
+      <Text style={ModalStyles.infoItem}>
         {tune.Tune}
       </Text>
     </AbstractModal>

@@ -5,6 +5,7 @@ import DBOperations from './src/data-access/db-operations';
 
 const musicIcon = require('./icons/music.png');
 const bookIcon = require('./icons/book.png');
+const textIcon = require('./icons/text.png');
 
 YellowBox.ignoreWarnings([
   'Require cycle:',
@@ -30,6 +31,11 @@ Navigation.events().registerAppLaunchedListener(() => {
     Navigation.setRoot({
       root: {
         bottomTabs: {
+          // options: {
+          //   bottomTabs: {
+          //     backgroundColor: '#F0FFF0'
+          //   },
+          // },
           children: [{
             stack: {
               id: 'CurrentTuneStack',
@@ -79,7 +85,7 @@ Navigation.events().registerAppLaunchedListener(() => {
                     },
                     options: {
                       bottomTab: {
-                        text: 'Collection Browser',
+                        text: 'Browser',
                         icon: bookIcon,
                         // would be cool to use closed book when you're not on collection tab, open book when you are on it:
                         // selectedIcon: require('./icons/book-open.png') // doesn't work?
@@ -89,8 +95,31 @@ Navigation.events().registerAppLaunchedListener(() => {
                 } // end component
               ]// end children
             }
-          }// end stack
-          ]
+          }, // end stack
+          { // begin stack
+            stack: {
+              id: 'InfoStack',
+              options: {
+                topBar: {
+                  visible: false,
+                  height: 0,
+                }
+              },
+              children: [
+                { // begin component
+                  component: {
+                    name: 'Info',
+                    options: {
+                      bottomTab: {
+                        text: 'Info',
+                        icon: textIcon
+                      }
+                    }
+                  },
+                } // end component
+              ]// end children
+            }
+          }]
         }
       }
     });

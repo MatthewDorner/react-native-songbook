@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import {
   Text,
-  View
+  View,
+  Alert
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
@@ -28,10 +29,10 @@ export default class DeleteSetlistModal extends Component {
 
       Promise.all(promises).then(() => {
         Database.deleteCollection(item.rowid);
-      }).then((values) => {
+      }).then(() => {
         closeModal();
-      }).catch((error) => {
-        // handle error
+      }).catch((e) => {
+        Alert(`Failed to delete setlist: ${e}`);
       });
     });
   }
@@ -42,15 +43,11 @@ export default class DeleteSetlistModal extends Component {
     return (
       <AbstractModal submit={this.deleteSetlistOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Delete Setlist</Text>
-
-        <View style={ModalStyles.infoContainer}>
-          <Text style={ModalStyles.infoItem}>
-            {`Setlist Name:${item.Name}`}
-          </Text>
-        </View>
-
         <Text style={ModalStyles.message}>
           Tunes in the setlist will not be deleted as they reside in their collection.
+        </Text>
+        <Text style={ModalStyles.infoItem}>
+          {`Setlist Name:${item.Name}`}
         </Text>
       </AbstractModal>
     );

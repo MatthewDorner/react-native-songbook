@@ -28,12 +28,9 @@ export default class AddSetlistModal extends Component {
     try {
       Database.addCollection(name, Constants.CollectionTypes.SETLIST).then((res) => {
         closeModal();
-      }).catch((e) => {
-        // console.log('failed to create setlist, error was: ');
-        // console.log(e);
       });
     } catch (e) {
-      Alert.alert(`exception in createSetlistOperation${e}`);
+      Alert.alert(`Failed to create setlist: ${e}`);
     }
   }
 
@@ -43,17 +40,14 @@ export default class AddSetlistModal extends Component {
     return (
       <AbstractModal submit={this.createSetlistOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Add Setlist</Text>
-
+        <Text style={ModalStyles.message}>
+          A Tune can belong to any number of Setlists.
+        </Text>
         <TextInput
           style={ModalStyles.nameInput}
           placeholder="Name"
           onChangeText={text => this.setState({ name: text })}
         />
-
-        <Text style={ModalStyles.message}>
-          A Tune can belong to any number of Setlists.
-        </Text>
-
       </AbstractModal>
     );
   }

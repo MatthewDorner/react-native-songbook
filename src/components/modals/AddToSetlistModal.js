@@ -37,7 +37,7 @@ export default class AddToSetlistModal extends Component {
     try {
       await DBOperations.addTuneToSetlist(tune, selectedSetlist);
     } catch (e) {
-      Alert.alert(`exception in addToSetlistOperation${e}`);
+      Alert.alert(`Failed to add to setlist: ${e}`);
     }
     closeModal();
   }
@@ -51,9 +51,11 @@ export default class AddToSetlistModal extends Component {
     return (
       <AbstractModal submit={this.addToSetlistOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Add To Setlist</Text>
-
+        <Text style={ModalStyles.message}>
+          Select a setlist to add this tune to.
+        </Text>
         <Picker
-          style={{ height: 50, width: '80%' }}
+          style={ModalStyles.picker}
           selectedValue={selectedSetlist}
           onValueChange={(itemValue) => {
             this.setState({
@@ -63,11 +65,6 @@ export default class AddToSetlistModal extends Component {
         >
           {setlistPickerOptions}
         </Picker>
-
-        <Text style={ModalStyles.message}>
-          Select a setlist to add this tune to.
-        </Text>
-
       </AbstractModal>
     );
   }

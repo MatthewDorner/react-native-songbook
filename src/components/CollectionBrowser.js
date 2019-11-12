@@ -120,15 +120,15 @@ export default class CollectionBrowser extends PureComponent {
     let pickerOptions = [];
     if (queriedBy === Constants.CollectionTypes.COLLECTION) {
       pickerOptions = [
-        <Picker.Item label="Cancel" value="cancel" key="cancel" />, // implemented
+        <Picker.Item label="Cancel" value="cancel" key="cancel" />,
         <Picker.Item label="Details" value="details" key="details" />,
-        <Picker.Item label="Add to Setlist" value="addToSetlist" key="addToSetlist" />, // implemented
+        <Picker.Item label="Add to Setlist" value="addToSetlist" key="addToSetlist" />,
         <Picker.Item label="Move to Collection" value="moveToCollection" key="moveToCollection" />,
         <Picker.Item label="Delete" value="delete" key="delete" />
       ];
     } else if (queriedBy === Constants.CollectionTypes.SETLIST) {
       pickerOptions = [
-        <Picker.Item label="Cancel" value="cancel" key="cancel" />, // implemented
+        <Picker.Item label="Cancel" value="cancel" key="cancel" />,
         <Picker.Item label="Details" value="details" key="details" />,
         <Picker.Item label="Remove from Setlist" value="removeFromSetlist" key="removeFromSetlist" />
       ];
@@ -149,7 +149,8 @@ export default class CollectionBrowser extends PureComponent {
             </Text>
             <View>
               <Text style={styles.listItemDetail}>
-                {`Rhythm: ${item.Rhythm}, Key: ${item.Key}`}
+                {`Key: ${item.Key}`}
+                {(item.Rhythm ? `, Rhythm: ${item.Rhythm}` : '')}
               </Text>
             </View>
           </View>

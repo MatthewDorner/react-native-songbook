@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
   title: {
-    fontSize: 30,
+    fontSize: 20,
     textAlign: 'center',
     margin: 15
   },
@@ -16,22 +16,9 @@ export default StyleSheet.create({
     width: '90%'
   },
   message: {
-    fontSize: 20,
+    fontSize: 15,
     margin: 15,
     width: '90%'
-  },
-  infoContainer: {
-    marginTop: 15,
-    marginBottom: 15,
-    marginLeft: 10,
-    marginRight: 10,
-    flexDirection: 'row'
-  },
-  infoItem: {
-    fontSize: 18,
-    backgroundColor: 'lightyellow',
-    width: '100%',
-    padding: 5
   },
   modalFooter: {
     flexDirection: 'row',
@@ -43,11 +30,16 @@ export default StyleSheet.create({
     // textAlign: 'center',
     alignItems: 'center'
   },
-  tuneDetails: {
+  infoItem: {
     fontSize: 14,
     fontFamily: 'monospace',
     padding: 10,
-    margin: 10,
-    backgroundColor: 'lightyellow'
+    marginLeft: '5%',
+    marginRight: '5%',
+    backgroundColor: 'lightgrey',
+  },
+  picker: {
+    height: 50,
+    width: '80%',
   }
 });

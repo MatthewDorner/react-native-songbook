@@ -143,13 +143,13 @@ export default class TopBrowser extends Component {
             underlayColor="lightgray"
             onPress={() => this.showModal('addCollection')}
           >
-            <Text style={ButtonStyles.buttonTitle}>+</Text>
+            <Text style={{ fontSize: 18, paddingBottom: 2 }}>+</Text>
           </TouchableHighlight>
 
         </View>
         <FlatList
           contentContainerStyle={{ alignItems: 'flex-start' }}
-          extraData={this.state}
+          // extraData={this.state}
           data={this.state.collections}
           renderItem={this.renderCollectionsItem}
           keyExtractor={(item, index) => index.toString()} // is this really right
@@ -165,14 +165,14 @@ export default class TopBrowser extends Component {
             underlayColor="lightgray"
             onPress={() => this.showModal('addSetlist')}
           >
-            <Text style={ButtonStyles.buttonTitle}>+</Text>
+            <Text style={{ fontSize: 18, paddingBottom: 2 }}>+</Text>
           </TouchableHighlight>
 
 
         </View>
         <FlatList
           contentContainerStyle={{ alignItems: 'flex-start' }}
-          extraData={this.state}
+          // extraData={this.state}
           data={this.state.setlists}
           renderItem={this.renderCollectionsItem}
           keyExtractor={(item, index) => index.toString()} // is this really right
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     margin: 10
   },
   sectionHeaderTitle: {
-    fontSize: 30,
+    fontSize: 25,
     textAlign: 'left',
     margin: 10
   },

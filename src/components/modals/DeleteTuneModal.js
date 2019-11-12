@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import {
   Text,
-  View
+  View,
+  Alert
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
@@ -20,7 +21,7 @@ export default class DeleteTuneModal extends Component {
     Database.deleteTune(tune).then((result) => {
       closeModal();
     }).catch((e) => {
-      // handle error
+      Alert(`Failed to delete tune: ${e}`);
     });
   }
 
@@ -30,17 +31,12 @@ export default class DeleteTuneModal extends Component {
     return (
       <AbstractModal submit={this.deleteTuneOperation} cancel={closeModal}>
         <Text style={ModalStyles.title}>Delete Tune</Text>
-
-        <View style={ModalStyles.infoContainer}>
-          <Text style={ModalStyles.infoItem}>
-            {`Tune Name: ${tune.Title}`}
-          </Text>
-        </View>
-
         <Text style={ModalStyles.message}>
           Tune will be deleted from app completely and all setlists.
         </Text>
-
+        <Text style={ModalStyles.infoItem}>
+          {`Tune Name: ${tune.Title}`}
+        </Text>
       </AbstractModal>
     );
   }
