@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
+import { Button, Input } from 'react-native-elements';
 import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import {
   Text,
-  TextInput,
   Alert,
-  TouchableHighlight,
   View
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
-import ButtonStyles from '../../styles/button-styles';
 import Database from '../../data-access/database';
 import DBOperations from '../../data-access/db-operations';
 import Constants from '../../data-access/constants';
@@ -71,26 +69,24 @@ export default class AddCollectionModal extends Component {
     const { importFileName } = this.state;
 
     return (
-      <AbstractModal submit={this.createCollectionOperation} cancel={closeModal}>
-        <Text style={ModalStyles.title}>Add Collection</Text>
+      <AbstractModal submit={this.createCollectionOperation} cancel={closeModal} title="Add Collection">
         <Text style={ModalStyles.message}>
           Select an ABC tunebook from your device storage or leave File blank to create an empty Collection:
         </Text>
-        <TextInput
-          style={ModalStyles.nameInput}
+        <Input
           placeholder="Name"
           onChangeText={text => this.setState({ name: text })}
         />
-        <TouchableHighlight
-          underlayColor="lightgray"
-          onPress={() => this.pickFile()}
-          style={ButtonStyles.pickFileButton}
-        >
-          <Text style={ButtonStyles.buttonTitle}>Select a File</Text>
-        </TouchableHighlight>
-        <Text style={ModalStyles.infoItem}>
-          {`File: ${importFileName}`}
-        </Text>
+        <View style={{ flexDirection: 'row', marginTop: 15 }}>
+          <Button
+            containerStyle={{ width: '30%' }}
+            onPress={() => this.pickFile()}
+            title="Select a File"
+          />
+          <Text style={ModalStyles.fileInfoItem}>
+            {`File: ${importFileName}`}
+          </Text>
+        </View>
       </AbstractModal>
     );
   }

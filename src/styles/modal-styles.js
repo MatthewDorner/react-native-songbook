@@ -1,45 +1,56 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-  title: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 15
+  modalContainer: {
+    // textAlign: 'center',
+    paddingLeft: '5%',
+    paddingRight: '5%'
   },
-  nameInput: {
-    fontSize: 20,
-    margin: 15,
-    backgroundColor: 'white',
-    borderRadius: 0,
-    borderWidth: 1,
-    borderColor: 'black',
-    width: '90%'
+  modalHeader: {
+    alignItems: 'center'
   },
-  message: {
-    fontSize: 15,
-    margin: 15,
-    width: '90%'
+  modalBody: {
+    alignItems: 'flex-start',
   },
   modalFooter: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     alignItems: 'flex-end',
-    height: 80
+    height: 80,
+    marginTop: 50
   },
-  modalContainer: {
-    // textAlign: 'center',
-    alignItems: 'center'
+  title: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 15,
+  },
+  message: {
+    fontSize: 17,
+    marginTop: 20,
+    marginBottom: 15,
   },
   infoItem: {
     fontSize: 14,
     fontFamily: 'monospace',
     padding: 10,
-    marginLeft: '5%',
-    marginRight: '5%',
-    backgroundColor: 'lightgrey',
+    width: '100%',
   },
-  picker: {
-    height: 50,
-    width: '80%',
+  fileInfoItem: {
+    width: '70%',
+    backgroundColor: 'lightgray',
+    paddingTop: 11,
+    paddingBottom: 9,
+    paddingLeft: 12,
+    fontFamily: 'monospace'
+  },
+  pickerContainer: {
+    backgroundColor: '#eeeeee',
+    borderRadius: 6
+  },
+  // setting an arbitrarily large number allows 100% width, but it hides the little black arrow.
+  // but it won't accept '100%' in this case for some reason so have to do this
+  modalPicker: {
+    width: 999999,
+    height: 45
   }
 });

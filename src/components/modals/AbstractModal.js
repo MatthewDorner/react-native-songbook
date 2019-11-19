@@ -1,53 +1,53 @@
 import React from 'react';
 import {
-  TouchableHighlight,
-  Text,
   View,
+  Text,
   ScrollView
 } from 'react-native';
+import { Button } from 'react-native-elements';
 import ModalStyles from '../../styles/modal-styles';
-import ButtonStyles from '../../styles/button-styles';
 
-export default function AbstractModal({ submit, cancel, close, children }) {
+export default function AbstractModal({ submit, cancel, close, children, title }) {
   let buttons = [];
 
   // if props.close is passed, override the default "submit / cancel" controls with just "close"
   if (submit) {
     buttons = [
-      <TouchableHighlight
-        underlayColor="lightgray"
-        style={ButtonStyles.button}
+      <Button
         onPress={() => submit()}
+        containerStyle={{ width: 130 }}
         key="submit"
-      >
-        <Text style={ButtonStyles.buttonTitle}>Submit</Text>
-      </TouchableHighlight>,
-
-      <TouchableHighlight
-        underlayColor="lightgray"
-        style={ButtonStyles.button}
+        title="submit"
+        buttonStyle={{ backgroundColor: 'gray' }}
+      />,
+      <Button
         onPress={() => cancel()}
+        containerStyle={{ width: 130 }}
         key="cancel"
-      >
-        <Text style={ButtonStyles.buttonTitle}>Cancel</Text>
-      </TouchableHighlight>
+        title="cancel"
+        buttonStyle={{ backgroundColor: 'gray' }}
+      />
     ];
   } else {
     buttons = [
-      <TouchableHighlight
-        underlayColor="lightgray"
-        style={ButtonStyles.button}
+      <Button
         onPress={() => close()}
+        containerStyle={{ width: 120 }}
         key="close"
-      >
-        <Text style={ButtonStyles.buttonTitle}>Close</Text>
-      </TouchableHighlight>
+        title="close"
+        buttonStyle={{ backgroundColor: 'gray' }}
+      />
     ];
   }
 
   return (
     <ScrollView contentContainerStyle={ModalStyles.modalContainer}>
-      {children}
+      <View style={ModalStyles.modalHeader}>
+        <Text style={ModalStyles.title}>{title}</Text>
+      </View>
+      <View style={ModalStyles.modalBody}>
+        {children}
+      </View>
       <View style={ModalStyles.modalFooter}>
         {buttons}
       </View>

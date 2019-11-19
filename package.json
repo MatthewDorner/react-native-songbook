@@ -17,11 +17,13 @@
     "react": "16.9.0",
     "react-native": "0.61.2",
     "react-native-document-picker": "^2.3.0",
+    "react-native-elements": "^1.2.7",
     "react-native-fs": "^2.15.1",
     "react-native-navigation": "3.2.0-snapshot.524",
     "react-native-search-box": "0.0.19",
     "react-native-sqlite-2": "^2.0.1",
     "react-native-svg": "^9.2.4",
+    "react-native-vector-icons": "^6.6.0",
     "standalone-vexflow-context": "^0.1.1",
     "svg-path-bounding-box": "^1.0.4",
     "vexflow": "^1.2.88"

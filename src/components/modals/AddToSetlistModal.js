@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import {
   Text,
   Picker,
-  Alert
+  Alert,
+  View
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
@@ -49,22 +50,24 @@ export default class AddToSetlistModal extends Component {
     const setlistPickerOptions = setlists.map(setlist => <Picker.Item label={setlist.Name} value={setlist.rowid} key={setlist.rowid} />);
 
     return (
-      <AbstractModal submit={this.addToSetlistOperation} cancel={closeModal}>
-        <Text style={ModalStyles.title}>Add To Setlist</Text>
+      <AbstractModal submit={this.addToSetlistOperation} cancel={closeModal} title="Add To Setlist">
         <Text style={ModalStyles.message}>
-          Select a setlist to add this tune to.
+          Select a setlist to add this tune to:
         </Text>
-        <Picker
-          style={ModalStyles.picker}
-          selectedValue={selectedSetlist}
-          onValueChange={(itemValue) => {
-            this.setState({
-              selectedSetlist: itemValue
-            });
-          }}
-        >
-          {setlistPickerOptions}
-        </Picker>
+        <Text style={ModalStyles.pickerContainer}>
+          <Picker
+            style={ModalStyles.modalPicker}
+            selectedValue={selectedSetlist}
+            onValueChange={(itemValue) => {
+              this.setState({
+                selectedSetlist: itemValue
+              });
+            }}
+          >
+            {setlistPickerOptions}
+          </Picker>
+
+        </Text>
       </AbstractModal>
     );
   }

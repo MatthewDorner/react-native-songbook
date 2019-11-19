@@ -29,10 +29,9 @@ export default class DeleteTuneModal extends Component {
     const { tune, closeModal } = this.props;
 
     return (
-      <AbstractModal submit={this.deleteTuneOperation} cancel={closeModal}>
-        <Text style={ModalStyles.title}>Delete Tune</Text>
+      <AbstractModal submit={this.deleteTuneOperation} cancel={closeModal} title="Delete Tune">
         <Text style={ModalStyles.message}>
-          Tune will be deleted from app completely and all setlists.
+          Tune will be deleted from database completely and all setlists.
         </Text>
         <Text style={ModalStyles.infoItem}>
           {`Tune Name: ${tune.Title}`}

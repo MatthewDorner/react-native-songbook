@@ -41,8 +41,7 @@ export default class deleteCollectionModal extends Component {
     const { item, closeModal } = this.props;
 
     return (
-      <AbstractModal submit={this.deleteCollectionOperation} cancel={closeModal}>
-        <Text style={ModalStyles.title}>Delete Collection</Text>
+      <AbstractModal submit={this.deleteCollectionOperation} cancel={closeModal} title="Delete Collection">
         <Text style={ModalStyles.message}>
           Tunes in the collection will be deleted.
         </Text>

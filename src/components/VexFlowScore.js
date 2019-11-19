@@ -95,6 +95,8 @@ export default class VexFlowScore extends Component {
         I need to multiply by 0.75 for the height. This is because:
         1 / 1.2 === .83333, and then .83333 * .9 === 0.75
 
+        the + 50 is to add the extra space at the bottom
+
         why don't I reference dimWidth in the height argument? Because it's already factored in by the
         lastBar.position.y???
 
@@ -103,7 +105,7 @@ export default class VexFlowScore extends Component {
       */
       context = new ReactNativeSVGContext(
         NotoFontPack,
-        { width: dimWidth * 0.90, height: (lastBar.position.y + renderOptions.lineHeight) * 0.75 }
+        { width: dimWidth * 0.90, height: ((lastBar.position.y + renderOptions.lineHeight) * 0.75) + 50 }
       );
 
       context.setViewBox(0, 0, renderOptions.renderWidth + 6, (lastBar.position.y + renderOptions.lineHeight) + 5);

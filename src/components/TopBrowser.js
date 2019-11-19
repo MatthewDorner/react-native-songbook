@@ -12,7 +12,6 @@ import {
 import { Navigation } from 'react-native-navigation';
 import Database from '../data-access/database';
 import Constants from '../data-access/constants';
-import ButtonStyles from '../styles/button-styles';
 
 import AddCollectionModal from './modals/AddCollectionModal';
 import AddSetlistModal from './modals/AddSetlistModal';
@@ -82,9 +81,6 @@ export default class TopBrowser extends Component {
   }
 
   showModal(action, item) {
-    // console.log('showModal: ');
-    // console.log('action: ' + action);
-    // console.log('item: ' + item);
     let modalToShow;
     switch (action) {
       case 'addCollection':
@@ -139,11 +135,11 @@ export default class TopBrowser extends Component {
           </Text>
 
           <TouchableHighlight
-            style={ButtonStyles.addCollectionButton}
+            style={styles.addCollectionButton}
             underlayColor="lightgray"
             onPress={() => this.showModal('addCollection')}
           >
-            <Text style={{ fontSize: 18, paddingBottom: 2 }}>+</Text>
+            <Text style={{ fontSize: 18, paddingBottom: 2, color: 'white' }}>+</Text>
           </TouchableHighlight>
 
         </View>
@@ -161,13 +157,12 @@ export default class TopBrowser extends Component {
           </Text>
 
           <TouchableHighlight
-            style={ButtonStyles.addCollectionButton}
+            style={styles.addCollectionButton}
             underlayColor="lightgray"
             onPress={() => this.showModal('addSetlist')}
           >
-            <Text style={{ fontSize: 18, paddingBottom: 2 }}>+</Text>
+            <Text style={{ fontSize: 18, paddingBottom: 2, color: 'white' }}>+</Text>
           </TouchableHighlight>
-
 
         </View>
         <FlatList
@@ -205,5 +200,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderColor: 'black',
     borderWidth: 1
+  },
+  addCollectionButton: {
+    backgroundColor: '#dddddd',
+    marginTop: 16,
+    marginLeft: 3,
+    height: 23,
+    borderRadius: 5,
+    padding: 0,
+    width: 25,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });

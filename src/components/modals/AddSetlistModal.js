@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
+import { Input } from 'react-native-elements';
 import {
   Text,
-  TextInput,
   Alert
 } from 'react-native';
 import AbstractModal from './AbstractModal';
@@ -38,13 +38,11 @@ export default class AddSetlistModal extends Component {
     const { closeModal } = this.props;
 
     return (
-      <AbstractModal submit={this.createSetlistOperation} cancel={closeModal}>
-        <Text style={ModalStyles.title}>Add Setlist</Text>
+      <AbstractModal submit={this.createSetlistOperation} cancel={closeModal} title="Add Setlist">
         <Text style={ModalStyles.message}>
           A Tune can belong to any number of Setlists.
         </Text>
-        <TextInput
-          style={ModalStyles.nameInput}
+        <Input
           placeholder="Name"
           onChangeText={text => this.setState({ name: text })}
         />

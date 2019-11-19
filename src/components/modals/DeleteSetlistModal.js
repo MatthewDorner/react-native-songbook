@@ -41,8 +41,7 @@ export default class DeleteSetlistModal extends Component {
     const { closeModal, item } = this.props;
 
     return (
-      <AbstractModal submit={this.deleteSetlistOperation} cancel={closeModal}>
-        <Text style={ModalStyles.title}>Delete Setlist</Text>
+      <AbstractModal submit={this.deleteSetlistOperation} cancel={closeModal} title="Delete Setlist">
         <Text style={ModalStyles.message}>
           Tunes in the setlist will not be deleted as they reside in their collection.
         </Text>

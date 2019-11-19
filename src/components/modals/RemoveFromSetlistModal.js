@@ -25,8 +25,7 @@ export default class RemoveFromSetlistModal extends Component {
     const { closeModal } = this.props;
 
     return (
-      <AbstractModal submit={this.removeFromSetlistOperation} cancel={closeModal}>
-        <Text style={ModalStyles.title}>Remove From Setlist</Text>
+      <AbstractModal submit={this.removeFromSetlistOperation} cancel={closeModal} title="Remove From Setlist">
         <Text style={ModalStyles.message}>
           Remove from setlist? Tune will remain available via its collection.
         </Text>

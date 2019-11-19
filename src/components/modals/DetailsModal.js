@@ -5,8 +5,7 @@ import ModalStyles from '../../styles/modal-styles';
 
 export default function DetailsModal({ tune, closeModal }) {
   return (
-    <AbstractModal close={closeModal}>
-      <Text style={ModalStyles.title}>Tune Details</Text>
+    <AbstractModal close={closeModal} title="Tune Details">
       <Text style={ModalStyles.infoItem}>
         {tune.Tune}
       </Text>

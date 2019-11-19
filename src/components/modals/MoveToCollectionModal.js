@@ -53,22 +53,23 @@ export default class MoveToCollectionModal extends Component {
     const collectionPickerOptions = collections.map(collection => <Picker.Item label={collection.Name} value={collection.rowid} key={collection.rowid} />);
 
     return (
-      <AbstractModal submit={this.moveToCollectionModal} cancel={closeModal}>
-        <Text style={ModalStyles.title}>Move To Collection</Text>
+      <AbstractModal submit={this.moveToCollectionModal} cancel={closeModal} title="Move To Collection">
         <Text style={ModalStyles.message}>
-          Select a Collection to add this Tune to.
+          Select a Collection to add this Tune to:
         </Text>
-        <Picker
-          style={ModalStyles.picker}
-          selectedValue={selectedCollection}
-          onValueChange={(itemValue) => {
-            this.setState({
-              selectedCollection: itemValue
-            });
-          }}
-        >
-          {collectionPickerOptions}
-        </Picker>
+        <Text style={ModalStyles.pickerContainer}>
+          <Picker
+            style={ModalStyles.modalPicker}
+            selectedValue={selectedCollection}
+            onValueChange={(itemValue) => {
+              this.setState({
+                selectedCollection: itemValue
+              });
+            }}
+          >
+            {collectionPickerOptions}
+          </Picker>
+        </Text>
       </AbstractModal>
     );
   }
