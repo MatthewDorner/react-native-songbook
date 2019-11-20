@@ -64,14 +64,14 @@ export default class VexFlowScore extends Component {
       xOffset: 3,
       widthFactor: 27,
       lineHeight: 170, // this should be a factor proportional to renderWidth?
-      clefWidth: 40,
-      meterWidth: 40,
+      clefWidth: 45,
+      meterWidth: 30,
       repeatWidthModifier: 35, // can't figure out why this is necessary but...
       // putting this to 2 makes it look better for the second part's lead-in, but makes it look worse
       // for the lead-in notes in the very first bar........
       dottedNotesModifier: 23,
-      keySigAccidentalWidth: 20, // used to be 14 or 16...
-      minWidthMultiplier: 2, // minimum bar width should be that of a bar with 2 notes
+      keySigAccidentalWidth: 15, // used to be 14 or 16...
+      minWidthMultiplier: 1.7, // minimum bar width should be that of a bar with 2 notes
       voltaHeight: 25,
       tabsVisibility,
       renderWidth: dimWidth * 1.2
