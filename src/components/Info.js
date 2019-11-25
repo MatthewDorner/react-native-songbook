@@ -14,7 +14,7 @@ export default class Info extends PureComponent {
           Songbook
         </Text>
         <Text style={styles.body}>
-          This application allows you to view and import music in ABC notation format. To find more music to import, search Google for 'ABC songbooks', etc. Then, import the file by adding a new Collection from the Browser tab.
+          This application allows you to view and import music in ABC notation format. To find more music, search Google for 'ABC notation songbooks', etc. Then, import the file by adding a new Collection from the Browser tab.
         </Text>
         <Text style={styles.body}>
           This application is free, open-source software licensed under GPLv3. Any issues, features requests or contributions can be submitted via GitHub at https://github.com/matthewdorner/react-native-songbook, or via e-mail at me@matthewdorner.com.

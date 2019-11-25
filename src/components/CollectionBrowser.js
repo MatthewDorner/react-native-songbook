@@ -45,7 +45,6 @@ export default class CollectionBrowser extends PureComponent {
     this.queryDatabaseState();
   }
 
-
   setSearchText(text) {
     return new Promise((resolve, reject) => {
       this.setState({
@@ -65,9 +64,6 @@ export default class CollectionBrowser extends PureComponent {
     });
   }
 
-  /*
-    refactor this
-  */
   onSearch = () => new Promise((resolve, reject) => {
     const {
       searchText, rhythmFilter, keyFilter, tunes
@@ -136,33 +132,35 @@ export default class CollectionBrowser extends PureComponent {
 
     return (
       <View style={styles.listItem}>
-        <TouchableOpacity
-          onPress={() => {
-            if (tuneChangeCallback.callback) {
-              tuneChangeCallback.callback(item);
-            }
-          }}
-        >
-          <View>
-            <Text style={styles.listItemTitle}>
-              {item.Title}
-            </Text>
-            <View>
-              <Text style={styles.listItemDetail}>
-                {`Key: ${item.Key}`}
-                {(item.Rhythm ? `, Rhythm: ${item.Rhythm}` : '')}
+        <View>
+          <View style={{ flexDirection: 'row' }}>
+            <TouchableOpacity
+              onPress={() => {
+                if (tuneChangeCallback.callback) {
+                  tuneChangeCallback.callback(item);
+                }
+              }}
+            >
+              <Text style={styles.listItemTitle}>
+                {item.Title}
               </Text>
-            </View>
+            </TouchableOpacity>
+            <Picker
+              style={{ height: 36, width: 30 }}
+              onValueChange={(itemValue) => {
+                this.showModal(itemValue, item);
+              }}
+            >
+              {pickerOptions}
+            </Picker>
           </View>
-        </TouchableOpacity>
-        <Picker
-          style={{ height: 30, width: 40 }}
-          onValueChange={(itemValue) => {
-            this.showModal(itemValue, item);
-          }}
-        >
-          {pickerOptions}
-        </Picker>
+          <View>
+            <Text style={styles.listItemDetail}>
+              {`Key: ${item.Key}`}
+              {(item.Rhythm ? `, Rhythm: ${item.Rhythm}` : '')}
+            </Text>
+          </View>
+        </View>
       </View>
     );
   }
@@ -170,7 +168,6 @@ export default class CollectionBrowser extends PureComponent {
   showModal(action, item) {
     let modalToShow;
     const { collectionId } = this.props;
-    // add other actions here
     switch (action) {
       case 'addToSetlist':
         modalToShow = <AddToSetlistModal closeModal={() => this.closeModal()} tune={item} />;
@@ -240,7 +237,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'left',
     marginTop: 4,
-    marginBottom: 4
+    marginBottom: 4,
+    marginRight: 10
   },
   listItemDetail: {
     fontSize: 13,

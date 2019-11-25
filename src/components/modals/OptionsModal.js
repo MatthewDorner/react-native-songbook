@@ -2,19 +2,10 @@ import React, { Component } from 'react';
 import {
   Text,
   Picker,
-  Alert,
-  StyleSheet
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
-import DBOperations from '../../data-access/db-operations';
 
-/*
-  CAN AVOID SAVING THIS TO DATABASE... JUST KEEP THE OPTION AS PART OF THE CURRENTTUNE STATE...
-  on the other hand, it's not that much work, but implment it first without the database.
-
-*/
 export default class OptionsModal extends Component {
   constructor(props) {
     super(props);

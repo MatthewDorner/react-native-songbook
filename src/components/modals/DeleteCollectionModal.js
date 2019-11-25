@@ -17,24 +17,21 @@ export default class deleteCollectionModal extends Component {
     this.deleteCollectionOperation = this.deleteCollectionOperation.bind(this);
   }
 
-  deleteCollectionOperation() {
+  async deleteCollectionOperation() {
     const { item, closeModal } = this.props;
 
-    Database.getTunesForCollection(item.rowid, Constants.CollectionTypes.SETLIST).then((tunesForSetlist) => {
+    try {
+      const tunesForCollection = await Database.getTunesForCollection(item.rowid, Constants.CollectionTypes.COLLECTION);
       const promises = [];
-
-      tunesForSetlist.forEach((tune) => {
+      tunesForCollection.forEach((tune) => {
         promises.push(Database.deleteTune(tune));
       });
-
-      Promise.all(promises).then(() => {
-        Database.deleteCollection(item.rowid);
-      }).then(() => {
-        closeModal();
-      }).catch((e) => {
-        Alert(`Failed to delete collection: ${e}`);
-      });
-    });
+      await Promise.all(promises);
+      await Database.deleteCollection(item.rowid);
+    } catch (e) {
+      Alert(`Failed to delete collection: ${e}`);
+    }
+    closeModal();
   }
 
   render() {
@@ -46,7 +43,7 @@ export default class deleteCollectionModal extends Component {
           Tunes in the collection will be deleted.
         </Text>
         <Text style={ModalStyles.infoItem}>
-          {`Collection Name:${item.Name}`}
+          {`Collection Name: ${item.Name}`}
         </Text>
       </AbstractModal>
     );

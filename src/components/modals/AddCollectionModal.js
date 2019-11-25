@@ -13,7 +13,6 @@ import Database from '../../data-access/database';
 import DBOperations from '../../data-access/db-operations';
 import Constants from '../../data-access/constants';
 
-
 export default class AddCollectionModal extends Component {
   constructor(props) {
     super(props);
@@ -33,19 +32,16 @@ export default class AddCollectionModal extends Component {
     const { closeModal } = this.props;
 
     try {
-      Database.addCollection(name, Constants.CollectionTypes.COLLECTION).then((res) => {
-        if (importFilePath !== '') {
-          RNFS.readFile(importFilePath, 'utf8').then((contents) => {
-            DBOperations.importTuneBook(contents, res.insertId).then((songsAdded) => {
-              Alert.alert('Imported Songbook Successfully', `Imported ${songsAdded} songs.`);
-            });
-          });
-        }
-        closeModal();
-      });
+      const res = await Database.addCollection(name, Constants.CollectionTypes.COLLECTION);
+      if (importFilePath !== '') {
+        const contents = await RNFS.readFile(importFilePath, 'utf8');
+        const songsAdded = await DBOperations.importTuneBook(contents, res.insertId);
+        Alert.alert('Imported Songbook Successfully', `Imported ${songsAdded} songs.`);
+      }
     } catch (e) {
       Alert.alert(`Failed to create collection: ${e}`);
     }
+    closeModal();
   }
 
   pickFile() {
@@ -71,7 +67,7 @@ export default class AddCollectionModal extends Component {
     return (
       <AbstractModal submit={this.createCollectionOperation} cancel={closeModal} title="Add Collection">
         <Text style={ModalStyles.message}>
-          Select an ABC tunebook from your device storage or leave File blank to create an empty Collection:
+          Select an ABC songbook from your device storage or leave File blank to create an empty Collection:
         </Text>
         <Input
           placeholder="Name"

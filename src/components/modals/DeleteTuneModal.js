@@ -15,14 +15,15 @@ export default class DeleteTuneModal extends Component {
     this.deleteTuneOperation = this.deleteTuneOperation.bind(this);
   }
 
-  deleteTuneOperation() {
+  async deleteTuneOperation() {
     const { tune, closeModal } = this.props;
 
-    Database.deleteTune(tune).then((result) => {
-      closeModal();
-    }).catch((e) => {
+    try {
+      await Database.deleteTune(tune);
+    } catch (e) {
       Alert(`Failed to delete tune: ${e}`);
-    });
+    }
+    closeModal();
   }
 
   render() {

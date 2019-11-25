@@ -72,10 +72,8 @@ export default class CurrentTune extends Component {
   showModal(action) {
     const { tune } = this.state;
     let modalToShow;
-    // add other actions here
     switch (action) {
       case 'details':
-        // why () => this.closeModal() ?? is it different than just this.closeModal ??
         modalToShow = <DetailsModal closeModal={() => this.closeModal()} tune={tune} />;
         break;
       case 'options':
@@ -102,7 +100,7 @@ export default class CurrentTune extends Component {
 
   render() {
     const {
-      waiting, tune, dimHeight, dimWidth, tabsVisibility
+      waiting, tune, dimHeight, dimWidth, tabsVisibility, modalVisible, modalContents
     } = this.state;
 
     // WHY IS THIS RUNNING WHEN I OPEN UP A COLLECTION IN THE OTHER TAB!!!!!
@@ -134,7 +132,7 @@ export default class CurrentTune extends Component {
     } else {
       content = [
         <Text style={styles.title} key="title">
-          PLEASE WAIT...
+          Please Wait...
         </Text>
       ];
     }
@@ -145,9 +143,9 @@ export default class CurrentTune extends Component {
           style={styles.modal}
           animationType="slide"
           transparent={false}
-          visible={this.state.modalVisible}
+          visible={modalVisible}
         >
-          {this.state.modalContents}
+          {modalContents}
         </Modal>
         {content}
       </ScrollView>

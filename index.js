@@ -31,11 +31,11 @@ Navigation.events().registerAppLaunchedListener(() => {
     Navigation.setRoot({
       root: {
         bottomTabs: {
-          // options: {
-          //   bottomTabs: {
-          //     backgroundColor: '#F0FFF0'
-          //   },
-          // },
+          options: {
+            bottomTabs: {
+              currentTabIndex: 2
+            },
+          },
           children: [{
             stack: {
               id: 'CurrentTuneStack',

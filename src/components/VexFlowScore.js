@@ -74,7 +74,7 @@ export default class VexFlowScore extends Component {
       minWidthMultiplier: 1.7, // minimum bar width should be that of a bar with 2 notes
       tabsVisibility,
       voltaHeight: 25,
-      minBarWidth: 38,
+      minNotesWidth: 40,
       renderWidth: dimWidth * 1.2
     };
 

@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import {
   Text,
-  View,
   Alert
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
+import DBOperations from '../../data-access/db-operations';
 import Constants from '../../data-access/constants';
 
 
@@ -17,24 +17,21 @@ export default class DeleteSetlistModal extends Component {
     this.deleteSetlistOperation = this.deleteSetlistOperation.bind(this);
   }
 
-  deleteSetlistOperation() {
+  async deleteSetlistOperation() {
     const { item, closeModal } = this.props;
 
-    Database.getTunesForCollection(item.rowid, Constants.CollectionTypes.SETLIST).then((tunesForSetlist) => {
+    try {
+      const tunesForSetlist = await Database.getTunesForCollection(item.rowid, Constants.CollectionTypes.SETLIST);
       const promises = [];
-
       tunesForSetlist.forEach((tune) => {
-        promises.push(Database.removeTuneFromSetlist(tune, item.rowid));
+        promises.push(DBOperations.removeTuneFromSetlist(tune, item.rowid));
       });
-
-      Promise.all(promises).then(() => {
-        Database.deleteCollection(item.rowid);
-      }).then(() => {
-        closeModal();
-      }).catch((e) => {
-        Alert(`Failed to delete setlist: ${e}`);
-      });
-    });
+      await Promise.all(promises);
+      await Database.deleteCollection(item.rowid);
+    } catch (e) {
+      Alert(`Failed to delete setlist: ${e}`);
+    }
+    closeModal();
   }
 
   render() {
@@ -46,7 +43,7 @@ export default class DeleteSetlistModal extends Component {
           Tunes in the setlist will not be deleted as they reside in their collection.
         </Text>
         <Text style={ModalStyles.infoItem}>
-          {`Setlist Name:${item.Name}`}
+          {`Setlist Name: ${item.Name}`}
         </Text>
       </AbstractModal>
     );

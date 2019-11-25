@@ -1,7 +1,22 @@
+import SQLite from 'react-native-sqlite-2';
 import Constants from './constants';
 
 export default {
-  db: null, // gets set by init() in db-operations, for now
+  db: null,
+
+  initDb() {
+    this.db = SQLite.openDatabase('tunebook.db', '1.0', '', 1);
+  },
+
+  executeSqlDebug(txn, query, parameters, callback) {
+    console.log('SQL QUERY: \n' + query);
+    txn.executeSql(query, parameters, (tx, res) => {
+      console.log(res);
+      if (callback) {
+        callback(tx, res);
+      }
+    });
+  },
 
   // idea: additional argument "orderBy" would go here...
   getTunesForCollection(collection, queriedBy) {
@@ -16,7 +31,7 @@ export default {
         }
 
         // are there any other characters that need to be escaped??
-        txn.executeSql(query, [], (tx, res) => {
+        this.executeSqlDebug(txn, query, [], (tx, res) => {
           for (let i = 0; i < res.rows.length; ++i) {
             const tune = res.rows.item(i);
             tune.Tune = tune.Tune.replace(/""/g, '"');
@@ -35,7 +50,7 @@ export default {
     return new Promise((resolve, reject) => {
       const collections = [];
       this.db.transaction((txn) => {
-        txn.executeSql(`select rowid, Name, Type from Collections where Type = ${type}`, [], (tx, res) => {
+        this.executeSqlDebug(txn, `select rowid, Name, Type from Collections where Type = ${type}`, [], (tx, res) => {
           for (let i = 0; i < res.rows.length; ++i) { // why did I use ++i?
             const collection = res.rows.item(i);
             collections.push(collection);
@@ -53,7 +68,7 @@ export default {
     return new Promise((resolve, reject) => {
       let sqlResult;
       this.db.transaction((txn) => {
-        txn.executeSql(`insert into Collections (Name, Type) VALUES ("${name}", "${type}")`, [], (tx, res) => {
+        this.executeSqlDebug(txn, `insert into Collections (Name, Type) VALUES ("${name}", "${type}")`, [], (tx, res) => {
           sqlResult = res;
         });
       }, (error) => {
@@ -68,7 +83,7 @@ export default {
     return new Promise((resolve, reject) => {
       let sqlResult;
       this.db.transaction((txn) => {
-        txn.executeSql(`delete from Tunes where rowid = "${tune.rowid}"`, [], (tx, res) => {
+        this.executeSqlDebug(txn, `delete from Tunes where rowid = "${tune.rowid}"`, [], (tx, res) => {
           sqlResult = res;
         });
       }, (error) => {
@@ -83,7 +98,7 @@ export default {
     return new Promise((resolve, reject) => {
       let sqlResult;
       this.db.transaction((txn) => {
-        txn.executeSql(`delete from Collections where rowid = "${rowid}"`, [], (tx, res) => {
+        this.executeSqlDebug(txn, `delete from Collections where rowid = "${rowid}"`, [], (tx, res) => {
           sqlResult = res;
         });
       }, (error) => {
@@ -112,7 +127,7 @@ export default {
 
       let result;
       this.db.transaction((txn) => {
-        txn.executeSql(sql, [], (tx, res) => {
+        this.executeSqlDebug(txn, sql, [], (tx, res) => {
           result = res;
         });
       }, (error) => {

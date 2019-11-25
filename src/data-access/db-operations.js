@@ -1,7 +1,3 @@
-// When possible, use the readTransaction() to obtain better execution performance of SQL statements.
-// Your query %searchword% cause table scan, it will get slower as number of records increase. Use searchword% query to get index base fast query.
-
-import SQLite from 'react-native-sqlite-2';
 import DefaultData from './default-data';
 import Database from './database';
 
@@ -11,23 +7,20 @@ import Database from './database';
   db itself
 */
 
-// option? remove .db to a separate, third file? would be less hierarchical so probablybad.
-// better to find a way to get this init code separated between database.js and index.js
-
 export default {
   init() {
+    Database.initDb();
     return new Promise((resolve, reject) => {
-      Database.db = SQLite.openDatabase('tunebook.db', '1.0', '', 1);
       Database.db.transaction((txn) => {
-        txn.executeSql('DROP TABLE IF EXISTS Tunes', []); // JUST FOR TESTING
-        txn.executeSql('DROP TABLE IF EXISTS Collections', []); // JUST FOR TESTING
+        Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Tunes', []); // JUST FOR TESTING
+        Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Collections', []); // JUST FOR TESTING
         // what's the deal with txn and tx here? what tx is provided from .executeSql()?
-        txn.executeSql('select * from sqlite_master where type = "table" and name = "Tunes"', [], (tx, res) => {
+        Database.executeSqlDebug(txn, 'select * from sqlite_master where type = "table" and name = "Tunes"', [], (tx, res) => {
           if (res.rows.length === 0) {
-            txn.executeSql('CREATE TABLE `Tunes` (`Tune` TEXT, `Title` TEXT, `Rhythm` TEXT, `Key` TEXT, `Collection` INTEGER, `Setlists` TEXT)', [], (tx, res) => {
+            Database.executeSqlDebug(txn, 'CREATE TABLE `Tunes` (`Tune` TEXT, `Title` TEXT, `Rhythm` TEXT, `Key` TEXT, `Collection` INTEGER, `Setlists` TEXT)', [], (tx, res) => {
               // res
             });
-            txn.executeSql('CREATE TABLE `Collections` (`Name` TEXT, `Type` INTEGER)', [], (tx, res) => {
+            Database.executeSqlDebug(txn, 'CREATE TABLE `Collections` (`Name` TEXT, `Type` INTEGER)', [], (tx, res) => {
               // res
             });
             this.importTuneBook(DefaultData.defaultTunes);
@@ -42,7 +35,7 @@ export default {
     });
   },
 
-  importTuneBook(tuneBook, collection) {
+  importTuneBook(tuneBook, collection = 1) {
     return new Promise((resolve, reject) => {
       // "The tune header should start with an X:(reference number) field followed
       // by a T:(title) field and finish with a K:(key) field."
@@ -65,35 +58,12 @@ export default {
 
       Database.db.transaction((txn) => {
         correctedTunes.forEach((tune) => {
-          let rhythm = '';
-          tune.split('\n').forEach((line) => {
-            if (line.startsWith('R:')) { // will it work if there's a line that's just 'R:' ??
-              rhythm = line.slice(2, line.length).trim();
-            }
-          });
-          let title = '';
-          tune.split('\n').forEach((line) => {
-            if (line.startsWith('T:')) {
-              title = line.slice(2, line.length).trim();
-            }
-          });
-          let key = '';
-          tune.split('\n').forEach((line) => {
-            if (line.startsWith('K:')) {
-              key = line.slice(2, line.length).trim();
-            }
-          });
-
-          let collectionDest;
+          const rhythm = getAbcField(tune, 'R').replace(/ /g, '');
+          const title = getAbcField(tune, 'T');
+          const key = getAbcField(tune, 'K').replace(/ /g, '');
           const setlists = '[]';
 
-          // change this cheap way of detecting whether we're doing init or user import
-          if (!collection) {
-            collectionDest = 1; // should be the rowId for nottingham default data
-          } else { // it's a new collection added by user
-            collectionDest = collection;
-          }
-          txn.executeSql(`insert into Tunes (Tune, Title, Rhythm, Key, Collection, Setlists) VALUES ("${tune}", "${title}", "${rhythm}", "${key}", "${collectionDest}", "${setlists}")`, [], (tx, res) => {
+          Database.executeSqlDebug(txn, `insert into Tunes (Tune, Title, Rhythm, Key, Collection, Setlists) VALUES ("${tune}", "${title}", "${rhythm}", "${key}", "${collection}", "${setlists}")`, [], (tx, res) => {
             songsAdded += 1;
           });
         });
@@ -147,7 +117,7 @@ export default {
     return new Promise((resolve, reject) => {
       Database.db.transaction((txn) => {
         collections.forEach((collection) => {
-          txn.executeSql(`insert into Collections (Name, Type) VALUES ("${collection.Name}", "${collection.Type}")`, [], (tx, res) => {
+          Database.executeSqlDebug(txn, `insert into Collections (Name, Type) VALUES ("${collection.Name}", "${collection.Type}")`, [], (tx, res) => {
             // res
           });
         });
@@ -159,3 +129,20 @@ export default {
     });
   }
 };
+
+/**
+ * Used for getting information fields from ABC notation strings without having to use
+ * abcjs parser
+ * @param   {string} abcString the ABC notation string
+ * @param   {string} field the ABC information field such as "X", "T", "R"
+ *
+ * @returns {string} the first line in the abcString starting with the field
+ */
+function getAbcField(abcString, field) {
+  const lines = abcString.split('\n');
+  const fieldLines = lines.filter(line => line.charAt(0) === field);
+  if (fieldLines[0]) {
+    return fieldLines[0].slice(2, fieldLines[0].length);
+  }
+  return '';
+}

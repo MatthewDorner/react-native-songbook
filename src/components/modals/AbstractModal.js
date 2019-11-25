@@ -11,28 +11,28 @@ export default function AbstractModal({ submit, cancel, close, children, title }
   let buttons = [];
 
   // if props.close is passed, override the default "submit / cancel" controls with just "close"
-  if (submit) {
+  if (!close) {
     buttons = [
       <Button
         onPress={() => submit()}
         containerStyle={{ width: 130 }}
         key="submit"
         title="submit"
-        buttonStyle={{ backgroundColor: 'gray' }}
+        buttonStyle={{ backgroundColor: 'gray', marginBottom: 20 }}
       />,
       <Button
         onPress={() => cancel()}
         containerStyle={{ width: 130 }}
         key="cancel"
         title="cancel"
-        buttonStyle={{ backgroundColor: 'gray' }}
+        buttonStyle={{ backgroundColor: 'gray', marginBottom: 20 }}
       />
     ];
   } else {
     buttons = [
       <Button
         onPress={() => close()}
-        containerStyle={{ width: 120 }}
+        containerStyle={{ width: 120, marginBottom: 20 }}
         key="close"
         title="close"
         buttonStyle={{ backgroundColor: 'gray' }}
