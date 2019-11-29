@@ -7,8 +7,6 @@ import {
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
-import Constants from '../../data-access/constants';
-
 
 export default class deleteCollectionModal extends Component {
   constructor(props) {
@@ -18,24 +16,20 @@ export default class deleteCollectionModal extends Component {
   }
 
   async deleteCollectionOperation() {
-    const { item, closeModal } = this.props;
+    const { collection, closeModal } = this.props;
 
     try {
-      const tunesForCollection = await Database.getTunesForCollection(item.rowid, Constants.CollectionTypes.COLLECTION);
-      const promises = [];
-      tunesForCollection.forEach((tune) => {
-        promises.push(Database.deleteTune(tune));
-      });
-      await Promise.all(promises);
-      await Database.deleteCollection(item.rowid);
+      const result = await Database.deleteTunesForCollection(collection.rowid);
+      await Database.deleteCollection(collection.rowid);
+      Alert.alert('Deleted Collection Successfully', `Deleted ${result.rowsAffected} tunes.`);
     } catch (e) {
-      Alert(`Failed to delete collection: ${e}`);
+      Alert.alert('Failed to delete collection', `${e}`);
     }
     closeModal();
   }
 
   render() {
-    const { item, closeModal } = this.props;
+    const { collection, closeModal } = this.props;
 
     return (
       <AbstractModal submit={this.deleteCollectionOperation} cancel={closeModal} title="Delete Collection">
@@ -43,7 +37,7 @@ export default class deleteCollectionModal extends Component {
           Tunes in the collection will be deleted.
         </Text>
         <Text style={ModalStyles.infoItem}>
-          {`Collection Name: ${item.Name}`}
+          {`Collection Name: ${collection.Name}`}
         </Text>
       </AbstractModal>
     );

@@ -1,11 +1,8 @@
 import React, { PureComponent } from 'react';
 import {
   FlatList,
-  Picker,
   StyleSheet,
-  Text,
   View,
-  TouchableOpacity,
   Modal
 } from 'react-native';
 import Database from '../data-access/database';
@@ -15,7 +12,7 @@ import RemoveFromSetlistModal from './modals/RemoveFromSetlistModal';
 import MoveToCollectionModal from './modals/MoveToCollectionModal';
 import DeleteTuneModal from './modals/DeleteTuneModal';
 import DetailsModal from './modals/DetailsModal';
-import Constants from '../data-access/constants';
+import CollectionListItem from './CollectionListItem';
 
 export default class CollectionBrowser extends PureComponent {
   constructor(props) {
@@ -35,6 +32,7 @@ export default class CollectionBrowser extends PureComponent {
     this.onSearch = this.onSearch.bind(this);
     this.showModal = this.showModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
+    this.renderItem = this.renderItem.bind(this);
 
     this.setSearchText = this.setSearchText.bind(this);
     this.setKeyFilter = this.setKeyFilter.bind(this);
@@ -104,85 +102,30 @@ export default class CollectionBrowser extends PureComponent {
   }
 
   queryDatabaseState() {
-    const { collectionId, queriedBy } = this.props;
-    Database.getTunesForCollection(collectionId, queriedBy).then((tunes) => {
+    const { collectionRowid, queriedBy } = this.props;
+    Database.getPartialTunesForCollection(collectionRowid, queriedBy).then((tunes) => {
       this.setState({ tunes }, () => { this.onSearch(); });
     });
   }
 
-  renderItem = ({ item }) => {
-    const { queriedBy, tuneChangeCallback } = this.props;
-
-    let pickerOptions = [];
-    if (queriedBy === Constants.CollectionTypes.COLLECTION) {
-      pickerOptions = [
-        <Picker.Item label="Cancel" value="cancel" key="cancel" />,
-        <Picker.Item label="Details" value="details" key="details" />,
-        <Picker.Item label="Add to Setlist" value="addToSetlist" key="addToSetlist" />,
-        <Picker.Item label="Move to Collection" value="moveToCollection" key="moveToCollection" />,
-        <Picker.Item label="Delete" value="delete" key="delete" />
-      ];
-    } else if (queriedBy === Constants.CollectionTypes.SETLIST) {
-      pickerOptions = [
-        <Picker.Item label="Cancel" value="cancel" key="cancel" />,
-        <Picker.Item label="Details" value="details" key="details" />,
-        <Picker.Item label="Remove from Setlist" value="removeFromSetlist" key="removeFromSetlist" />
-      ];
-    }
-
-    return (
-      <View style={styles.listItem}>
-        <View>
-          <View style={{ flexDirection: 'row' }}>
-            <TouchableOpacity
-              onPress={() => {
-                if (tuneChangeCallback.callback) {
-                  tuneChangeCallback.callback(item);
-                }
-              }}
-            >
-              <Text style={styles.listItemTitle}>
-                {item.Title}
-              </Text>
-            </TouchableOpacity>
-            <Picker
-              style={{ height: 36, width: 30 }}
-              onValueChange={(itemValue) => {
-                this.showModal(itemValue, item);
-              }}
-            >
-              {pickerOptions}
-            </Picker>
-          </View>
-          <View>
-            <Text style={styles.listItemDetail}>
-              {`Key: ${item.Key}`}
-              {(item.Rhythm ? `, Rhythm: ${item.Rhythm}` : '')}
-            </Text>
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  showModal(action, item) {
+  showModal(action, partialTune) {
     let modalToShow;
-    const { collectionId } = this.props;
+    const { collectionRowid } = this.props;
     switch (action) {
       case 'addToSetlist':
-        modalToShow = <AddToSetlistModal closeModal={() => this.closeModal()} tune={item} />;
+        modalToShow = <AddToSetlistModal closeModal={() => this.closeModal()} tuneRowid={partialTune.rowid} />;
         break;
       case 'removeFromSetlist':
-        modalToShow = <RemoveFromSetlistModal closeModal={() => this.closeModal()} tune={item} collectionId={collectionId} />;
+        modalToShow = <RemoveFromSetlistModal closeModal={() => this.closeModal()} tuneRowid={partialTune.rowid} collectionRowid={collectionRowid} />;
         break;
       case 'moveToCollection':
-        modalToShow = <MoveToCollectionModal closeModal={() => this.closeModal()} tune={item} />;
+        modalToShow = <MoveToCollectionModal closeModal={() => this.closeModal()} tuneRowid={partialTune.rowid} />;
         break;
       case 'details':
-        modalToShow = <DetailsModal closeModal={() => this.closeModal()} tune={item} />;
+        modalToShow = <DetailsModal closeModal={() => this.closeModal()} tuneRowid={partialTune.rowid} />;
         break;
       case 'delete':
-        modalToShow = <DeleteTuneModal closeModal={() => this.closeModal()} tune={item} />;
+        modalToShow = <DeleteTuneModal closeModal={() => this.closeModal()} tuneRowid={partialTune.rowid} />;
         break;
       default:
         return;
@@ -197,12 +140,23 @@ export default class CollectionBrowser extends PureComponent {
     });
   }
 
+  renderItem({ item }) {
+    const { queriedBy, tuneChangeCallback } = this.props;
+    return (
+      <CollectionListItem
+        queriedBy={queriedBy}
+        tuneChangeCallback={tuneChangeCallback}
+        item={item}
+        showModal={this.showModal}
+      />
+    );
+  }
+
   render() {
     const { modalVisible, filteredTunes, modalContents } = this.state;
     return (
-      <View>
+      <View style={styles.browserContainer}>
         <Modal
-          style={styles.modal} // should these be in the AbstractModal instead?
           animationType="slide"
           transparent={false}
           visible={modalVisible}
@@ -217,10 +171,12 @@ export default class CollectionBrowser extends PureComponent {
           <SearchContainer onSearch={this.onSearch} setSearchText={this.setSearchText} setKeyFilter={this.setKeyFilter} setRhythmFilter={this.setRhythmFilter} />
         </View>
         <FlatList
+          style={styles.tunesList}
+          removeClippedSubviews
           contentContainerStyle={{ alignItems: 'flex-start' }}
           data={filteredTunes}
           renderItem={this.renderItem}
-          keyExtractor={(item, index) => index.toString()} // is this really right
+          keyExtractor={(partialTune, index) => index.toString()} // is this really right
         />
       </View>
     );
@@ -228,28 +184,10 @@ export default class CollectionBrowser extends PureComponent {
 }
 
 const styles = StyleSheet.create({
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginLeft: 10
+  browserContainer: {
+    marginBottom: 80, // height of navigation bar
   },
-  listItemTitle: {
-    fontSize: 20,
-    textAlign: 'left',
-    marginTop: 4,
-    marginBottom: 4,
-    marginRight: 10
-  },
-  listItemDetail: {
-    fontSize: 13,
-    textAlign: 'left',
-    marginTop: 2,
-    marginBottom: 2
-  },
-  modal: {
-    margin: 20,
-    borderRadius: 20,
-    borderColor: 'black',
-    borderWidth: 1
+  tunesList: {
+    marginLeft: 20
   }
 });

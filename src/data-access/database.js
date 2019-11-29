@@ -9,39 +9,78 @@ export default {
   },
 
   executeSqlDebug(txn, query, parameters, callback) {
-    console.log('SQL QUERY: \n' + query);
+    // console.log('SQL QUERY: \n' + query);
     txn.executeSql(query, parameters, (tx, res) => {
-      console.log(res);
+      // console.log(res);
       if (callback) {
         callback(tx, res);
       }
     });
   },
 
-  // idea: additional argument "orderBy" would go here...
-  getTunesForCollection(collection, queriedBy) {
+  // since browsing was slow, decided to make getTunesForCollection only get the needed fields, and this
+  // getWholeTune must be used to get the full text, etc. it isn't that much data but with 1000 list items
+  // maybe this will make a difference
+  getWholeTune(rowid) {
     return new Promise((resolve, reject) => {
-      const tunes = [];
+      const query = `select rowid, Collection, Key, Rhythm, Setlists, Title, Tune from Tunes where rowid = ${rowid}`;
+      let tune = null;
+      this.db.transaction((txn) => {
+        this.executeSqlDebug(txn, query, [], (tx, res) => {
+          if (!res.rows.item(0)) {
+            reject(new Error('Database: tune not found'));
+            return;
+          }
+          tune = res.rows.item(0);
+          tune.Tune = tune.Tune.replace(/""/g, '"');
+        });
+      }, (error) => {
+        reject(error);
+      }, () => {
+        resolve(tune);
+      });
+    });
+  },
+
+  // to hopefully improve speed, this will not retrieve all fields. It will only get the fields necessary
+  // for collectionBrowser to create the list. when the full text is required, must call getWholeTune()
+  getPartialTunesForCollection(collection, queriedBy) {
+    return new Promise((resolve, reject) => {
+      let tunes = [];
       let query = '';
       this.db.transaction((txn) => {
         if (queriedBy === Constants.CollectionTypes.COLLECTION) {
-          query = `select rowid, Collection, Key, Rhythm, Setlists, Title, Tune from Tunes where Collection = ${collection} order by Title`;
+          query = `select rowid, Key, Rhythm, Title from Tunes where Collection = ${collection} order by Title`;
         } else if (queriedBy === Constants.CollectionTypes.SETLIST) {
-          query = `select rowid, Collection, Key, Rhythm, Setlists, Title, Tune from Tunes where (Setlists like "%[${collection}]%" or Setlists like "%[${collection}," or Setlists like "%,${collection}]") order by Title`;
+          query = `select rowid, Key, Rhythm, Title from Tunes where (Setlists like "%[${collection}]%" or Setlists like "%[${collection}," or Setlists like "%,${collection}]") order by Title`;
         }
 
         // are there any other characters that need to be escaped??
         this.executeSqlDebug(txn, query, [], (tx, res) => {
-          for (let i = 0; i < res.rows.length; ++i) {
-            const tune = res.rows.item(i);
-            tune.Tune = tune.Tune.replace(/""/g, '"');
-            tunes.push(tune);
-          }
+          tunes = res.rows._array;
         });
       }, (error) => {
         reject(error);
       }, () => {
         resolve(tunes);
+      });
+    });
+  },
+
+  // only for Collection not Setlist
+  deleteTunesForCollection(collection) {
+    return new Promise((resolve, reject) => {
+      let result = null;
+      this.db.transaction((txn) => {
+        const query = `delete from Tunes where Collection = ${collection}`;
+
+        this.executeSqlDebug(txn, query, [], (tx, res) => {
+          result = res;
+        });
+      }, (error) => {
+        reject(error);
+      }, () => {
+        resolve(result);
       });
     });
   },

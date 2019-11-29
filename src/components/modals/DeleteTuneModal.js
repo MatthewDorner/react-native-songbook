@@ -12,22 +12,39 @@ import Database from '../../data-access/database';
 export default class DeleteTuneModal extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      tune: {}
+    };
     this.deleteTuneOperation = this.deleteTuneOperation.bind(this);
   }
 
+  async componentDidMount() {
+    const { closeModal, tuneRowid } = this.props;
+
+    try {
+      const tune = await Database.getWholeTune(tuneRowid);
+      this.setState({ tune });
+    } catch (e) {
+      Alert.alert('DeleteTuneModal error', `${e}`);
+      closeModal();
+    }
+  }
+
   async deleteTuneOperation() {
-    const { tune, closeModal } = this.props;
+    const { closeModal } = this.props;
+    const { tune } = this.state;
 
     try {
       await Database.deleteTune(tune);
     } catch (e) {
-      Alert(`Failed to delete tune: ${e}`);
+      Alert.alert('Failed to delete tune', `${e}`);
     }
     closeModal();
   }
 
   render() {
-    const { tune, closeModal } = this.props;
+    const { closeModal } = this.props;
+    const { tune } = this.state;
 
     return (
       <AbstractModal submit={this.deleteTuneOperation} cancel={closeModal} title="Delete Tune">

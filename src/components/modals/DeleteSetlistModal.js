@@ -18,24 +18,24 @@ export default class DeleteSetlistModal extends Component {
   }
 
   async deleteSetlistOperation() {
-    const { item, closeModal } = this.props;
+    const { setlist, closeModal } = this.props;
 
     try {
-      const tunesForSetlist = await Database.getTunesForCollection(item.rowid, Constants.CollectionTypes.SETLIST);
+      const tunesForSetlist = await Database.getPartialTunesForCollection(setlist.rowid, Constants.CollectionTypes.SETLIST);
       const promises = [];
       tunesForSetlist.forEach((tune) => {
-        promises.push(DBOperations.removeTuneFromSetlist(tune, item.rowid));
+        promises.push(DBOperations.removeTuneFromSetlist(tune, setlist.rowid));
       });
       await Promise.all(promises);
-      await Database.deleteCollection(item.rowid);
+      await Database.deleteCollection(setlist.rowid);
     } catch (e) {
-      Alert(`Failed to delete setlist: ${e}`);
+      Alert.alert('Failed to delete setlist', `${e}`);
     }
     closeModal();
   }
 
   render() {
-    const { closeModal, item } = this.props;
+    const { closeModal, setlist } = this.props;
 
     return (
       <AbstractModal submit={this.deleteSetlistOperation} cancel={closeModal} title="Delete Setlist">
@@ -43,7 +43,7 @@ export default class DeleteSetlistModal extends Component {
           Tunes in the setlist will not be deleted as they reside in their collection.
         </Text>
         <Text style={ModalStyles.infoItem}>
-          {`Setlist Name: ${item.Name}`}
+          {`Setlist Name: ${setlist.Name}`}
         </Text>
       </AbstractModal>
     );

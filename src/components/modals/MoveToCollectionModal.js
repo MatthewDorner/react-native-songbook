@@ -14,23 +14,34 @@ export default class MoveToCollectionModal extends Component {
     super(props);
 
     this.state = {
+      tune: {},
       collections: [],
       selectedCollection: {}
     };
 
     this.moveToCollectionOperation = this.moveToCollectionOperation.bind(this);
+  }
 
-    Database.getCollections(Constants.CollectionTypes.COLLECTION).then((collections) => {
+  async componentDidMount() {
+    const { closeModal, tuneRowid } = this.props;
+
+    try {
+      const tune = await Database.getWholeTune(tuneRowid);
+      const collections = await Database.getCollections(Constants.CollectionTypes.COLLECTION);
       this.setState({
+        tune,
         collections,
         selectedCollection: collections[0].rowid
       });
-    });
+    } catch (e) {
+      Alert.alert('MoveToCollectionModal error', `${e}`);
+      closeModal();
+    }
   }
 
   async moveToCollectionOperation() {
-    const { tune, closeModal } = this.props;
-    const { selectedCollection } = this.state;
+    const { closeModal } = this.props;
+    const { selectedCollection, tune } = this.state;
     const { rowid } = tune;
 
     const tuneDelta = {
@@ -40,14 +51,14 @@ export default class MoveToCollectionModal extends Component {
     try {
       await Database.updateTune(rowid, tuneDelta);
     } catch (e) {
-      Alert.alert(`Failed to move to collection: ${e}`);
+      Alert.alert('Failed to move to collection', `${e}`);
     }
     closeModal();
   }
 
   render() {
     const { closeModal } = this.props;
-    const { collections, selectedCollection } = this.state;
+    const { collections, selectedCollection, tune } = this.state;
 
     const collectionPickerOptions = collections.map(collection => <Picker.Item label={collection.Name} value={collection.rowid} key={collection.rowid} />);
 
@@ -55,6 +66,9 @@ export default class MoveToCollectionModal extends Component {
       <AbstractModal submit={this.moveToCollectionOperation} cancel={closeModal} title="Move To Collection">
         <Text style={ModalStyles.message}>
           Select a Collection to add this Tune to:
+        </Text>
+        <Text style={ModalStyles.infoItem}>
+          {`Tune Name: ${tune.Title}`}
         </Text>
         <Text style={ModalStyles.pickerContainer}>
           <Picker

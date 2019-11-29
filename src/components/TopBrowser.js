@@ -12,6 +12,7 @@ import {
 import { Navigation } from 'react-native-navigation';
 import Database from '../data-access/database';
 import Constants from '../data-access/constants';
+import ListStyles from '../styles/list-styles';
 
 import AddCollectionModal from './modals/AddCollectionModal';
 import AddSetlistModal from './modals/AddSetlistModal';
@@ -40,14 +41,14 @@ export default class TopBrowser extends Component {
   }
 
   renderCollectionsItem = ({ item }) => (
-    <View style={styles.listItem}>
+    <View style={ListStyles.listItem}>
       <TouchableOpacity
         onPress={() => {
           Navigation.push('BrowserStack', {
             component: {
               name: 'CollectionBrowser',
               passProps: {
-                collectionId: item.rowid,
+                collectionRowid: item.rowid,
                 queriedBy: item.Type,
                 tuneChangeCallback: this.props.tuneChangeCallback
               }
@@ -55,14 +56,14 @@ export default class TopBrowser extends Component {
           });
         }}
       >
-        <Text style={styles.listItemText}>
+        <Text style={ListStyles.listItemTitle}>
           {item.Name}
         </Text>
       </TouchableOpacity>
       <Picker
-        style={{ height: 50, width: 30 }}
-        onValueChange={(itemValue) => {
-          this.showModal(itemValue, item);
+        style={ListStyles.listItemPicker}
+        onValueChange={(action) => {
+          this.showModal(action, item);
         }}
       >
         <Picker.Item label="Cancel" value="cancel" />
@@ -91,9 +92,9 @@ export default class TopBrowser extends Component {
         break;
       case 'delete':
         if (item.Type == Constants.CollectionTypes.COLLECTION) {
-          modalToShow = <DeleteCollectionModal closeModal={() => this.closeModal()} item={item} />;
+          modalToShow = <DeleteCollectionModal closeModal={() => this.closeModal()} collection={item} />;
         } else if (item.Type == Constants.CollectionTypes.SETLIST) {
-          modalToShow = <DeleteSetlistModal closeModal={() => this.closeModal()} item={item} />;
+          modalToShow = <DeleteSetlistModal closeModal={() => this.closeModal()} setlist={item} />;
         }
         break;
       default:
@@ -118,15 +119,16 @@ export default class TopBrowser extends Component {
   }
 
   render() {
+    const { modalVisible, modalContents } = this.state;
+
     return (
-      <View>
+      <View style={styles.browserContainer}>
         <Modal
-          style={styles.modal}
           animationType="slide"
           transparent={false}
-          visible={this.state.modalVisible}
+          visible={modalVisible}
         >
-          {this.state.modalContents}
+          {modalContents}
         </Modal>
 
         <View style={styles.sectionHeaderContainer}>
@@ -144,6 +146,7 @@ export default class TopBrowser extends Component {
 
         </View>
         <FlatList
+          style={styles.collectionList}
           contentContainerStyle={{ alignItems: 'flex-start' }}
           // extraData={this.state}
           data={this.state.collections}
@@ -166,6 +169,7 @@ export default class TopBrowser extends Component {
 
         </View>
         <FlatList
+          style={styles.collectionList}
           contentContainerStyle={{ alignItems: 'flex-start' }}
           // extraData={this.state}
           data={this.state.setlists}
@@ -178,32 +182,24 @@ export default class TopBrowser extends Component {
 }
 
 const styles = StyleSheet.create({
-  listItem: {
-    flexDirection: 'row'
-  },
-  listItemText: {
-    fontSize: 20,
-    textAlign: 'left',
-    margin: 10
-  },
-  sectionHeaderTitle: {
-    fontSize: 25,
-    textAlign: 'left',
-    margin: 10
+  browserContainer: {
+    marginBottom: 80, // height of navigation bar
+    marginLeft: 20
   },
   sectionHeaderContainer: {
     flexDirection: 'row'
   },
-  modal: {
-    marginTop: 15,
-    marginBottom: 5,
-    borderRadius: 20,
-    borderColor: 'black',
-    borderWidth: 1
+  sectionHeaderTitle: {
+    color: '#aaaaaa',
+    fontSize: 25,
+    textAlign: 'left',
+    marginTop: 13,
+    marginRight: 10,
+    marginBottom: 3
   },
   addCollectionButton: {
     backgroundColor: '#dddddd',
-    marginTop: 16,
+    marginTop: 20,
     marginLeft: 3,
     height: 23,
     borderRadius: 5,

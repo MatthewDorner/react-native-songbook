@@ -32,17 +32,17 @@ export default class VexFlowScore extends Component {
   componentDidUpdate(prevProps, prevState) {
     Object.entries(this.props).forEach(([key, val]) => {
       if (prevProps[key] !== val) {
-        console.log(`Prop '${key}' changed`);
-        console.log(`${prevProps[key]} was not equal to ${val}`);
+        // console.log(`Prop '${key}' changed`);
+        // console.log(`${prevProps[key]} was not equal to ${val}`);
       }
     });
     Object.entries(this.state).forEach(([key, val]) => {
       if (prevState[key] !== val) {
-        console.log(`State '${key}' changed`);
-        console.log(`${prevState[key]} was not equal to ${val}`);
+        // console.log(`State '${key}' changed`);
+        // console.log(`${prevState[key]} was not equal to ${val}`);
       }
     });
-    console.log('---------------------------------------------------');
+    // console.log('---------------------------------------------------');
   }
 
   onPress() {
@@ -62,16 +62,14 @@ export default class VexFlowScore extends Component {
 
     const renderOptions = {
       xOffset: 3,
-      widthFactor: 27,
-      lineHeight: 170, // this should be a factor proportional to renderWidth?
+      widthFactor: 1.7,
+      lineHeight: 185,
       clefWidth: 40,
       meterWidth: 30,
-      repeatWidthModifier: 35, // can't figure out why this is necessary but...
-      // putting this to 2 makes it look better for the second part's lead-in, but makes it look worse
-      // for the lead-in notes in the very first bar........
+      repeatWidthModifier: 35,
       dottedNotesModifier: 23,
-      keySigAccidentalWidth: 15, // used to be 14 or 16...
-      minWidthMultiplier: 1.7, // minimum bar width should be that of a bar with 2 notes
+      keySigAccidentalWidth: 15,
+      minWidthMultiplier: 1.7,
       tabsVisibility,
       voltaHeight: 25,
       minNotesWidth: 40,

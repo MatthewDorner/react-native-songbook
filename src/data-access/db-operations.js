@@ -59,7 +59,18 @@ export default {
       Database.db.transaction((txn) => {
         correctedTunes.forEach((tune) => {
           const rhythm = getAbcField(tune, 'R').replace(/ /g, '');
-          const title = getAbcField(tune, 'T');
+          let title = getAbcField(tune, 'T');
+          // remove period from end of title
+          if (title.endsWith('.')) {
+            title = title.slice(0, title.length - 1);
+          }
+          // remove spaces at beginning of title
+          while (title.startsWith(' ')) {
+            title = title.slice(1, title.length - 1);
+          }
+          if (title === '') {
+            return; // many books have "blank" tunes at beginning with info about book
+          }
           const key = getAbcField(tune, 'K').replace(/ /g, '');
           const setlists = '[]';
 

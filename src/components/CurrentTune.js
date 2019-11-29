@@ -13,6 +13,7 @@ import {
 import VexFlowScore from './VexFlowScore';
 import DetailsModal from './modals/DetailsModal';
 import OptionsModal from './modals/OptionsModal';
+import Database from '../data-access/database';
 
 export default class CurrentTune extends Component {
   constructor(props) {
@@ -44,7 +45,7 @@ export default class CurrentTune extends Component {
       });
     });
 
-    props.tuneChangeCallback.setCallback((tune) => {
+    props.tuneChangeCallback.setCallback((tuneRowid) => {
       this.setState({ waiting: true }, () => {
         setTimeout(() => {
           Navigation.mergeOptions('CurrentTune', {
@@ -52,7 +53,9 @@ export default class CurrentTune extends Component {
               currentTabIndex: 0
             }
           });
-          this.setState({ tune, waiting: false });
+          Database.getWholeTune(tuneRowid).then((res) => {
+            this.setState({ tune: res, waiting: false });
+          });
         }, 1); // timeout to allow it to render the wait message
       });
     });
@@ -74,7 +77,7 @@ export default class CurrentTune extends Component {
     let modalToShow;
     switch (action) {
       case 'details':
-        modalToShow = <DetailsModal closeModal={() => this.closeModal()} tune={tune} />;
+        modalToShow = <DetailsModal closeModal={() => this.closeModal()} tuneRowid={tune.rowid} />;
         break;
       case 'options':
         modalToShow = <OptionsModal closeModal={() => this.closeModal()} setTabsVisibility={this.setTabsVisibility} prevTabsVisibility={this.state.tabsVisibility} />;
@@ -108,7 +111,7 @@ export default class CurrentTune extends Component {
     if (waiting === false) {
       if (tune.Tune) {
         content = [
-          <View style={{ marginLeft: 'auto', marginRight: 'auto', flexDirection: 'row' }} key="title">
+          <View style={styles.contentContainer} key="contentContainer">
             <Text style={styles.title}>
               {tune.Title}
             </Text>
@@ -131,16 +134,17 @@ export default class CurrentTune extends Component {
       }
     } else {
       content = [
-        <Text style={styles.title} key="title">
-          Please Wait...
-        </Text>
+        <View style={styles.contentContainer} key="contentContainer">
+          <Text style={styles.title}>
+            Please Wait...
+          </Text>
+        </View>
       ];
     }
 
     return (
       <ScrollView>
         <Modal
-          style={styles.modal}
           animationType="slide"
           transparent={false}
           visible={modalVisible}
@@ -154,7 +158,13 @@ export default class CurrentTune extends Component {
 }
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    flexDirection: 'row'
+  },
   title: {
+    maxWidth: '85%',
     fontSize: 20,
     textAlign: 'center',
     margin: 10,

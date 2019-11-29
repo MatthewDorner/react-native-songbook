@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import {
   Text,
   Picker,
-  Alert,
-  View
+  Alert
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
@@ -18,27 +17,38 @@ export default class AddToSetlistModal extends Component {
 
     this.state = {
       setlists: [],
-      selectedSetlist: {}
+      selectedSetlist: {},
+      tune: {}
     };
 
     this.addToSetlistOperation = this.addToSetlistOperation.bind(this);
+  }
 
-    Database.getCollections(Constants.CollectionTypes.SETLIST).then((setlists) => {
+  async componentDidMount() {
+    const { tuneRowid, closeModal } = this.props;
+
+    try {
+      const tune = await Database.getWholeTune(tuneRowid);
+      const setlists = await Database.getCollections(Constants.CollectionTypes.SETLIST);
       this.setState({
         setlists,
-        selectedSetlist: setlists[0].rowid
+        selectedSetlist: setlists[0].rowid,
+        tune
       });
-    });
+    } catch (e) {
+      Alert.alert('AddToSetlistModal error', `${e}`);
+      closeModal();
+    }
   }
 
   async addToSetlistOperation() {
-    const { tune, closeModal } = this.props;
-    const { selectedSetlist } = this.state;
+    const { closeModal } = this.props;
+    const { selectedSetlist, tune } = this.state;
 
     try {
       await DBOperations.addTuneToSetlist(tune, selectedSetlist);
     } catch (e) {
-      Alert.alert(`Failed to add to setlist: ${e}`);
+      Alert.alert('Failed to add to setlist', `${e}`);
     }
     closeModal();
   }

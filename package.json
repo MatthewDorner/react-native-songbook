@@ -9,7 +9,7 @@
     "android": "cd ./android && ./gradlew app:assembleDebug && ./gradlew installDebug"
   },
   "dependencies": {
-    "abcjs-vexflow-renderer": "git+https://github.com/MatthewDorner/abcjs-vexflow-renderer.git#9b8a959",
+    "abcjs-vexflow-renderer": "git+https://github.com/MatthewDorner/abcjs-vexflow-renderer.git#ca91ae9",
     "buffer": "^5.2.1",
     "jsc-android": "^241213.2.0",
     "metro-config": "^0.56.0",

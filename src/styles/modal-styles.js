@@ -1,6 +1,13 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
+  // modal: {
+  //   marginTop: 15,
+  //   marginBottom: 5,
+  //   borderRadius: 20,
+  //   borderColor: 'black',
+  //   borderWidth: 1
+  // },
   modalContainer: {
     // textAlign: 'center',
     paddingLeft: '5%',
@@ -41,7 +48,8 @@ export default StyleSheet.create({
     paddingTop: 11,
     paddingBottom: 9,
     paddingLeft: 12,
-    fontFamily: 'monospace'
+    fontFamily: 'monospace',
+    height: 41
   },
   pickerContainer: {
     backgroundColor: '#eeeeee',

@@ -26,9 +26,12 @@ export default class AddSetlistModal extends Component {
     const { closeModal } = this.props;
 
     try {
+      if (name === '') {
+        throw new Error('Name was blank');
+      }
       await Database.addCollection(name, Constants.CollectionTypes.SETLIST);
     } catch (e) {
-      Alert.alert(`Failed to create setlist: ${e}`);
+      Alert.alert('Failed to create setlist:', `${e}`);
     }
     closeModal();
   }

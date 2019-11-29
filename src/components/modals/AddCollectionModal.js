@@ -30,16 +30,26 @@ export default class AddCollectionModal extends Component {
   async createCollectionOperation() {
     const { name, importFilePath } = this.state;
     const { closeModal } = this.props;
+    let contents = '';
+    let cleanedContents = '';
 
     try {
+      if (name === '') {
+        throw new Error('Name was blank');
+      }
       const res = await Database.addCollection(name, Constants.CollectionTypes.COLLECTION);
       if (importFilePath !== '') {
-        const contents = await RNFS.readFile(importFilePath, 'utf8');
-        const songsAdded = await DBOperations.importTuneBook(contents, res.insertId);
-        Alert.alert('Imported Songbook Successfully', `Imported ${songsAdded} songs.`);
+        contents = await RNFS.readFile(importFilePath, 'ascii');
+        contents = contents.replace(/\r/g, ''); // get weird errors if I don't do this
+        for (let i = 0; i < contents.length; i += 1) {
+          cleanedContents = cleanedContents.concat(contents.charAt(i));
+        }
+
+        const songsAdded = await DBOperations.importTuneBook(cleanedContents, res.insertId);
+        Alert.alert('Imported Songbook Successfully', `Imported ${songsAdded} tunes.`);
       }
     } catch (e) {
-      Alert.alert(`Failed to create collection: ${e}`);
+      Alert.alert('Failed to create collection:', `${e}`);
     }
     closeModal();
   }
@@ -51,10 +61,14 @@ export default class AddCollectionModal extends Component {
       if (res && !(res.fileName.endsWith('.abc') || res.fileName.endsWith('.txt'))) {
         // test that this works
         Alert.alert('Please select a file of type .abc or .txt');
-      } else if (!error) {
+      } else if (error) {
+        // there will be error if user backs out of picking file but don't want to
+        // show an error message here
+      } else {
         this.setState({
           importFilePath: res.uri,
-          importFileName: res.fileName
+          importFileName: res.fileName,
+          name: res.fileName.substr(0, res.fileName.lastIndexOf('.'))
         });
       }
     });
@@ -62,7 +76,7 @@ export default class AddCollectionModal extends Component {
 
   render() {
     const { closeModal } = this.props;
-    const { importFileName } = this.state;
+    const { importFileName, name } = this.state;
 
     return (
       <AbstractModal submit={this.createCollectionOperation} cancel={closeModal} title="Add Collection">
@@ -71,6 +85,7 @@ export default class AddCollectionModal extends Component {
         </Text>
         <Input
           placeholder="Name"
+          value={name}
           onChangeText={text => this.setState({ name: text })}
         />
         <View style={{ flexDirection: 'row', marginTop: 15 }}>
