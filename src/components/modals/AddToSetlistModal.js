@@ -42,19 +42,20 @@ export default class AddToSetlistModal extends Component {
   }
 
   async addToSetlistOperation() {
-    const { closeModal } = this.props;
+    const { closeModal, queryDatabaseState } = this.props;
     const { selectedSetlist, tune } = this.state;
+    closeModal();
 
     try {
       await DBOperations.addTuneToSetlist(tune, selectedSetlist);
+      queryDatabaseState();
     } catch (e) {
       Alert.alert('Failed to add to setlist', `${e}`);
     }
-    closeModal();
   }
 
   render() {
-    const { setlists, selectedSetlist } = this.state;
+    const { setlists, selectedSetlist, tune } = this.state;
     const { closeModal } = this.props;
 
     const setlistPickerOptions = setlists.map(setlist => <Picker.Item label={setlist.Name} value={setlist.rowid} key={setlist.rowid} />);
@@ -76,7 +77,9 @@ export default class AddToSetlistModal extends Component {
           >
             {setlistPickerOptions}
           </Picker>
-
+        </Text>
+        <Text style={ModalStyles.infoItem}>
+          {`Tune Name: ${tune.Title}`}
         </Text>
       </AbstractModal>
     );

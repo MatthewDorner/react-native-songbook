@@ -18,7 +18,8 @@ export default class DeleteSetlistModal extends Component {
   }
 
   async deleteSetlistOperation() {
-    const { setlist, closeModal } = this.props;
+    const { setlist, closeModal, queryDatabaseState } = this.props;
+    closeModal();
 
     try {
       const tunesForSetlist = await Database.getPartialTunesForCollection(setlist.rowid, Constants.CollectionTypes.SETLIST);
@@ -28,10 +29,10 @@ export default class DeleteSetlistModal extends Component {
       });
       await Promise.all(promises);
       await Database.deleteCollection(setlist.rowid);
+      queryDatabaseState();
     } catch (e) {
       Alert.alert('Failed to delete setlist', `${e}`);
     }
-    closeModal();
   }
 
   render() {

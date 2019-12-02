@@ -99,7 +99,7 @@ export default {
       }
 
       const delta = { Setlists: JSON.stringify(newSetlists) };
-      Database.updateTune(rowid, delta).then((result) => {
+      Database.updateRecord(rowid, delta, 'Tunes').then((result) => {
         resolve(result);
       }).catch((error) => {
         reject(error);
@@ -116,7 +116,7 @@ export default {
       newSetlists = prevSetlists.filter(setlist => setlist !== setlistId);
 
       const delta = { Setlists: JSON.stringify(newSetlists) };
-      Database.updateTune(rowid, delta).then((result) => {
+      Database.updateRecord(rowid, delta, 'Tunes').then((result) => {
         resolve(result);
       }).catch((error) => {
         reject(error);

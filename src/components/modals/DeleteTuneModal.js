@@ -31,15 +31,16 @@ export default class DeleteTuneModal extends Component {
   }
 
   async deleteTuneOperation() {
-    const { closeModal } = this.props;
+    const { closeModal, queryDatabaseState } = this.props;
     const { tune } = this.state;
+    closeModal();
 
     try {
       await Database.deleteTune(tune);
+      queryDatabaseState();
     } catch (e) {
       Alert.alert('Failed to delete tune', `${e}`);
     }
-    closeModal();
   }
 
   render() {

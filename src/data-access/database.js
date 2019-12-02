@@ -50,9 +50,9 @@ export default {
       let query = '';
       this.db.transaction((txn) => {
         if (queriedBy === Constants.CollectionTypes.COLLECTION) {
-          query = `select rowid, Key, Rhythm, Title from Tunes where Collection = ${collection} order by Title`;
+          query = `select rowid, Key, Rhythm, Title from Tunes where Collection = ${collection} order by Title COLLATE NOCASE ASC`;
         } else if (queriedBy === Constants.CollectionTypes.SETLIST) {
-          query = `select rowid, Key, Rhythm, Title from Tunes where (Setlists like "%[${collection}]%" or Setlists like "%[${collection}," or Setlists like "%,${collection}]") order by Title`;
+          query = `select rowid, Key, Rhythm, Title from Tunes where (Setlists like "%[${collection}]%" or Setlists like "%[${collection}," or Setlists like "%,${collection}]") order by Title COLLATE NOCASE ASC`;
         }
 
         // are there any other characters that need to be escaped??
@@ -148,14 +148,14 @@ export default {
     });
   },
 
-  updateTune(rowid, delta) {
+  updateRecord(rowid, delta, table) {
     return new Promise((resolve, reject) => {
       // although this is set up to use a delta, actually it will only work for string
       // fields with how it's written so far. would need a way to differentiate between
       // field that require the value to be in quotes vs those that don't. but there may
       // never be another need to use this function..
 
-      const update = 'update Tunes set ';
+      const update = `update ${table} set `;
       let fields = '';
       for (field in delta) {
         fields += `${field} = "${delta[field]}",`;

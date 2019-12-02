@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import {
   Modal,
   Picker,
-  FlatList,
   StyleSheet,
   Text,
   View,
+  ScrollView,
   TouchableHighlight,
   TouchableOpacity
 } from 'react-native';
@@ -18,7 +18,8 @@ import AddCollectionModal from './modals/AddCollectionModal';
 import AddSetlistModal from './modals/AddSetlistModal';
 import DeleteCollectionModal from './modals/DeleteCollectionModal';
 import DeleteSetlistModal from './modals/DeleteSetlistModal';
-
+import ImportIntoCollectionModal from './modals/ImportIntoCollectionModal';
+import RenameCollectionSetlistModal from './modals/RenameCollectionSetlistModal';
 
 export default class TopBrowser extends Component {
   constructor(props) {
@@ -40,37 +41,55 @@ export default class TopBrowser extends Component {
     this.queryDatabaseState();
   }
 
-  renderCollectionsItem = ({ item }) => (
-    <View style={ListStyles.listItem}>
-      <TouchableOpacity
-        onPress={() => {
-          Navigation.push('BrowserStack', {
-            component: {
-              name: 'CollectionBrowser',
-              passProps: {
-                collectionRowid: item.rowid,
-                queriedBy: item.Type,
-                tuneChangeCallback: this.props.tuneChangeCallback
+  renderCollectionsItem = (item, type) => {
+
+    let pickerOptions = [];
+    if (type === Constants.CollectionTypes.COLLECTION) {
+      pickerOptions = [
+        <Picker.Item label="Cancel" value="cancel" key="cancel" />,
+        <Picker.Item label="Import Into Collection" value="importIntoCollection" key="importIntoCollection" />,
+        <Picker.Item label="Rename" value="renameCollectionSetlist" key="renameCollectionSetlist" />,
+        <Picker.Item label="Delete" value="delete" key="delete" />
+      ];
+    } else {
+      pickerOptions = [
+        <Picker.Item label="Cancel" value="cancel" key="cancel" />,
+        <Picker.Item label="Rename" value="renameCollectionSetlist" key="renameCollectionSetlist" />,
+        <Picker.Item label="Delete" value="delete" key="delete" />
+      ];
+    }
+
+    return (
+      <View style={ListStyles.listItem} key={item.rowid.toString()}>
+        <TouchableOpacity
+          onPress={() => {
+            Navigation.push('BrowserStack', {
+              component: {
+                name: 'CollectionBrowser',
+                passProps: {
+                  collectionRowid: item.rowid,
+                  queriedBy: item.Type,
+                  tuneChangeCallback: this.props.tuneChangeCallback
+                }
               }
-            }
-          });
-        }}
-      >
-        <Text style={ListStyles.listItemTitle}>
-          {item.Name}
-        </Text>
-      </TouchableOpacity>
-      <Picker
-        style={ListStyles.listItemPicker}
-        onValueChange={(action) => {
-          this.showModal(action, item);
-        }}
-      >
-        <Picker.Item label="Cancel" value="cancel" />
-        <Picker.Item label="Delete" value="delete" />
-      </Picker>
-    </View>
-  );
+            });
+          }}
+        >
+          <Text style={ListStyles.listItemTitle}>
+            {item.Name}
+          </Text>
+        </TouchableOpacity>
+        <Picker
+          style={ListStyles.listItemPicker}
+          onValueChange={(action) => {
+            this.showModal(action, item);
+          }}
+        >
+          {pickerOptions}
+        </Picker>
+      </View>
+    );
+  }
 
   queryDatabaseState() {
     Database.getCollections(Constants.CollectionTypes.COLLECTION).then((collections) => {
@@ -85,17 +104,23 @@ export default class TopBrowser extends Component {
     let modalToShow;
     switch (action) {
       case 'addCollection':
-        modalToShow = <AddCollectionModal closeModal={() => this.closeModal()} />;
+        modalToShow = <AddCollectionModal closeModal={() => this.closeModal()} queryDatabaseState={() => this.queryDatabaseState()} />;
         break;
       case 'addSetlist':
-        modalToShow = <AddSetlistModal closeModal={() => this.closeModal()} />;
+        modalToShow = <AddSetlistModal closeModal={() => this.closeModal()} queryDatabaseState={() => this.queryDatabaseState()} />;
         break;
       case 'delete':
-        if (item.Type == Constants.CollectionTypes.COLLECTION) {
-          modalToShow = <DeleteCollectionModal closeModal={() => this.closeModal()} collection={item} />;
-        } else if (item.Type == Constants.CollectionTypes.SETLIST) {
-          modalToShow = <DeleteSetlistModal closeModal={() => this.closeModal()} setlist={item} />;
+        if (item.Type === Constants.CollectionTypes.COLLECTION) {
+          modalToShow = <DeleteCollectionModal closeModal={() => this.closeModal()} queryDatabaseState={() => this.queryDatabaseState()} collection={item} />;
+        } else if (item.Type === Constants.CollectionTypes.SETLIST) {
+          modalToShow = <DeleteSetlistModal closeModal={() => this.closeModal()} queryDatabaseState={() => this.queryDatabaseState()} setlist={item} />;
         }
+        break;
+      case 'renameCollectionSetlist':
+        modalToShow = <RenameCollectionSetlistModal closeModal={() => this.closeModal()} queryDatabaseState={() => this.queryDatabaseState()} item={item} />;
+        break;
+      case 'importIntoCollection':
+        modalToShow = <ImportIntoCollectionModal closeModal={() => this.closeModal()} queryDatabaseState={() => this.queryDatabaseState()} collection={item} />;
         break;
       default:
         return;
@@ -113,16 +138,21 @@ export default class TopBrowser extends Component {
   closeModal() {
     this.setState({
       modalVisible: false
-    }, () => {
-      this.queryDatabaseState();
     });
   }
 
   render() {
-    const { modalVisible, modalContents } = this.state;
+    const { modalVisible, modalContents, collections, setlists } = this.state;
+
+    const collectionItems = collections.map((collection) => {
+      return this.renderCollectionsItem(collection, Constants.CollectionTypes.COLLECTION);
+    });
+    const setlistItems = setlists.map((setlist) => {
+      return this.renderCollectionsItem(setlist, Constants.CollectionTypes.SETLIST);
+    });
 
     return (
-      <View style={styles.browserContainer}>
+      <ScrollView style={styles.browserContainer}>
         <Modal
           animationType="slide"
           transparent={false}
@@ -143,16 +173,11 @@ export default class TopBrowser extends Component {
           >
             <Text style={{ fontSize: 18, paddingBottom: 2, color: 'white' }}>+</Text>
           </TouchableHighlight>
-
         </View>
-        <FlatList
-          style={styles.collectionList}
-          contentContainerStyle={{ alignItems: 'flex-start' }}
-          // extraData={this.state}
-          data={this.state.collections}
-          renderItem={this.renderCollectionsItem}
-          keyExtractor={(item, index) => index.toString()} // is this really right
-        />
+
+        <View style={{ alignItems: 'flex-start' }}>
+          {collectionItems}
+        </View>
 
         <View style={styles.sectionHeaderContainer}>
           <Text style={styles.sectionHeaderTitle}>
@@ -168,22 +193,17 @@ export default class TopBrowser extends Component {
           </TouchableHighlight>
 
         </View>
-        <FlatList
-          style={styles.collectionList}
-          contentContainerStyle={{ alignItems: 'flex-start' }}
-          // extraData={this.state}
-          data={this.state.setlists}
-          renderItem={this.renderCollectionsItem}
-          keyExtractor={(item, index) => index.toString()} // is this really right
-        />
-      </View>
+
+        <View style={{ alignItems: 'flex-start' }}>
+          {setlistItems}
+        </View>
+      </ScrollView>
     );
   }
 }
 
 const styles = StyleSheet.create({
   browserContainer: {
-    marginBottom: 80, // height of navigation bar
     marginLeft: 20
   },
   sectionHeaderContainer: {

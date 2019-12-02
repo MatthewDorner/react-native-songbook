@@ -96,8 +96,6 @@ export default class CollectionBrowser extends PureComponent {
   closeModal() {
     this.setState({
       modalVisible: false
-    }, () => {
-      this.queryDatabaseState();
     });
   }
 
@@ -113,19 +111,19 @@ export default class CollectionBrowser extends PureComponent {
     const { collectionRowid } = this.props;
     switch (action) {
       case 'addToSetlist':
-        modalToShow = <AddToSetlistModal closeModal={() => this.closeModal()} tuneRowid={partialTune.rowid} />;
+        modalToShow = <AddToSetlistModal closeModal={() => this.closeModal()} queryDatabaseState={() => this.queryDatabaseState()} tuneRowid={partialTune.rowid} />;
         break;
       case 'removeFromSetlist':
-        modalToShow = <RemoveFromSetlistModal closeModal={() => this.closeModal()} tuneRowid={partialTune.rowid} collectionRowid={collectionRowid} />;
+        modalToShow = <RemoveFromSetlistModal closeModal={() => this.closeModal()} queryDatabaseState={() => this.queryDatabaseState()} tuneRowid={partialTune.rowid} collectionRowid={collectionRowid} />;
         break;
       case 'moveToCollection':
-        modalToShow = <MoveToCollectionModal closeModal={() => this.closeModal()} tuneRowid={partialTune.rowid} />;
+        modalToShow = <MoveToCollectionModal closeModal={() => this.closeModal()} queryDatabaseState={() => this.queryDatabaseState()} tuneRowid={partialTune.rowid} />;
         break;
       case 'details':
         modalToShow = <DetailsModal closeModal={() => this.closeModal()} tuneRowid={partialTune.rowid} />;
         break;
       case 'delete':
-        modalToShow = <DeleteTuneModal closeModal={() => this.closeModal()} tuneRowid={partialTune.rowid} />;
+        modalToShow = <DeleteTuneModal closeModal={() => this.closeModal()} queryDatabaseState={() => this.queryDatabaseState()} tuneRowid={partialTune.rowid} />;
         break;
       default:
         return;

@@ -40,20 +40,20 @@ export default class MoveToCollectionModal extends Component {
   }
 
   async moveToCollectionOperation() {
-    const { closeModal } = this.props;
+    const { closeModal, queryDatabaseState } = this.props;
     const { selectedCollection, tune } = this.state;
     const { rowid } = tune;
-
     const tuneDelta = {
       Collection: selectedCollection
     };
+    closeModal();
 
     try {
-      await Database.updateTune(rowid, tuneDelta);
+      await Database.updateRecord(rowid, tuneDelta, 'Tunes');
+      queryDatabaseState();
     } catch (e) {
       Alert.alert('Failed to move to collection', `${e}`);
     }
-    closeModal();
   }
 
   render() {
@@ -67,9 +67,6 @@ export default class MoveToCollectionModal extends Component {
         <Text style={ModalStyles.message}>
           Select a Collection to add this Tune to:
         </Text>
-        <Text style={ModalStyles.infoItem}>
-          {`Tune Name: ${tune.Title}`}
-        </Text>
         <Text style={ModalStyles.pickerContainer}>
           <Picker
             style={ModalStyles.modalPicker}
@@ -82,6 +79,9 @@ export default class MoveToCollectionModal extends Component {
           >
             {collectionPickerOptions}
           </Picker>
+        </Text>
+        <Text style={ModalStyles.infoItem}>
+          {`Tune Name: ${tune.Title}`}
         </Text>
       </AbstractModal>
     );

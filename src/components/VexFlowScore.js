@@ -62,13 +62,13 @@ export default class VexFlowScore extends Component {
 
     const renderOptions = {
       xOffset: 3,
-      widthFactor: 1.7,
+      widthFactor: 1.5,
       lineHeight: 185,
       clefWidth: 40,
       meterWidth: 30,
       repeatWidthModifier: 35,
       dottedNotesModifier: 23,
-      keySigAccidentalWidth: 15,
+      keySigAccidentalWidth: 20,
       minWidthMultiplier: 1.7,
       tabsVisibility,
       voltaHeight: 25,

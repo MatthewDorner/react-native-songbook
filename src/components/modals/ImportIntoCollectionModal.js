@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Input } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import {
@@ -9,45 +9,38 @@ import {
 } from 'react-native';
 import AbstractModal from './AbstractModal';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
 import DBOperations from '../../data-access/db-operations';
-import Constants from '../../data-access/constants';
 
 export default class AddCollectionModal extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      name: '',
       importFilePath: '',
       importFileName: ''
     };
 
-    this.createCollectionOperation = this.createCollectionOperation.bind(this);
+    this.importIntoCollectionOperation = this.importIntoCollectionOperation.bind(this);
     this.pickFile = this.pickFile.bind(this);
   }
 
-  async createCollectionOperation() {
-    const { name, importFilePath } = this.state;
-    const { closeModal, queryDatabaseState } = this.props;
+  async importIntoCollectionOperation() {
+    const { importFilePath, } = this.state;
+    const { closeModal, queryDatabaseState, collection } = this.props;
     let contents = '';
     closeModal();
 
     try {
-      if (name === '') {
-        throw new Error('Name was blank');
-      }
-      const res = await Database.addCollection(name, Constants.CollectionTypes.COLLECTION);
       if (importFilePath !== '') {
         contents = await RNFS.readFile(importFilePath, 'ascii');
         contents = contents.replace(/\r/g, ''); // get weird errors if I don't do this
 
-        const songsAdded = await DBOperations.importTuneBook(contents, res.insertId);
+        const songsAdded = await DBOperations.importTuneBook(contents, collection.rowid);
         Alert.alert('Imported Songbook Successfully', `Imported ${songsAdded} tunes.`);
+        queryDatabaseState();
       }
-      queryDatabaseState();
     } catch (e) {
-      Alert.alert('Failed to create collection:', `${e}`);
+      Alert.alert('Failed to import into collection:', `${e}`);
     }
   }
 
@@ -64,27 +57,23 @@ export default class AddCollectionModal extends Component {
       } else {
         this.setState({
           importFilePath: res.uri,
-          importFileName: res.fileName,
-          name: res.fileName.substr(0, res.fileName.lastIndexOf('.'))
+          importFileName: res.fileName
         });
       }
     });
   }
 
   render() {
-    const { closeModal } = this.props;
-    const { importFileName, name } = this.state;
+    const { closeModal, collection } = this.props;
+    const { importFileName } = this.state;
 
     return (
-      <AbstractModal submit={this.createCollectionOperation} cancel={closeModal} title="Add Collection">
+      <AbstractModal submit={this.importIntoCollectionOperation} cancel={closeModal} title="Import Into Collection">
+
         <Text style={ModalStyles.message}>
-          Select an ABC songbook from your device storage or leave File blank to create an empty Collection:
+          Select an ABC songbook from your device storage:
         </Text>
-        <Input
-          placeholder="Name"
-          value={name}
-          onChangeText={text => this.setState({ name: text })}
-        />
+
         <View style={{ flexDirection: 'row', marginTop: 15 }}>
           <Button
             containerStyle={{ width: '30%' }}
@@ -95,6 +84,10 @@ export default class AddCollectionModal extends Component {
             {`File: ${importFileName}`}
           </Text>
         </View>
+
+        <Text style={ModalStyles.infoItem}>
+          {`Collection Name: ${collection.Name}`}
+        </Text>
       </AbstractModal>
     );
   }

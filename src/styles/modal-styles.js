@@ -1,17 +1,10 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-  // modal: {
-  //   marginTop: 15,
-  //   marginBottom: 5,
-  //   borderRadius: 20,
-  //   borderColor: 'black',
-  //   borderWidth: 1
-  // },
   modalContainer: {
-    // textAlign: 'center',
     paddingLeft: '5%',
-    paddingRight: '5%'
+    paddingRight: '5%',
+    flex: 1
   },
   modalHeader: {
     alignItems: 'center'
@@ -24,7 +17,7 @@ export default StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     height: 80,
-    marginTop: 50
+    flex: 1
   },
   title: {
     fontSize: 20,

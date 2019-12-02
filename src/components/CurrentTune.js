@@ -34,6 +34,11 @@ export default class CurrentTune extends Component {
 
     Dimensions.addEventListener('change', (e) => {
       const { width, height } = e.window;
+      const { dimWidth, dimHeight } = this.state;
+      if (Math.round(dimWidth) === Math.round(width) && Math.round(dimHeight) === Math.round(height)) {
+        return;
+      }
+
       this.setState({
         dimWidth: width,
         dimHeight: height,
@@ -65,10 +70,14 @@ export default class CurrentTune extends Component {
   }
 
   setTabsVisibility(value) {
-    this.setState({
-      tabsVisibility: value
-    }, () => {
-      this.closeModal();
+    this.closeModal();
+    this.setState({ waiting: true }, () => {
+      setTimeout(() => {
+        this.setState({
+          waiting: false,
+          tabsVisibility: value
+        });
+      }, 1);
     });
   }
 
@@ -106,7 +115,6 @@ export default class CurrentTune extends Component {
       waiting, tune, dimHeight, dimWidth, tabsVisibility, modalVisible, modalContents
     } = this.state;
 
-    // WHY IS THIS RUNNING WHEN I OPEN UP A COLLECTION IN THE OTHER TAB!!!!!
     let content;
     if (waiting === false) {
       if (tune.Tune) {
@@ -126,7 +134,6 @@ export default class CurrentTune extends Component {
               <Picker.Item label="Options" value="options" />
             </Picker>
           </View>,
-          // tune={tune.Tune} is really not ideal here
           <VexFlowScore tune={tune.Tune} dimHeight={dimHeight} dimWidth={dimWidth} tabsVisibility={tabsVisibility} key="vexflowscore" />,
         ];
       } else {

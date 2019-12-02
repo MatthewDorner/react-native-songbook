@@ -18,21 +18,21 @@ export default function AbstractModal({ submit, cancel, close, children, title }
         containerStyle={{ width: 130 }}
         key="submit"
         title="submit"
-        buttonStyle={{ backgroundColor: 'gray', marginBottom: 20 }}
+        buttonStyle={{ backgroundColor: 'gray', marginBottom: 40 }}
       />,
       <Button
         onPress={() => cancel()}
         containerStyle={{ width: 130 }}
         key="cancel"
         title="cancel"
-        buttonStyle={{ backgroundColor: 'gray', marginBottom: 20 }}
+        buttonStyle={{ backgroundColor: 'gray', marginBottom: 40 }}
       />
     ];
   } else {
     buttons = [
       <Button
         onPress={() => close()}
-        containerStyle={{ width: 120, marginBottom: 20 }}
+        containerStyle={{ width: 120, marginBottom: 40 }}
         key="close"
         title="close"
         buttonStyle={{ backgroundColor: 'gray' }}

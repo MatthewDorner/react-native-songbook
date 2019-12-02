@@ -21,14 +21,13 @@ export default class RemoveFromSetlistModal extends Component {
     const { collectionRowid, tuneRowid, closeModal } = this.props;
 
     try {
-      const setlists = await Database.getCollections(Constants.CollectionTypes.SETLIST);
-      const selectedSetlist = setlists.filter((setlist) => {
+      const tune = await Database.getWholeTune(tuneRowid);
+      const selectedSetlist = (await Database.getCollections(Constants.CollectionTypes.SETLIST)).filter((setlist) => {
         if (setlist.rowid === collectionRowid) {
           return true;
         }
         return false;
       })[0];
-      const tune = await Database.getWholeTune(tuneRowid);
       this.setState({
         tune,
         setlist: selectedSetlist
@@ -40,14 +39,16 @@ export default class RemoveFromSetlistModal extends Component {
   }
 
   async removeFromSetlistOperation() {
-    const { closeModal, collectionRowid } = this.props;
+    const { closeModal, collectionRowid, queryDatabaseState } = this.props;
     const { tune } = this.state;
+    closeModal();
+
     try {
       await DBOperations.removeTuneFromSetlist(tune, collectionRowid);
+      queryDatabaseState();
     } catch (e) {
       Alert.alert('Failed to remove from setlist', `${e}`);
     }
-    closeModal();
   }
 
   render() {
@@ -65,7 +66,6 @@ export default class RemoveFromSetlistModal extends Component {
         <Text style={ModalStyles.infoItem}>
           {`Setlist Name: ${setlist.Name}`}
         </Text>
-
       </AbstractModal>
     );
   }
