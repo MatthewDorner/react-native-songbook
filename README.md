@@ -2,7 +2,7 @@
 
 React Native app for viewing music in [ABC Notation](https://en.wikipedia.org/wiki/ABC_notation).
 
-Uses [abcjs](https://github.com/paulrosen/abcjs) to parse and [VexFlow](https://github.com/0xfe/vexflow) to render.
+Uses [abcjs](https://github.com/paulrosen/abcjs) to parse and [VexFlow](https://github.com/0xfe/vexflow) to render, facilitated by my library [abcjs-vexflow-renderer](https://github.com/matthewdorner/abcjs-vexflow-renderer).
 
 ![screenshot](https://matthewdorner.github.io/reactnativesongbook.png)
 
@@ -14,17 +14,16 @@ Current features:
 - Import ABC songbooks into database
 - Features for managing songs collection: create, edit, move, etc
 
-Future features:
-- Display options including auto-scroll, zoom, note density
-
 ABC features currently supported:
 - Repeat signs
 - Multiple endings
 - Chord symbols
+- Grace Notes
+- Tuplets
+- Some ornamentation (trill, staccato, fermata)
 
 ABC features not supported:
 - Multiple voices
 - Lyrics
 - Ties
 - Slurs
-- Grace Notes
