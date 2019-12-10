@@ -41,16 +41,18 @@ export default function AbstractModal({ submit, cancel, close, children, title }
   }
 
   return (
-    <ScrollView contentContainerStyle={ModalStyles.modalContainer}>
-      <View style={ModalStyles.modalHeader}>
-        <Text style={ModalStyles.title}>{title}</Text>
-      </View>
-      <View style={ModalStyles.modalBody}>
-        {children}
-      </View>
+    <View style={ModalStyles.modalContainer}>
+      <ScrollView contentContainerStyle={ModalStyles.modalScrollContainer}>
+        <View style={ModalStyles.modalHeader}>
+          <Text style={ModalStyles.title}>{title}</Text>
+        </View>
+        <View style={ModalStyles.modalBody}>
+          {children}
+        </View>
+      </ScrollView>
       <View style={ModalStyles.modalFooter}>
         {buttons}
       </View>
-    </ScrollView>
+    </View>
   );
 }

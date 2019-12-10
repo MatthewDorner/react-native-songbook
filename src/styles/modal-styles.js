@@ -2,9 +2,11 @@ import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
   modalContainer: {
+    flex: 1
+  },
+  modalScrollContainer: {
     paddingLeft: '5%',
     paddingRight: '5%',
-    flex: 1
   },
   modalHeader: {
     alignItems: 'center'
@@ -13,11 +15,12 @@ export default StyleSheet.create({
     alignItems: 'flex-start',
   },
   modalFooter: {
+    width: '100%',
+    backgroundColor: 'white',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'flex-end',
     height: 80,
-    flex: 1
   },
   title: {
     fontSize: 20,

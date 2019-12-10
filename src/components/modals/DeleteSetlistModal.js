@@ -24,11 +24,19 @@ export default class DeleteSetlistModal extends Component {
     try {
       const tunesForSetlist = await Database.getPartialTunesForCollection(setlist.rowid, Constants.CollectionTypes.SETLIST);
       const promises = [];
-      tunesForSetlist.forEach((tune) => {
-        promises.push(DBOperations.removeTuneFromSetlist(tune, setlist.rowid));
-      });
+
+      // had an error because of using getPartialTunesForCollection. the 'partial' vs 'whole'
+      // idea wasn't very well thought out. but this is ok and it did make the list performance
+      // faster
+      for (let i = 0; i < tunesForSetlist.length; i += 1) {
+        const partialTune = tunesForSetlist[i];
+        const wholeTune = await Database.getWholeTune(partialTune.rowid);
+        promises.push(DBOperations.removeTuneFromSetlist(wholeTune, setlist.rowid));
+      }
+
       await Promise.all(promises);
       await Database.deleteCollection(setlist.rowid);
+      Alert.alert('Deleted Setlist Successfully');
       queryDatabaseState();
     } catch (e) {
       Alert.alert('Failed to delete setlist', `${e}`);

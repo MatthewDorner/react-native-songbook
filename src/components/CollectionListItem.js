@@ -30,38 +30,32 @@ export default class CollectionBrowser extends PureComponent {
       ];
     }
 
-    return (
-      <View style={ListStyles.listItem}>
-        <View>
-          <View style={{ flexDirection: 'row' }}>
-            <TouchableOpacity
-              onPress={() => {
-                if (tuneChangeCallback.callback) {
-                  tuneChangeCallback.callback(item.rowid);
-                }
-              }}
-            >
-              <Text style={ListStyles.listItemTitle}>
-                {item.Title}
-              </Text>
-            </TouchableOpacity>
-            <Picker
-              style={ListStyles.listItemPicker}
-              onValueChange={(action) => {
-                showModal(action, item);
-              }}
-            >
-              {pickerOptions}
-            </Picker>
-          </View>
-          <View>
-            <Text style={ListStyles.listItemDetail}>
-              {`Key: ${item.Key}`}
-              {(item.Rhythm ? `, Rhythm: ${item.Rhythm}` : '')}
-            </Text>
-          </View>
-        </View>
-      </View>
-    );
+    return ([
+      <View style={ListStyles.listItem} key="listItem">
+        <TouchableOpacity
+          onPress={() => {
+            if (tuneChangeCallback.callback) {
+              tuneChangeCallback.callback(item.rowid);
+            }
+          }}
+        >
+          <Text style={ListStyles.listItemTitle}>
+            {item.Title}
+          </Text>
+        </TouchableOpacity>
+        <Picker
+          style={ListStyles.listItemPicker}
+          onValueChange={(action) => {
+            showModal(action, item);
+          }}
+        >
+          {pickerOptions}
+        </Picker>
+      </View>,
+      <Text style={ListStyles.listItemDetail} key="listItemDetail">
+        {`Key: ${item.Key}`}
+        {(item.Rhythm ? `, Rhythm: ${item.Rhythm}` : '')}
+      </Text>
+    ]);
   }
 }

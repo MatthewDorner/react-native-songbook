@@ -4,6 +4,10 @@
 
 # CUSTOM IGNORE FILES
 dev-notes.md
+# this is where the app signing key resides
+android/gradle.properties
+
+
 
 ## ReactNative ###
 # React Native Stack Base

@@ -12,8 +12,9 @@ export default {
     Database.initDb();
     return new Promise((resolve, reject) => {
       Database.db.transaction((txn) => {
-        Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Tunes', []); // JUST FOR TESTING
-        Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Collections', []); // JUST FOR TESTING
+        // NEED TO REMOVE THIS CODE OR MAYBE CONDITIONAL IF DEBUG??
+        // Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Tunes', []); // JUST FOR TESTING
+        // Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Collections', []); // JUST FOR TESTING
         // what's the deal with txn and tx here? what tx is provided from .executeSql()?
         Database.executeSqlDebug(txn, 'select * from sqlite_master where type = "table" and name = "Tunes"', [], (tx, res) => {
           if (res.rows.length === 0) {

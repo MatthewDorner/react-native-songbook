@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
   listItem: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
     width: '85%'
   },
   listItemTitle: {

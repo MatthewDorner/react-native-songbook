@@ -69,10 +69,8 @@ export default class VexFlowScore extends Component {
       repeatWidthModifier: 35,
       dottedNotesModifier: 23,
       keySigAccidentalWidth: 20,
-      minWidthMultiplier: 1.7,
       tabsVisibility,
       voltaHeight: 25,
-      minNotesWidth: 40,
       renderWidth: dimWidth * 1.2
     };
 
