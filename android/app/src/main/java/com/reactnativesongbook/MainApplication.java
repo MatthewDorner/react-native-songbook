@@ -3,6 +3,8 @@ package com.reactnativesongbook;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.zmxv.RNSound.RNSoundPackage;
+import com.reactnativecommunity.slider.ReactSliderPackage;
 import com.rnfs.RNFSPackage;
 import com.horcrux.svg.SvgPackage;
 import dog.craftz.sqlite_2.RNSqlite2Package;
@@ -44,7 +46,9 @@ public class MainApplication extends NavigationApplication {
             new SvgPackage(),
             new RNSqlite2Package(),
             new ReactNativeDocumentPicker(),
-            new RNFSPackage()
+            new RNFSPackage(),
+            new ReactSliderPackage(),
+            new RNSoundPackage(),
             // eg. new VectorIconsPackage()
         );
     }

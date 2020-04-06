@@ -1,5 +1,9 @@
+// default data is not needed unless the database is running for the first time, but we can't
+// conditionally import. unless they're imported by file system instead of JS includes. so
+// maybe should change that.
 import DefaultData from './default-data';
 import Database from './database';
+import Constants from '../constants';
 
 /*
   this module contains higher-level database "operations" that contain some program logic,
@@ -11,21 +15,50 @@ export default {
   init() {
     Database.initDb();
     return new Promise((resolve, reject) => {
+      // COMMENT THIS CODE FOR RELEASE
       Database.db.transaction((txn) => {
-        // NEED TO REMOVE THIS CODE OR MAYBE CONDITIONAL IF DEBUG??
-        // Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Tunes', []); // JUST FOR TESTING
-        // Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Collections', []); // JUST FOR TESTING
-        // what's the deal with txn and tx here? what tx is provided from .executeSql()?
+        Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Tunes', []); // JUST FOR TESTING
+        Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Collections', []); // JUST FOR TESTING
+        Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Options', []); // JUST FOR TESTING
+      }, (error) => {
+        reject(error);
+      }, () => {
+        resolve();
+      });
+
+      Database.db.transaction((txn) => {
         Database.executeSqlDebug(txn, 'select * from sqlite_master where type = "table" and name = "Tunes"', [], (tx, res) => {
           if (res.rows.length === 0) {
-            Database.executeSqlDebug(txn, 'CREATE TABLE `Tunes` (`Tune` TEXT, `Title` TEXT, `Rhythm` TEXT, `Key` TEXT, `Collection` INTEGER, `Setlists` TEXT)', [], (tx, res) => {
+            Database.executeSqlDebug(txn, 'CREATE TABLE `Tunes` (`Tune` text, `Title` text, `Rhythm` text, `Key` text, `Collection` integer, `Setlists` text)', [], (tx, res) => {
               // res
             });
-            Database.executeSqlDebug(txn, 'CREATE TABLE `Collections` (`Name` TEXT, `Type` INTEGER)', [], (tx, res) => {
+            Database.executeSqlDebug(txn, 'CREATE TABLE `Collections` (`Name` text, `Type` integer)', [], (tx, res) => {
               // res
             });
             this.importTuneBook(DefaultData.defaultTunes);
             this.importDefaultCollections(DefaultData.defaultCollections);
+          }
+        });
+      }, (error) => {
+        reject(error);
+      }, () => {
+        resolve();
+      });
+
+      // to support upgrading from 1.0 to 1.1 software version, check for / add this table separately, though
+      // next release should add a database schema version stored in the DB for upgrades.
+      Database.db.transaction((txn) => {
+        Database.executeSqlDebug(txn, 'select * from sqlite_master where type = "table" and name = "Options"', [], (tx, res) => {
+          if (res.rows.length === 0) {
+            Database.executeSqlDebug(txn, 'CREATE TABLE `Options` (`Zoom` integer, `TabsVisibility` integer, `Tuning` text, `PlayMode` integer)', [], (tx, res) => {
+              console.log('tried to create, res was:');
+              console.log(res);
+              // res
+            });
+            const defaultTuning = Object.keys(Constants.Tunings)[0];
+            Database.executeSqlDebug(txn, `insert into Options (Zoom, TabsVisibility, Tuning, PlayMode) values (50, 1, "${defaultTuning}", 0)`, [], (tx, res) => {
+              // res
+            });
           }
         });
       }, (error) => {
@@ -67,7 +100,7 @@ export default {
           }
           // remove spaces at beginning of title
           while (title.startsWith(' ')) {
-            title = title.slice(1, title.length - 1);
+            title = title.slice(1, title.length - 1); // this isn't right. it's chopping... shoudl be just title.length right?
           }
           if (title === '') {
             return; // many books have "blank" tunes at beginning with info about book
@@ -75,7 +108,7 @@ export default {
           const key = getAbcField(tune, 'K').replace(/ /g, '');
           const setlists = '[]';
 
-          Database.executeSqlDebug(txn, `insert into Tunes (Tune, Title, Rhythm, Key, Collection, Setlists) VALUES ("${tune}", "${title}", "${rhythm}", "${key}", "${collection}", "${setlists}")`, [], (tx, res) => {
+          Database.executeSqlDebug(txn, `insert into Tunes (Tune, Title, Rhythm, Key, Collection, Setlists) values ("${tune}", "${title}", "${rhythm}", "${key}", "${collection}", "${setlists}")`, [], (tx, res) => {
             songsAdded += 1;
           });
         });
@@ -129,7 +162,7 @@ export default {
     return new Promise((resolve, reject) => {
       Database.db.transaction((txn) => {
         collections.forEach((collection) => {
-          Database.executeSqlDebug(txn, `insert into Collections (Name, Type) VALUES ("${collection.Name}", "${collection.Type}")`, [], (tx, res) => {
+          Database.executeSqlDebug(txn, `insert into Collections (Name, Type) values ("${collection.Name}", "${collection.Type}")`, [], (tx, res) => {
             // res
           });
         });

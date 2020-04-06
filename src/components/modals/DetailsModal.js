@@ -1,39 +1,31 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, Alert } from 'react-native';
-import AbstractModal from './AbstractModal';
+import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
 
-export default class DetailsModal extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      tune: {}
+export default function DetailsModal(props) {
+  const [tune, setTune] = useState({});
+  const { closeModal, tuneRowid } = props;
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const wholeTune = await Database.getWholeTune(tuneRowid);
+        setTune(wholeTune);
+      } catch (e) {
+        Alert.alert('DetailsModal error', `${e}`);
+        closeModal();
+      }
     };
-  }
+    loadData();
+  }, []);
 
-  async componentDidMount() {
-    const { closeModal, tuneRowid } = this.props;
-
-    try {
-      const tune = await Database.getWholeTune(tuneRowid);
-      this.setState({ tune });
-    } catch (e) {
-      Alert.alert('DetailsModal error', `${e}`);
-      closeModal();
-    }
-  }
-
-  render() {
-    const { tune } = this.state;
-    const { closeModal } = this.props;
-
-    return (
-      <AbstractModal close={closeModal} title="Tune Details">
-        <Text style={ModalStyles.infoItem}>
-          {tune.Tune}
-        </Text>
-      </AbstractModal>
-    );
-  }
+  return (
+    <ModalContainer close={closeModal} title="Tune Details">
+      <Text style={ModalStyles.infoItem}>
+        {tune.Tune}
+      </Text>
+    </ModalContainer>
+  );
 }

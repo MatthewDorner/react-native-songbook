@@ -5,13 +5,13 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
-import Constants from '../data-access/constants';
+import Constants from '../constants';
 import ListStyles from '../styles/list-styles';
 
 export default class CollectionBrowser extends PureComponent {
 
   render() {
-    const { queriedBy, tuneChangeCallback, item, showModal } = this.props;
+    const { queriedBy, fetchTune, item, showModal } = this.props;
 
     let pickerOptions = [];
     if (queriedBy === Constants.CollectionTypes.COLLECTION) {
@@ -34,9 +34,7 @@ export default class CollectionBrowser extends PureComponent {
       <View style={ListStyles.listItem} key="listItem">
         <TouchableOpacity
           onPress={() => {
-            if (tuneChangeCallback.callback) {
-              tuneChangeCallback.callback(item.rowid);
-            }
+            fetchTune(item.rowid);
           }}
         >
           <Text style={ListStyles.listItemTitle}>

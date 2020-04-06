@@ -1,31 +1,20 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { Input } from 'react-native-elements';
 import {
   Text,
   Alert
 } from 'react-native';
-import AbstractModal from './AbstractModal';
+import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
-import Constants from '../../data-access/constants';
+import Constants from '../../constants';
 
+export default function AddSetlistmodal(props) {
+  const [name, setName] = useState('');
+  const { closeModal, queryDatabaseState } = props;
 
-export default class AddSetlistModal extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      name: ''
-    };
-
-    this.createSetlistOperation = this.createSetlistOperation.bind(this);
-  }
-
-  async createSetlistOperation() {
-    const { name } = this.state;
-    const { closeModal, queryDatabaseState } = this.props;
+  const createSetlistOperation = async () => {
     closeModal();
-
     try {
       if (name === '') {
         throw new Error('Name was blank');
@@ -35,21 +24,17 @@ export default class AddSetlistModal extends Component {
     } catch (e) {
       Alert.alert('Failed to create setlist:', `${e}`);
     }
-  }
+  };
 
-  render() {
-    const { closeModal } = this.props;
-
-    return (
-      <AbstractModal submit={this.createSetlistOperation} cancel={closeModal} title="Add Setlist">
-        <Text style={ModalStyles.message}>
-          A Tune can belong to any number of Setlists.
-        </Text>
-        <Input
-          placeholder="Name"
-          onChangeText={text => this.setState({ name: text })}
-        />
-      </AbstractModal>
-    );
-  }
+  return (
+    <ModalContainer submit={createSetlistOperation} cancel={closeModal} title="Add Setlist">
+      <Text style={ModalStyles.message}>
+        A Tune can belong to any number of Setlists.
+      </Text>
+      <Input
+        placeholder="Name"
+        onChangeText={value => setName(value)}
+      />
+    </ModalContainer>
+  );
 }

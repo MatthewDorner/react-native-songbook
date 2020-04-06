@@ -1,61 +1,47 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Text,
-  View,
   Alert
 } from 'react-native';
-import AbstractModal from './AbstractModal';
+import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
 
+export default function DeleteTuneModal(props) {
+  const [tune, setTune] = useState({});
+  const { closeModal, tuneRowid, queryDatabaseState } = props;
 
-export default class DeleteTuneModal extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      tune: {}
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const wholeTune = await Database.getWholeTune(tuneRowid);
+        setTune(wholeTune);
+      } catch (e) {
+        Alert.alert('DeleteTuneModal error', `${e}`);
+        closeModal();
+      }
     };
-    this.deleteTuneOperation = this.deleteTuneOperation.bind(this);
-  }
+    loadData();
+  }, []);
 
-  async componentDidMount() {
-    const { closeModal, tuneRowid } = this.props;
-
-    try {
-      const tune = await Database.getWholeTune(tuneRowid);
-      this.setState({ tune });
-    } catch (e) {
-      Alert.alert('DeleteTuneModal error', `${e}`);
-      closeModal();
-    }
-  }
-
-  async deleteTuneOperation() {
-    const { closeModal, queryDatabaseState } = this.props;
-    const { tune } = this.state;
+  const deleteTuneOperation = async () => {
     closeModal();
-
     try {
       await Database.deleteTune(tune);
       queryDatabaseState();
     } catch (e) {
       Alert.alert('Failed to delete tune', `${e}`);
     }
-  }
+  };
 
-  render() {
-    const { closeModal } = this.props;
-    const { tune } = this.state;
-
-    return (
-      <AbstractModal submit={this.deleteTuneOperation} cancel={closeModal} title="Delete Tune">
-        <Text style={ModalStyles.message}>
-          Tune will be deleted from database completely and all setlists.
-        </Text>
-        <Text style={ModalStyles.infoItem}>
-          {`Tune Name: ${tune.Title}`}
-        </Text>
-      </AbstractModal>
-    );
-  }
+  return (
+    <ModalContainer submit={deleteTuneOperation} cancel={closeModal} title="Delete Tune">
+      <Text style={ModalStyles.message}>
+        Tune will be deleted from database completely and all setlists.
+      </Text>
+      <Text style={ModalStyles.infoItem}>
+        {`Tune Name: ${tune.Title}`}
+      </Text>
+    </ModalContainer>
+  );
 }

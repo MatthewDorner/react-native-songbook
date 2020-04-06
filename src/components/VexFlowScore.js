@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import { ReactNativeSVGContext, NotoFontPack } from 'standalone-vexflow-context';
 import { Navigation } from 'react-native-navigation';
 import { AbcjsVexFlowRenderer } from 'abcjs-vexflow-renderer';
-
 import {
   StyleSheet,
   View,
   Text,
   TouchableWithoutFeedback
 } from 'react-native';
-
+import Constants from '../constants';
 
 export default class VexFlowScore extends Component {
   constructor(props) {
@@ -20,31 +19,7 @@ export default class VexFlowScore extends Component {
     };
   }
 
-  shouldComponentUpdate(nextProps) {
-    const { dimWidth, dimHeight, tune, tabsVisibility } = this.props;
-
-    if (nextProps.dimWidth !== dimWidth || nextProps.dimHeight !== dimHeight || nextProps.tune !== tune || nextProps.tabsVisibility !== tabsVisibility) {
-      return true;
-    }
-    return false;
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    Object.entries(this.props).forEach(([key, val]) => {
-      if (prevProps[key] !== val) {
-        // console.log(`Prop '${key}' changed`);
-        // console.log(`${prevProps[key]} was not equal to ${val}`);
-      }
-    });
-    Object.entries(this.state).forEach(([key, val]) => {
-      if (prevState[key] !== val) {
-        // console.log(`State '${key}' changed`);
-        // console.log(`${prevState[key]} was not equal to ${val}`);
-      }
-    });
-    // console.log('---------------------------------------------------');
-  }
-
+  // changing bottom tabs now causes the component to re-render
   onPress() {
     this.setState(prevState => ({ bottomTabsVisibility: !prevState.bottomTabsVisibility }),
       () => {
@@ -58,7 +33,7 @@ export default class VexFlowScore extends Component {
   }
 
   render() {
-    const { dimWidth, tune, tabsVisibility } = this.props;
+    const { dimWidth, tune, tabsVisibility, tuning, zoom } = this.props;
 
     const renderOptions = {
       xOffset: 3,
@@ -71,7 +46,8 @@ export default class VexFlowScore extends Component {
       keySigAccidentalWidth: 20,
       tabsVisibility,
       voltaHeight: 25,
-      renderWidth: dimWidth * 1.2
+      renderWidth: dimWidth * (50 / zoom) * 1.2, // doesn't work right
+      tuning: Constants.Tunings[tuning],
     };
 
     let context; let exception; let content;

@@ -182,6 +182,8 @@ configurations.all {
 }
 
 dependencies {
+    implementation project(':react-native-sound')
+    implementation project(':@react-native-community_slider')
     implementation project(':react-native-fs')
     implementation "org.webkit:android-jsc:r241213"
     implementation project(':react-native-document-picker')

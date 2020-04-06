@@ -1,5 +1,5 @@
 import SQLite from 'react-native-sqlite-2';
-import Constants from './constants';
+import Constants from '../constants';
 
 export default {
   db: null,
@@ -18,9 +18,6 @@ export default {
     });
   },
 
-  // since browsing was slow, decided to make getTunesForCollection only get the needed fields, and this
-  // getWholeTune must be used to get the full text, etc. it isn't that much data but with 1000 list items
-  // maybe this will make a difference
   getWholeTune(rowid) {
     return new Promise((resolve, reject) => {
       const query = `select rowid, Collection, Key, Rhythm, Setlists, Title, Tune from Tunes where rowid = ${rowid}`;
@@ -148,18 +145,52 @@ export default {
     });
   },
 
+  getOptions() {
+    return new Promise((resolve, reject) => {
+      const query = 'select Zoom, TabsVisibility, Tuning, PlayMode from Options where rowid = 1';
+      let options = null;
+      this.db.transaction((txn) => {
+
+        this.executeSqlDebug(txn, query, [], (tx, res) => {
+          if (!res.rows.item(0)) {
+            reject(new Error('Database: options not found'));
+            return;
+          }
+          options = res.rows.item(0);
+        });
+      }, (error) => {
+        reject(error);
+      }, () => {
+        resolve(options);
+      });
+    });
+  },
+
+  updateOptions(options) {
+    return new Promise((resolve, reject) => {
+      this.updateRecord(1, options, 'Options').then((result) => {
+        resolve(result);
+      }).catch((error) => {
+        reject(error);
+      });
+    });
+  },
+
+  // currently works with string or integer basing that determination on
+  // the type of value in the passed delta
   updateRecord(rowid, delta, table) {
     return new Promise((resolve, reject) => {
-      // although this is set up to use a delta, actually it will only work for string
-      // fields with how it's written so far. would need a way to differentiate between
-      // field that require the value to be in quotes vs those that don't. but there may
-      // never be another need to use this function..
-
       const update = `update ${table} set `;
       let fields = '';
-      for (field in delta) {
-        fields += `${field} = "${delta[field]}",`;
-      }
+
+      Object.keys(delta).forEach((field) => {
+        if (typeof delta[field] === 'number') {
+          fields += `${field} = ${delta[field]},`;
+        } else {
+          fields += `${field} = "${delta[field]}",`;
+        }
+      });
+
       fields = fields.substring(0, fields.length - 1);
       const where = ` where rowid = ${rowid}`;
       const sql = update + fields + where;

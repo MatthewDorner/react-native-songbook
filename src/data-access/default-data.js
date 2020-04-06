@@ -1,4 +1,4 @@
-import Constants from './constants';
+import Constants from '../constants';
 
 import Tunes1 from '../../node_modules/nottingham-dataset/ABC_cleaned/ashover.abc';
 import Tunes2 from '../../node_modules/nottingham-dataset/ABC_cleaned/hpps.abc';

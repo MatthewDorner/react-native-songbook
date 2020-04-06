@@ -14,18 +14,6 @@ YellowBox.ignoreWarnings([
 
 RegisterScreens();
 
-// note: did not work when I created an object {} with these properties, but does work
-// with a class and then creating the object as an instance, would be interesting
-// to know why this is
-const Cb = function () {
-  this.callback = undefined;
-};
-Cb.prototype.setCallback = function (callback) {
-  this.callback = callback;
-};
-const tuneChangeCallback = new Cb();
-
-
 Navigation.events().registerAppLaunchedListener(() => {
   DBOperations.init().then(() => {
     Navigation.setRoot({
@@ -50,9 +38,6 @@ Navigation.events().registerAppLaunchedListener(() => {
                   component: {
                     name: 'CurrentTune',
                     id: 'CurrentTune', // needed for mergeoptions to toggle tabbar visibility
-                    passProps: {
-                      tuneChangeCallback
-                    },
                     options: {
                       bottomTab: {
                         text: 'Current Tune',
@@ -80,9 +65,6 @@ Navigation.events().registerAppLaunchedListener(() => {
                 { // begin component
                   component: {
                     name: 'TopBrowser',
-                    passProps: {
-                      tuneChangeCallback
-                    },
                     options: {
                       bottomTab: {
                         text: 'Browser',
@@ -123,5 +105,7 @@ Navigation.events().registerAppLaunchedListener(() => {
         }
       }
     });
+  }).catch((error) => {
+    throw error;
   });
 });

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { Button } from 'react-native-elements';
 import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
@@ -7,32 +7,21 @@ import {
   Alert,
   View
 } from 'react-native';
-import AbstractModal from './AbstractModal';
+import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import DBOperations from '../../data-access/db-operations';
 
-export default class AddCollectionModal extends Component {
-  constructor(props) {
-    super(props);
+export default function importIntoCollectionModal(props) {
+  const [importFilePath, setImportFilePath] = useState('');
+  const [importFileName, setImportFileName] = useState('');
+  const { closeModal, queryDatabaseState, collection } = props;
 
-    this.state = {
-      importFilePath: '',
-      importFileName: ''
-    };
-
-    this.importIntoCollectionOperation = this.importIntoCollectionOperation.bind(this);
-    this.pickFile = this.pickFile.bind(this);
-  }
-
-  async importIntoCollectionOperation() {
-    const { importFilePath, } = this.state;
-    const { closeModal, queryDatabaseState, collection } = this.props;
-    let contents = '';
+  const importIntoCollectionOperation = async () => {
     closeModal();
 
     try {
       if (importFilePath !== '') {
-        contents = await RNFS.readFile(importFilePath, 'ascii');
+        let contents = await RNFS.readFile(importFilePath, 'ascii');
         contents = contents.replace(/\r/g, ''); // get weird errors if I don't do this
 
         const songsAdded = await DBOperations.importTuneBook(contents, collection.rowid);
@@ -42,9 +31,9 @@ export default class AddCollectionModal extends Component {
     } catch (e) {
       Alert.alert('Failed to import into collection:', `${e}`);
     }
-  }
+  };
 
-  pickFile() {
+  const pickFile = () => {
     DocumentPicker.show({
       filetype: [DocumentPickerUtil.allFiles()],
     }, (error, res) => {
@@ -55,40 +44,33 @@ export default class AddCollectionModal extends Component {
         // there will be error if user backs out of picking file but don't want to
         // show an error message here
       } else {
-        this.setState({
-          importFilePath: res.uri,
-          importFileName: res.fileName
-        });
+        setImportFilePath(res.uri);
+        setImportFileName(res.fileName);
       }
     });
-  }
+  };
 
-  render() {
-    const { closeModal, collection } = this.props;
-    const { importFileName } = this.state;
+  return (
+    <ModalContainer submit={importIntoCollectionOperation} cancel={closeModal} title="Import Into Collection">
 
-    return (
-      <AbstractModal submit={this.importIntoCollectionOperation} cancel={closeModal} title="Import Into Collection">
+      <Text style={ModalStyles.message}>
+        Select an ABC songbook from your device storage:
+      </Text>
 
-        <Text style={ModalStyles.message}>
-          Select an ABC songbook from your device storage:
+      <View style={{ flexDirection: 'row', marginTop: 15 }}>
+        <Button
+          containerStyle={{ width: '30%' }}
+          onPress={pickFile}
+          title="Select a File"
+        />
+        <Text style={ModalStyles.fileInfoItem}>
+          {`File: ${importFileName}`}
         </Text>
+      </View>
 
-        <View style={{ flexDirection: 'row', marginTop: 15 }}>
-          <Button
-            containerStyle={{ width: '30%' }}
-            onPress={() => this.pickFile()}
-            title="Select a File"
-          />
-          <Text style={ModalStyles.fileInfoItem}>
-            {`File: ${importFileName}`}
-          </Text>
-        </View>
-
-        <Text style={ModalStyles.infoItem}>
-          {`Collection Name: ${collection.Name}`}
-        </Text>
-      </AbstractModal>
-    );
-  }
+      <Text style={ModalStyles.infoItem}>
+        {`Collection Name: ${collection.Name}`}
+      </Text>
+    </ModalContainer>
+  );
 }

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { Button, Input } from 'react-native-elements';
 import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
@@ -7,39 +7,27 @@ import {
   Alert,
   View
 } from 'react-native';
-import AbstractModal from './AbstractModal';
+import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
 import DBOperations from '../../data-access/db-operations';
-import Constants from '../../data-access/constants';
+import Constants from '../../constants';
 
-export default class AddCollectionModal extends Component {
-  constructor(props) {
-    super(props);
+export default function AddCollectionModal(props) {
+  const [name, setName] = useState('');
+  const [importFilePath, setImportFilePath] = useState('');
+  const [importFileName, setImportFilename] = useState('');
+  const { closeModal, queryDatabaseState } = props;
 
-    this.state = {
-      name: '',
-      importFilePath: '',
-      importFileName: ''
-    };
-
-    this.createCollectionOperation = this.createCollectionOperation.bind(this);
-    this.pickFile = this.pickFile.bind(this);
-  }
-
-  async createCollectionOperation() {
-    const { name, importFilePath } = this.state;
-    const { closeModal, queryDatabaseState } = this.props;
-    let contents = '';
+  const createCollectionOperation = async () => {
     closeModal();
-
     try {
       if (name === '') {
         throw new Error('Name was blank');
       }
       const res = await Database.addCollection(name, Constants.CollectionTypes.COLLECTION);
       if (importFilePath !== '') {
-        contents = await RNFS.readFile(importFilePath, 'ascii');
+        let contents = await RNFS.readFile(importFilePath, 'ascii');
         contents = contents.replace(/\r/g, ''); // get weird errors if I don't do this
 
         const songsAdded = await DBOperations.importTuneBook(contents, res.insertId);
@@ -49,9 +37,9 @@ export default class AddCollectionModal extends Component {
     } catch (e) {
       Alert.alert('Failed to create collection:', `${e}`);
     }
-  }
+  };
 
-  pickFile() {
+  const pickFile = () => {
     DocumentPicker.show({
       filetype: [DocumentPickerUtil.allFiles()],
     }, (error, res) => {
@@ -62,40 +50,33 @@ export default class AddCollectionModal extends Component {
         // there will be error if user backs out of picking file but don't want to
         // show an error message here
       } else {
-        this.setState({
-          importFilePath: res.uri,
-          importFileName: res.fileName,
-          name: res.fileName.substr(0, res.fileName.lastIndexOf('.'))
-        });
+        setImportFilePath(res.uri);
+        setImportFilename(res.fileName);
+        setName(res.fileName.substr(0, res.fileName.lastIndexOf('.')));
       }
     });
-  }
+  };
 
-  render() {
-    const { closeModal } = this.props;
-    const { importFileName, name } = this.state;
-
-    return (
-      <AbstractModal submit={this.createCollectionOperation} cancel={closeModal} title="Add Collection">
-        <Text style={ModalStyles.message}>
-          Select an ABC songbook from your device storage or leave File blank to create an empty Collection:
-        </Text>
-        <Input
-          placeholder="Name"
-          value={name}
-          onChangeText={text => this.setState({ name: text })}
+  return (
+    <ModalContainer submit={createCollectionOperation} cancel={closeModal} title="Add Collection">
+      <Text style={ModalStyles.message}>
+        Select an ABC songbook from your device storage or leave File blank to create an empty Collection:
+      </Text>
+      <Input
+        placeholder="Name"
+        value={name}
+        onChangeText={value => setName(value)}
+      />
+      <View style={{ flexDirection: 'row', marginTop: 15 }}>
+        <Button
+          containerStyle={{ width: '30%' }}
+          onPress={() => pickFile()}
+          title="Select a File"
         />
-        <View style={{ flexDirection: 'row', marginTop: 15 }}>
-          <Button
-            containerStyle={{ width: '30%' }}
-            onPress={() => this.pickFile()}
-            title="Select a File"
-          />
-          <Text style={ModalStyles.fileInfoItem}>
-            {`File: ${importFileName}`}
-          </Text>
-        </View>
-      </AbstractModal>
-    );
-  }
+        <Text style={ModalStyles.fileInfoItem}>
+          {`File: ${importFileName}`}
+        </Text>
+      </View>
+    </ModalContainer>
+  );
 }

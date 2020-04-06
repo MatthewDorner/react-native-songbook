@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest",
     "lint": "eslint '**/*.js' --fix",
     "android": "cd ./android && ./gradlew app:assembleDebug && ./gradlew installDebug"
   },
   "dependencies": {
-    "abcjs-vexflow-renderer": "git+https://github.com/MatthewDorner/abcjs-vexflow-renderer.git#98441c9",
+    "@react-native-community/slider": "^2.0.8",
+    "@reduxjs/toolkit": "^1.2.5",
+    "abcjs": "^5.12.0",
+    "abcjs-vexflow-renderer": "git+https://github.com/MatthewDorner/abcjs-vexflow-renderer.git#626c07e",
     "buffer": "^5.2.1",
     "jsc-android": "^241213.2.0",
     "metro-config": "^0.56.0",
@@ -21,9 +23,14 @@
     "react-native-fs": "^2.15.1",
     "react-native-navigation": "3.2.0-snapshot.524",
     "react-native-search-box": "0.0.19",
+    "react-native-sound": "^0.11.0",
     "react-native-sqlite-2": "^2.0.1",
     "react-native-svg": "^9.2.4",
     "react-native-vector-icons": "^6.6.0",
+    "react-redux": "^7.2.0",
+    "redux": "^4.0.5",
+    "redux-devtools-extension": "^2.13.8",
+    "redux-thunk": "^2.3.0",
     "standalone-vexflow-context": "^0.1.1",
     "svg-path-bounding-box": "^1.0.4",
     "vexflow": "^1.2.88"
