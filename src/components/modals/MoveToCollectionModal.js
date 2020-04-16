@@ -6,14 +6,15 @@ import {
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
+import TuneRepository from '../../data-access/tune-repository';
+import CollectionRepository from '../../data-access/collection-repository';
 import Constants from '../../constants';
 
 export default function MoveToCollectionModal(props) {
   const [tune, setTune] = useState({});
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState({});
-  const { closeModal, queryDatabaseState, tuneRowid } = props;
+  const { closeModal, tuneRowid } = props;
 
   // here, we could get collections from Redux? but selectedCollection here is actually a name used
   // in Redux but we wouldn't want to change it, it's not the same purpose. so should at least rename.
@@ -21,8 +22,8 @@ export default function MoveToCollectionModal(props) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const wholeTune = await Database.getWholeTune(tuneRowid);
-        const collections = await Database.getCollections(Constants.CollectionTypes.COLLECTION);
+        const wholeTune = await TuneRepository.get(tuneRowid);
+        const collections = await CollectionRepository.getCollectionsByType(Constants.CollectionTypes.COLLECTION);
         setTune(wholeTune);
         setCollections(collections);
         setSelectedCollection(collections[0].rowid);
@@ -38,13 +39,12 @@ export default function MoveToCollectionModal(props) {
   const moveToCollectionOperation = async () => {
     const { rowid } = tune;
     const tuneDelta = {
+      rowid,
       Collection: selectedCollection
     };
-    closeModal();
-
     try {
-      await Database.updateRecord(rowid, tuneDelta, 'Tunes');
-      queryDatabaseState();
+      await TuneRepository.update(tuneDelta);
+      closeModal();
     } catch (e) {
       Alert.alert('Failed to move to collection', `${e}`);
     }

@@ -3,6 +3,7 @@ import { Text, Alert } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
+import TuneRepository from '../../data-access/tune-repository';
 
 export default function DetailsModal(props) {
   const [tune, setTune] = useState({});
@@ -11,7 +12,7 @@ export default function DetailsModal(props) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const wholeTune = await Database.getWholeTune(tuneRowid);
+        const wholeTune = await TuneRepository.get(tuneRowid);
         setTune(wholeTune);
       } catch (e) {
         Alert.alert('DetailsModal error', `${e}`);

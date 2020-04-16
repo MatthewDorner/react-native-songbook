@@ -88,37 +88,26 @@ export default class TopBrowser extends Component {
   }
 
   showModal(action, item) {
-    const { fetchCollections } = this.props;
-
-    /*
-      THESE DON'T WORK SINCE I RENAMED queryDatabaseState to fetchCollections. but should fix all of these
-      at the same time... modals shouldn't need to call back into this component and tell it to update its
-      state... if the state changes in Redux it should reflect in this component anyway.
-
-      though all fetchCollections() does is make Redux sync itself to the database. so closeModal() could
-      just do it.
-    */
-
     let modalToShow;
     switch (action) {
       case 'addCollection':
-        modalToShow = <AddCollectionModal closeModal={() => this.closeModal()} fetchCollections={fetchCollections} />;
+        modalToShow = <AddCollectionModal closeModal={() => this.closeModal()} />;
         break;
       case 'addSetlist':
-        modalToShow = <AddSetlistModal closeModal={() => this.closeModal()} fetchCollections={fetchCollections} />;
+        modalToShow = <AddSetlistModal closeModal={() => this.closeModal()} />;
         break;
       case 'delete':
         if (item.Type === Constants.CollectionTypes.COLLECTION) {
-          modalToShow = <DeleteCollectionModal closeModal={() => this.closeModal()} fetchCollections={fetchCollections} collection={item} />;
+          modalToShow = <DeleteCollectionModal closeModal={() => this.closeModal()} collection={item} />;
         } else if (item.Type === Constants.CollectionTypes.SETLIST) {
-          modalToShow = <DeleteSetlistModal closeModal={() => this.closeModal()} fetchCollections={fetchCollections} setlist={item} />;
+          modalToShow = <DeleteSetlistModal closeModal={() => this.closeModal()} setlist={item} />;
         }
         break;
       case 'renameCollectionSetlist':
-        modalToShow = <RenameCollectionSetlistModal closeModal={() => this.closeModal()} fetchCollections={fetchCollections} item={item} />;
+        modalToShow = <RenameCollectionSetlistModal closeModal={() => this.closeModal()} item={item} />;
         break;
       case 'importIntoCollection':
-        modalToShow = <ImportIntoCollectionModal closeModal={() => this.closeModal()} fetchCollections={fetchCollections} collection={item} />;
+        modalToShow = <ImportIntoCollectionModal closeModal={() => this.closeModal()} collection={item} />;
         break;
       default:
         return;
@@ -131,6 +120,8 @@ export default class TopBrowser extends Component {
   }
 
   closeModal() {
+    const { fetchCollections } = this.props;
+    fetchCollections();
     this.setState({
       modalVisible: false
     });

@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
-import Database from '../data-access/database';
+import TuneRepository from '../data-access/tune-repository';
+import CollectionRepository from '../data-access/collection-repository';
 import Constants from '../constants';
 
 const initialState = {
@@ -55,8 +56,8 @@ export const {
 export function fetchCollections() {
   return async (dispatch) => {
     dispatch(fetchCollectionsStart());
-    const collections = await Database.getCollections(Constants.CollectionTypes.COLLECTION);
-    const setlists = await Database.getCollections(Constants.CollectionTypes.SETLIST);
+    const collections = await CollectionRepository.getCollectionsByType(Constants.CollectionTypes.COLLECTION);
+    const setlists = await CollectionRepository.getCollectionsByType(Constants.CollectionTypes.SETLIST);
     dispatch(fetchCollectionsSuccess({ collections, setlists }));
   };
 }
@@ -64,7 +65,7 @@ export function fetchCollections() {
 export function fetchSelectedCollection(rowid, queriedBy) {
   return async (dispatch) => {
     dispatch(fetchSelectedCollectionStart());
-    const collection = await Database.getPartialTunesForCollection(rowid, queriedBy);
+    const collection = await TuneRepository.getPartialTunesForCollection(rowid, queriedBy);
     dispatch(fetchSelectedCollectionSuccess(collection));
   };
 }

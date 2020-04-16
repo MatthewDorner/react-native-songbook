@@ -3,19 +3,20 @@ import { Text, Alert } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import DBOperations from '../../data-access/db-operations';
-import Database from '../../data-access/database';
 import Constants from '../../constants';
+import TuneRepository from '../../data-access/tune-repository';
+import CollectionRepository from '../../data-access/collection-repository';
 
 export default function RemoveFromSetlistModal(props) {
   const [tune, setTune] = useState({});
   const [setlist, setSetlist] = useState({});
-  const { collectionRowid, tuneRowid, closeModal, queryDatabaseState } = props;
+  const { collectionRowid, tuneRowid, closeModal } = props;
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const tune = await Database.getWholeTune(tuneRowid);
-        const selectedSetlist = (await Database.getCollections(Constants.CollectionTypes.SETLIST)).filter((setlist) => {
+        const tune = await TuneRepository.get(tuneRowid);
+        const selectedSetlist = (await CollectionRepository.getCollectionsByType(Constants.CollectionTypes.SETLIST)).filter((setlist) => {
           if (setlist.rowid === collectionRowid) {
             return true;
           }
@@ -32,10 +33,9 @@ export default function RemoveFromSetlistModal(props) {
   }, []);
 
   const removeFromSetlistOperation = async () => {
-    closeModal();
     try {
       await DBOperations.removeTuneFromSetlist(tune, collectionRowid);
-      queryDatabaseState();
+      closeModal();
     } catch (e) {
       Alert.alert('Failed to remove from setlist', `${e}`);
     }

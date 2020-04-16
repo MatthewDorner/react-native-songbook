@@ -6,20 +6,22 @@ import {
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
 import Constants from '../../constants';
+import collectionRepository from '../../data-access/collection-repository';
 
 export default function RenameCollectionSetlistModal(props) {
   const [name, setName] = useState('');
-  const { item, closeModal, queryDatabaseState } = props;
+  const { item, closeModal } = props;
   const type = item.type === Constants.CollectionTypes.COLLECTION ? 'Collection' : 'Setlist';
 
   const renameCollectionSetlistOperation = async () => {
-    closeModal();
-    const delta = { Name: name };
+    const collectionDelta = {
+      rowid: item.rowid,
+      Name: name
+    };
     try {
-      await Database.updateRecord(item.rowid, delta, 'Collections');
-      queryDatabaseState();
+      await collectionRepository.update(collectionDelta);
+      closeModal();
     } catch (e) {
       Alert.alert('Failed to rename collection/setlist', `${e}`);
     }

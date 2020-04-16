@@ -1,7 +1,8 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
 import { Navigation } from 'react-native-navigation';
-import Database from '../data-access/database';
+import TuneRepository from '../data-access/tune-repository';
+import OptionsRepository from '../data-access/options-repository';
 
 const initialState = {};
 
@@ -46,14 +47,14 @@ export const {
 export function fetchTune(rowid) {
   return async (dispatch) => {
     dispatch(fetchTuneStart());
-    const { TabsVisibility, Zoom, Tuning, PlayMode } = await Database.getOptions();
+    const { TabsVisibility, Zoom, Tuning, PlayMode } = await OptionsRepository.get();
     dispatch(updateOptionsSuccess({
       tabsVisibility: TabsVisibility,
       zoom: Zoom,
       tuning: Tuning,
       playMode: PlayMode,
     }));
-    const { Tune, Title } = await Database.getWholeTune(rowid);
+    const { Tune, Title } = await TuneRepository.get(rowid);
     dispatch(fetchTuneSuccess({
       tune: Tune,
       title: Title,
@@ -64,7 +65,7 @@ export function fetchTune(rowid) {
 
 export function updateOptions(tabsVisibility, zoom, tuning, playMode) {
   return async (dispatch) => {
-    await Database.updateOptions({
+    await OptionsRepository.update({
       TabsVisibility: tabsVisibility,
       Zoom: zoom,
       Tuning: tuning,

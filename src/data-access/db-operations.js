@@ -100,7 +100,7 @@ export default {
           }
           // remove spaces at beginning of title
           while (title.startsWith(' ')) {
-            title = title.slice(1, title.length - 1); // this isn't right. it's chopping... shoudl be just title.length right?
+            title = title.slice(1, title.length);
           }
           if (title === '') {
             return; // many books have "blank" tunes at beginning with info about book
@@ -133,6 +133,8 @@ export default {
       }
 
       const delta = { Setlists: JSON.stringify(newSetlists) };
+
+      // this won't work, addTuneToSetlist needs to be moved to Repository
       Database.updateRecord(rowid, delta, 'Tunes').then((result) => {
         resolve(result);
       }).catch((error) => {

@@ -48,7 +48,7 @@ public class MainApplication extends NavigationApplication {
             new ReactNativeDocumentPicker(),
             new RNFSPackage(),
             new ReactSliderPackage(),
-            new RNSoundPackage(),
+            new RNSoundPackage()
             // eg. new VectorIconsPackage()
         );
     }

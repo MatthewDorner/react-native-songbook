@@ -14,11 +14,9 @@ import DBOperations from '../../data-access/db-operations';
 export default function importIntoCollectionModal(props) {
   const [importFilePath, setImportFilePath] = useState('');
   const [importFileName, setImportFileName] = useState('');
-  const { closeModal, queryDatabaseState, collection } = props;
+  const { closeModal, collection } = props;
 
   const importIntoCollectionOperation = async () => {
-    closeModal();
-
     try {
       if (importFilePath !== '') {
         let contents = await RNFS.readFile(importFilePath, 'ascii');
@@ -26,7 +24,7 @@ export default function importIntoCollectionModal(props) {
 
         const songsAdded = await DBOperations.importTuneBook(contents, collection.rowid);
         Alert.alert('Imported Songbook Successfully', `Imported ${songsAdded} tunes.`);
-        queryDatabaseState();
+        closeModal();
       }
     } catch (e) {
       Alert.alert('Failed to import into collection:', `${e}`);

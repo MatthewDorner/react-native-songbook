@@ -6,7 +6,8 @@ import {
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
+import TuneRepository from '../../data-access/tune-repository';
+import CollectionRepository from '../../data-access/collection-repository';
 import DBOperations from '../../data-access/db-operations';
 import Constants from '../../constants';
 
@@ -14,13 +15,13 @@ export default function AddtoSetlistModal(props) {
   const [setlists, setSetlists] = useState([]);
   const [selectedSetlist, setSelectedSetlist] = useState({});
   const [tune, setTune] = useState({});
-  const { tuneRowid, closeModal, queryDatabaseState } = props;
+  const { tuneRowid, closeModal } = props;
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const tune = await Database.getWholeTune(tuneRowid);
-        const setlists = await Database.getCollections(Constants.CollectionTypes.SETLIST);
+        const tune = await TuneRepository.get(tuneRowid);
+        const setlists = await CollectionRepository.getCollectionsByType(Constants.CollectionTypes.SETLIST);
         setSetlists(setlists);
         setSelectedSetlist(setlists[0].rowid);
         setTune(tune);
@@ -33,10 +34,9 @@ export default function AddtoSetlistModal(props) {
   }, []);
 
   const addToSetlistOperation = async () => {
-    closeModal();
     try {
       await DBOperations.addTuneToSetlist(tune, selectedSetlist);
-      queryDatabaseState();
+      closeModal();
     } catch (e) {
       Alert.alert('Failed to add to setlist', `${e}`);
     }

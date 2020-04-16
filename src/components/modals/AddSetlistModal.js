@@ -6,21 +6,23 @@ import {
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
+import CollectionRepository from '../../data-access/collection-repository';
 import Constants from '../../constants';
 
 export default function AddSetlistmodal(props) {
   const [name, setName] = useState('');
-  const { closeModal, queryDatabaseState } = props;
+  const { closeModal } = props;
 
   const createSetlistOperation = async () => {
-    closeModal();
     try {
       if (name === '') {
         throw new Error('Name was blank');
       }
-      await Database.addCollection(name, Constants.CollectionTypes.SETLIST);
-      queryDatabaseState();
+      await CollectionRepository.insert({
+        Name: name,
+        Type: Constants.CollectionTypes.SETLIST
+      });
+      closeModal();
     } catch (e) {
       Alert.alert('Failed to create setlist:', `${e}`);
     }

@@ -5,16 +5,16 @@ import {
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
+import TuneRepository from '../../data-access/tune-repository';
 
 export default function DeleteTuneModal(props) {
   const [tune, setTune] = useState({});
-  const { closeModal, tuneRowid, queryDatabaseState } = props;
+  const { closeModal, tuneRowid } = props;
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const wholeTune = await Database.getWholeTune(tuneRowid);
+        const wholeTune = await TuneRepository.get(tuneRowid);
         setTune(wholeTune);
       } catch (e) {
         Alert.alert('DeleteTuneModal error', `${e}`);
@@ -25,10 +25,9 @@ export default function DeleteTuneModal(props) {
   }, []);
 
   const deleteTuneOperation = async () => {
-    closeModal();
     try {
-      await Database.deleteTune(tune);
-      queryDatabaseState();
+      await TuneRepository.delete(tune);
+      closeModal();
     } catch (e) {
       Alert.alert('Failed to delete tune', `${e}`);
     }

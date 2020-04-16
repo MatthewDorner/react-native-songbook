@@ -5,18 +5,18 @@ import {
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
+import TuneRepository from '../../data-access/tune-repository';
+import CollectionRepository from '../../data-access/collection-repository';
 
 export default function DeleteCollectionModal(props) {
-  const { collection, closeModal, queryDatabaseState } = props;
+  const { collection, closeModal } = props;
 
   const deleteCollectionOperation = async () => {
-    closeModal();
     try {
-      const result = await Database.deleteTunesForCollection(collection.rowid);
-      await Database.deleteCollection(collection.rowid);
+      const result = await TuneRepository.deleteTunesForCollection(collection.rowid);
+      await CollectionRepository.delete(collection);
       Alert.alert('Deleted Collection Successfully', `Deleted ${result.rowsAffected} tunes.`);
-      queryDatabaseState();
+      closeModal();
     } catch (e) {
       Alert.alert('Failed to delete collection', `${e}`);
     }

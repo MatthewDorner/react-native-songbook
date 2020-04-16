@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
+import CollectionRepository from '../../data-access/collection-repository';
 import DBOperations from '../../data-access/db-operations';
 import Constants from '../../constants';
 
@@ -17,15 +17,18 @@ export default function AddCollectionModal(props) {
   const [name, setName] = useState('');
   const [importFilePath, setImportFilePath] = useState('');
   const [importFileName, setImportFilename] = useState('');
-  const { closeModal, queryDatabaseState } = props;
+  const { closeModal } = props;
 
   const createCollectionOperation = async () => {
-    closeModal();
     try {
       if (name === '') {
         throw new Error('Name was blank');
       }
-      const res = await Database.addCollection(name, Constants.CollectionTypes.COLLECTION);
+      const res = await CollectionRepository.insert({
+        Name: name,
+        Type: Constants.CollectionTypes.COLLECTION
+      });
+
       if (importFilePath !== '') {
         let contents = await RNFS.readFile(importFilePath, 'ascii');
         contents = contents.replace(/\r/g, ''); // get weird errors if I don't do this
@@ -33,7 +36,7 @@ export default function AddCollectionModal(props) {
         const songsAdded = await DBOperations.importTuneBook(contents, res.insertId);
         Alert.alert('Imported Songbook Successfully', `Imported ${songsAdded} tunes.`);
       }
-      queryDatabaseState();
+      closeModal();
     } catch (e) {
       Alert.alert('Failed to create collection:', `${e}`);
     }
