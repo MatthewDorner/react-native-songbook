@@ -120,46 +120,6 @@ export default {
     });
   },
 
-  addTuneToSetlist(tune, setlistId) {
-    return new Promise((resolve, reject) => {
-      const { rowid } = tune;
-      const prevSetlists = JSON.parse(tune.Setlists);
-      let newSetlists = [];
-
-      if (prevSetlists.includes(setlistId)) {
-        newSetlists = prevSetlists;
-      } else {
-        newSetlists = prevSetlists.concat(setlistId);
-      }
-
-      const delta = { Setlists: JSON.stringify(newSetlists) };
-
-      // this won't work, addTuneToSetlist needs to be moved to Repository
-      Database.updateRecord(rowid, delta, 'Tunes').then((result) => {
-        resolve(result);
-      }).catch((error) => {
-        reject(error);
-      });
-    });
-  },
-
-  removeTuneFromSetlist(tune, setlistId) {
-    return new Promise((resolve, reject) => {
-      const { rowid } = tune;
-      const prevSetlists = JSON.parse(tune.Setlists);
-      let newSetlists = [];
-
-      newSetlists = prevSetlists.filter(setlist => setlist !== setlistId);
-
-      const delta = { Setlists: JSON.stringify(newSetlists) };
-      Database.updateRecord(rowid, delta, 'Tunes').then((result) => {
-        resolve(result);
-      }).catch((error) => {
-        reject(error);
-      });
-    });
-  },
-
   importDefaultCollections(collections) {
     return new Promise((resolve, reject) => {
       Database.db.transaction((txn) => {

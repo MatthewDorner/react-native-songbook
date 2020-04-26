@@ -1,5 +1,6 @@
 const { exec } = require('child_process');
 
+// this should be imported from Constants module
 const sampleNotes = [
   'c3',
   'cs3',
@@ -51,6 +52,7 @@ const SEMITONE = 1.05946;
   sox[global-options][format-options]infile1[[format-options]infile2]... [format-options]outfile[effect[effect-options]] ...
 
   speed == adjust pitch and tempo together.
+  pitch == just pitch shift
   sox slow.aiff fixed.aiff speed 1.027
 
   1 semitone === 5.946 % change
@@ -59,10 +61,11 @@ const SEMITONE = 1.05946;
 
 function shift(r) {
   // r 0 will just leave it the same, so r 0 should create the output for c3
-  const speed = SEMITONE ** r;
+  // const speed = SEMITONE ** r; // if using speed..
+  const pitch = 100 * r;
   const noteId = sampleNotes[r];
 
-  exec(`sox input.wav ${noteId}.wav speed ${speed}`, (error, stdout, stderr) => {
+  exec(`sox input.wav ${noteId}.wav pitch ${pitch}`, (error, stdout, stderr) => {
     if (error) {
       console.log(`error: ${error.message}`);
       return;
@@ -71,7 +74,7 @@ function shift(r) {
       console.log(`stderr: ${stderr}`);
       return;
     }
-    console.log(`stdout: ${stdout}`);
+    console.log(`${stdout}`);
     if (r < sampleNotes.length - 1) {
       shift(r + 1);
     }

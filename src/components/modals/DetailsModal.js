@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Text, Alert } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
 import TuneRepository from '../../data-access/tune-repository';
 
 export default function DetailsModal(props) {

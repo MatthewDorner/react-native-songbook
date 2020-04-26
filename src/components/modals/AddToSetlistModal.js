@@ -8,7 +8,6 @@ import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import TuneRepository from '../../data-access/tune-repository';
 import CollectionRepository from '../../data-access/collection-repository';
-import DBOperations from '../../data-access/db-operations';
 import Constants from '../../constants';
 
 export default function AddtoSetlistModal(props) {
@@ -35,7 +34,7 @@ export default function AddtoSetlistModal(props) {
 
   const addToSetlistOperation = async () => {
     try {
-      await DBOperations.addTuneToSetlist(tune, selectedSetlist);
+      await TuneRepository.addTuneToSetlist(tune, selectedSetlist);
       closeModal();
     } catch (e) {
       Alert.alert('Failed to add to setlist', `${e}`);

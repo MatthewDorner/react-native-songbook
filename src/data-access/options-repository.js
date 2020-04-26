@@ -21,7 +21,7 @@ class OptionsRepository extends Repository {
   }
 
   update(dto) {
-    return super.update({ rowid: 1, ...dto });
+    return super.update({ ...dto, rowid: 1 });
   }
 }
 

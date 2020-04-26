@@ -28,7 +28,8 @@ export default class TableSchema {
 
 
   // to be used when retrieving all columns of a single record, so
-  // it should include rowid
+  // it should include rowid. SQLite doesn't return rowid when
+  // you use SELECT *, I think that's why I need to do this
   getAllFields() {
     let fields = 'rowid';
     this.fields.forEach((field) => {

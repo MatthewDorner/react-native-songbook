@@ -9,7 +9,6 @@ import Constants from '../constants';
 import ListStyles from '../styles/list-styles';
 
 export default class CollectionBrowser extends PureComponent {
-
   render() {
     const { queriedBy, fetchTune, item, showModal } = this.props;
 

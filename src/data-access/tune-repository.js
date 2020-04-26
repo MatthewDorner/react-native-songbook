@@ -53,6 +53,46 @@ class TuneRepository extends Repository {
     });
   }
 
+  addTuneToSetlist(tune, setlistId) {
+    return new Promise((resolve, reject) => {
+      const { rowid } = tune;
+      const prevSetlists = JSON.parse(tune.Setlists);
+      let newSetlists = [];
+
+      if (prevSetlists.includes(setlistId)) {
+        newSetlists = prevSetlists;
+      } else {
+        newSetlists = prevSetlists.concat(setlistId);
+      }
+
+      const delta = { Setlists: JSON.stringify(newSetlists) };
+
+      this.update({ ...delta, rowid }).then((result) => {
+        resolve(result);
+      }).catch((error) => {
+        reject(error);
+      });
+    });
+  }
+
+  removeTuneFromSetlist(tune, setlistId) {
+    return new Promise((resolve, reject) => {
+      const { rowid } = tune;
+      const prevSetlists = JSON.parse(tune.Setlists);
+      let newSetlists = [];
+
+      newSetlists = prevSetlists.filter(setlist => setlist !== setlistId);
+
+      const delta = { Setlists: JSON.stringify(newSetlists) };
+
+      this.update({ ...delta, rowid }).then((result) => {
+        resolve(result);
+      }).catch((error) => {
+        reject(error);
+      });
+    });
+  }
+
   // only for Collection not Setlist
   deleteTunesForCollection(collection) {
     return new Promise((resolve, reject) => {
