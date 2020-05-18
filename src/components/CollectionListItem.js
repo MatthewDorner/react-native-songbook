@@ -52,7 +52,9 @@ export default class CollectionBrowser extends PureComponent {
       <Text style={ListStyles.listItemDetail} key="listItemDetail">
         {`Key: ${item.Key}`}
         {(item.Rhythm ? `, Rhythm: ${item.Rhythm}` : '')}
-      </Text>
+      </Text>,
+      <View style={ListStyles.listItemSeparator} key="listItemSeparator" />
     ]);
+    // use fragment instead of array here
   }
 }

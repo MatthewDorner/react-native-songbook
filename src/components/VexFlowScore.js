@@ -19,7 +19,14 @@ export default class VexFlowScore extends Component {
     };
   }
 
-  // changing bottom tabs now causes the component to re-render
+  shouldComponentUpdate(nextProps, nextState) {
+    const { bottomTabsVisibility } = this.state;
+    if (nextState.bottomTabsVisibility !== bottomTabsVisibility && nextProps === this.props) {
+      return false;
+    }
+    return true;
+  }
+
   onPress() {
     this.setState(prevState => ({ bottomTabsVisibility: !prevState.bottomTabsVisibility }),
       () => {
@@ -76,6 +83,8 @@ export default class VexFlowScore extends Component {
         really all this math should be moved into the abcjs-vexflow-renderer library, and it shouldn't
         use magic numbers yeah blah blah
       */
+
+      // height: needs to account for zoom.
       context = new ReactNativeSVGContext(
         NotoFontPack,
         { width: dimWidth * 0.90, height: ((lastBar.position.y + renderOptions.lineHeight) * 0.75) + 50 }

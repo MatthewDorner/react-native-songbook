@@ -9,6 +9,7 @@ import Slider from '@react-native-community/slider';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import Constants from '../../constants';
+import Colors from '../../styles/colors';
 
 export default function OptionsModal(props) {
   const [zoom, setZoom] = useState(props.zoom);
@@ -71,13 +72,13 @@ export default function OptionsModal(props) {
       <View style={ModalStyles.pickerContainer}>
         <Slider
           style={{ alignSelf: 'stretch' }}
-          step={5}
+          step={2}
           onValueChange={value => setZoom(value)}
           value={zoom}
           minimumValue={30}
           maximumValue={70}
-          minimumTrackTintColor="darkgray"
-          maximumTrackTintColor="gray"
+          minimumTrackTintColor={Colors.sliderMin}
+          maximumTrackTintColor={Colors.sliderMax}
         />
       </View>
     </ModalContainer>

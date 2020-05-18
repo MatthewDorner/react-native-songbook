@@ -1,10 +1,10 @@
 import React from 'react';
-
 import {
   StyleSheet,
   Text,
   View
 } from 'react-native';
+import Fonts from '../styles/fonts';
 
 export default function Info() {
   return (
@@ -28,11 +28,13 @@ export default function Info() {
 const styles = StyleSheet.create({
   title: {
     fontSize: 20,
+    fontFamily: Fonts.default,
     textAlign: 'center',
     margin: 10,
   },
   body: {
     fontSize: 15,
+    fontFamily: Fonts.default,
     marginTop: 20
   },
   container: {

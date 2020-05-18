@@ -12,6 +12,8 @@ import {
 import { Navigation } from 'react-native-navigation';
 import Constants from '../../constants';
 import ListStyles from '../../styles/list-styles';
+import Colors from '../../styles/colors';
+import Fonts from '../../styles/fonts';
 
 import AddCollectionModal from '../modals/AddCollectionModal';
 import AddSetlistModal from '../modals/AddSetlistModal';
@@ -151,10 +153,10 @@ export default class TopBrowser extends Component {
 
           <TouchableHighlight
             style={styles.addCollectionButton}
-            underlayColor="lightgray"
+            underlayColor={Colors.topBrowserUnderlay}
             onPress={() => this.showModal('addCollection')}
           >
-            <Text style={{ fontSize: 18, paddingBottom: 2, color: 'white' }}>+</Text>
+            <Text style={{ fontSize: 15, paddingBottom: 2, color: Colors.topBrowserButtonTitle }}>ADD</Text>
           </TouchableHighlight>
         </View>
 
@@ -169,10 +171,10 @@ export default class TopBrowser extends Component {
 
           <TouchableHighlight
             style={styles.addCollectionButton}
-            underlayColor="lightgray"
+            underlayColor={Colors.topBrowserUnderlay}
             onPress={() => this.showModal('addSetlist')}
           >
-            <Text style={{ fontSize: 18, paddingBottom: 2, color: 'white' }}>+</Text>
+            <Text style={{ fontSize: 15, paddingBottom: 2, color: Colors.topBrowserButtonTitle }}>ADD</Text>
           </TouchableHighlight>
 
         </View>
@@ -193,9 +195,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   sectionHeaderTitle: {
-    color: '#aaaaaa',
-    fontSize: 25,
+    color: Colors.topBrowserSectionTitle,
+    fontSize: 22,
     textAlign: 'left',
+    fontFamily: Fonts.default,
     marginTop: 13,
     marginRight: 10,
     marginBottom: 3
@@ -203,13 +206,13 @@ const styles = StyleSheet.create({
 
   // addCollectionButton doesn't appear right on tablets, why?
   addCollectionButton: {
-    backgroundColor: '#dddddd',
-    marginTop: 20,
-    marginLeft: 3,
-    height: 23,
+    backgroundColor: Colors.topBrowserButtonBackground,
+    marginTop: 16,
+    marginLeft: 0,
+    height: 24,
     borderRadius: 5,
     padding: 0,
-    width: 25,
+    width: 58,
     alignItems: 'center',
     justifyContent: 'center'
   }

@@ -2,10 +2,12 @@ import { Navigation } from 'react-native-navigation';
 import { YellowBox } from 'react-native';
 import RegisterScreens from './src/screens';
 import DBOperations from './src/data-access/db-operations';
+import Colors from './src/styles/colors';
+import Fonts from './src/styles/fonts';
 
-const musicIcon = require('./icons/music.png');
-const bookIcon = require('./icons/book.png');
-const textIcon = require('./icons/text.png');
+const musicIcon = require('./icons/music_topmargin_gray.png');
+const bookIcon = require('./icons/book_topmargin_gray.png');
+const textIcon = require('./icons/text_topmargin_gray.png');
 
 YellowBox.ignoreWarnings([
   'Require cycle:',
@@ -21,7 +23,10 @@ Navigation.events().registerAppLaunchedListener(() => {
         bottomTabs: {
           options: {
             bottomTabs: {
-              currentTabIndex: 2
+              animate: false,
+              backgroundColor: Colors.bottomTabsBackground,
+              currentTabIndex: 2,
+              drawBehind: true
             },
           },
           children: [{
@@ -40,11 +45,10 @@ Navigation.events().registerAppLaunchedListener(() => {
                     id: 'CurrentTune', // needed for mergeoptions to toggle tabbar visibility
                     options: {
                       bottomTab: {
+                        fontFamily: Fonts.default,
+                        fontSize: 12,
                         text: 'Current Tune',
                         icon: musicIcon, // credit "feathericons"
-                      },
-                      bottomTabs: {
-                        drawBehind: true
                       }
                     }
                   },
@@ -69,6 +73,8 @@ Navigation.events().registerAppLaunchedListener(() => {
                       bottomTab: {
                         text: 'Browser',
                         icon: bookIcon,
+                        fontFamily: Fonts.default,
+                        fontSize: 12,
                         // would be cool to use closed book when you're not on collection tab, open book when you are on it:
                         // selectedIcon: require('./icons/book-open.png') // doesn't work?
                       }
@@ -94,6 +100,8 @@ Navigation.events().registerAppLaunchedListener(() => {
                     options: {
                       bottomTab: {
                         text: 'Info',
+                        fontFamily: Fonts.default,
+                        fontSize: 12,
                         icon: textIcon
                       }
                     }

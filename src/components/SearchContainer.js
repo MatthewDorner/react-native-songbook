@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import Search from 'react-native-search-box';
-
 import {
   StyleSheet,
   TextInput,
   View
 } from 'react-native';
+import Colors from '../styles/colors';
+import Fonts from '../styles/fonts';
+
 
 export default class SearchContainer extends Component {
   constructor(props) {
@@ -59,17 +61,29 @@ export default class SearchContainer extends Component {
   render() {
     return (
       <View>
-        {/* removed ref="search box" */}
-        <Search onSearch={searchText => this.setSearchText(searchText)} onCancel={() => this.setSearchText('')} backgroundColor="#fafafa" titleCancelColor="gray" />
+        <Search
+          inputStyle={{ fontFamily: Fonts.default, fontSize: 13, fontWeight: '100', color: Colors.searchControls }}
+          placeholderTextColor={Colors.searchControls}
+          onSearch={searchText => this.setSearchText(searchText)}
+          onCancel={() => this.setSearchText('')}
+          cancelButtonStyle={{ color: Colors.searchControls, fontFamily: Fonts.default, paddingLeft: 0, marginLeft: 0 }}
+          searchIconCollapsedMargin={30}
+          searchIconExpandedMargin={10}
+          tintColorDelete={Colors.searchBackground}
+          backgroundColor={Colors.searchBackground}
+          titleCancelColor={Colors.searchTitleCancel}
+        />
         <View style={styles.searchFiltersContainer}>
           <TextInput
             style={[styles.searchFilter, { marginRight: 2.5 }]}
             placeholder="Rhythm"
+            placeholderTextColor={Colors.searchControls}
             onChangeText={text => this.setRhythmFilter(text)}
           />
           <TextInput
             style={[styles.searchFilter, { marginLeft: 2.5 }]}
             placeholder="Key"
+            placeholderTextColor={Colors.searchControls}
             onChangeText={text => this.setKeyFilter(text)}
           />
         </View>
@@ -86,17 +100,19 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     paddingBottom: 5,
     width: '100%',
-    fontSize: 13
+    fontSize: 13,
+    fontFamily: Fonts.default,
+    color: Colors.searchControls,
   },
   searchFiltersContainer: {
     height: 40,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.searchBackground,
     borderBottomWidth: 2,
     borderTopWidth: 2,
-    borderBottomColor: 'lightgray',
-    borderTopColor: 'lightgray'
+    borderBottomColor: Colors.searchBorder,
+    borderTopColor: Colors.searchBorder,
   }
 });

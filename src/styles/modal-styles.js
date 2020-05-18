@@ -1,4 +1,6 @@
 import { StyleSheet } from 'react-native';
+import Fonts from './fonts';
+import Colors from './colors';
 
 export default StyleSheet.create({
   modalContainer: {
@@ -26,28 +28,30 @@ export default StyleSheet.create({
   },
   title: {
     fontSize: 20,
+    fontFamily: Fonts.default,
     textAlign: 'center',
     margin: 15,
   },
   message: {
     fontSize: 17,
+    fontFamily: Fonts.default,
     marginTop: 20,
     marginBottom: 15,
   },
   infoItem: {
     fontSize: 14,
-    fontFamily: 'monospace',
+    fontFamily: Fonts.info,
     padding: 10,
     width: '100%',
   },
   // height should be the same as height for the button? what determines the height of the button?
   fileInfoItem: {
     width: '70%',
-    backgroundColor: 'lightgray',
+    backgroundColor: Colors.fileInfoBackground,
     paddingTop: 11,
     paddingBottom: 9,
     paddingLeft: 12,
-    fontFamily: 'monospace',
+    fontFamily: Fonts.info,
     height: 41
   },
   pickerContainer: {
@@ -55,7 +59,7 @@ export default StyleSheet.create({
     alignSelf: 'stretch',
     justifyContent: 'center',
     minHeight: 45,
-    backgroundColor: '#eeeeee',
+    backgroundColor: Colors.pickerBackground,
     borderRadius: 6
   },
   // setting an arbitrarily large number allows 100% width, but it hides the little black arrow.

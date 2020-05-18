@@ -43,7 +43,7 @@ const sampleNotes = [
 
 const SEMITONE = 1.05946;
 
-/* 
+/*
   This node.js script takes an input.wav which should be note C3 and creates a set of
   repitched samples chromatically from C3 to C6.
 

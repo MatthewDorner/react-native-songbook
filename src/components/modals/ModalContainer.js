@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { Button } from 'react-native-elements';
 import ModalStyles from '../../styles/modal-styles';
+import Colors from '../../styles/colors';
 
 export default function ModalContainer({ submit, cancel, close, children, title }) {
   let buttons = [];
@@ -20,14 +21,14 @@ export default function ModalContainer({ submit, cancel, close, children, title 
         containerStyle={{ width: 130 }}
         key="submit"
         title="submit"
-        buttonStyle={{ backgroundColor: 'gray', marginBottom: 40 }}
+        buttonStyle={{ backgroundColor: Colors.modalButtonBackground, marginBottom: 40 }}
       />,
       <Button
         onPress={() => cancel()}
         containerStyle={{ width: 130 }}
         key="cancel"
         title="cancel"
-        buttonStyle={{ backgroundColor: 'gray', marginBottom: 40 }}
+        buttonStyle={{ backgroundColor: Colors.modalButtonBackground, marginBottom: 40 }}
       />
     ];
   } else if (close) {
@@ -37,7 +38,7 @@ export default function ModalContainer({ submit, cancel, close, children, title 
         containerStyle={{ width: 120, marginBottom: 40 }}
         key="close"
         title="close"
-        buttonStyle={{ backgroundColor: 'gray' }}
+        buttonStyle={{ backgroundColor: Colors.modalButtonBackground }}
       />
     ];
   }

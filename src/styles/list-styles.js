@@ -1,25 +1,36 @@
 import { StyleSheet } from 'react-native';
+import Fonts from './fonts';
+import Colors from './colors';
 
 export default StyleSheet.create({
+  listItemSeparator: {
+    marginTop: 5,
+    width: 370,
+    height: 2,
+    borderBottomColor: Colors.listitemBorder,
+    borderBottomWidth: 1,
+  },
   listItem: {
     flexDirection: 'row',
     width: '85%'
   },
   listItemTitle: {
-    fontSize: 20,
+    fontSize: 17,
+    fontFamily: Fonts.default,
     textAlign: 'left',
-    marginTop: 4,
-    marginBottom: 4,
+    marginTop: 5,
+    marginBottom: 2,
     marginRight: 10
   },
   listItemDetail: {
-    fontSize: 13,
+    fontSize: 12,
+    fontFamily: Fonts.default,
     textAlign: 'left',
-    marginTop: 2,
+    marginTop: 0,
     marginBottom: 2
   },
   listItemPicker: {
-    height: 36,
+    height: 33,
     width: 30
   }
 });
