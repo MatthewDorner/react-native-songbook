@@ -26,6 +26,11 @@ export default StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
+  modalButton: {
+    color: Colors.modalButtonBackground,
+    marginBottom: 40,
+    width: 130,
+  },
   title: {
     fontSize: 20,
     fontFamily: Fonts.default,

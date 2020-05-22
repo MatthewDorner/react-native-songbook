@@ -7,7 +7,7 @@ export default StyleSheet.create({
     marginTop: 5,
     width: 370,
     height: 2,
-    borderBottomColor: Colors.listitemBorder,
+    borderBottomColor: Colors.listItemBorder,
     borderBottomWidth: 1,
   },
   listItem: {
