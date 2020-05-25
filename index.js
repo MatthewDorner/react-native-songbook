@@ -46,7 +46,7 @@ Navigation.events().registerAppLaunchedListener(() => {
                     options: {
                       bottomTab: {
                         fontFamily: Fonts.default,
-                        fontSize: 12,
+                        fontSize: 14,
                         text: 'Current Tune',
                         icon: musicIcon, // credit "feathericons"
                       }
@@ -74,7 +74,7 @@ Navigation.events().registerAppLaunchedListener(() => {
                         text: 'Browser',
                         icon: bookIcon,
                         fontFamily: Fonts.default,
-                        fontSize: 12,
+                        fontSize: 14,
                         // would be cool to use closed book when you're not on collection tab, open book when you are on it:
                         // selectedIcon: require('./icons/book-open.png') // doesn't work?
                       }
@@ -101,7 +101,7 @@ Navigation.events().registerAppLaunchedListener(() => {
                       bottomTab: {
                         text: 'Info',
                         fontFamily: Fonts.default,
-                        fontSize: 12,
+                        fontSize: 14,
                         icon: textIcon
                       }
                     }

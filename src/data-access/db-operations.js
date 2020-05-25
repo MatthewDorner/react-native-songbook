@@ -50,13 +50,13 @@ export default {
       Database.db.transaction((txn) => {
         Database.executeSqlDebug(txn, 'select * from sqlite_master where type = "table" and name = "Options"', [], (tx, res) => {
           if (res.rows.length === 0) {
-            Database.executeSqlDebug(txn, 'CREATE TABLE `Options` (`Zoom` integer, `TabsVisibility` integer, `Tuning` text, `PlayMode` integer)', [], (tx, res) => {
+            Database.executeSqlDebug(txn, 'CREATE TABLE `Options` (`Zoom` integer, `TabsVisibility` integer, `Tuning` text, `PlayMode` integer, `PlaybackSpeed` integer)', [], (tx, res) => {
               console.log('tried to create, res was:');
               console.log(res);
               // res
             });
             const defaultTuning = Object.keys(Constants.Tunings)[0];
-            Database.executeSqlDebug(txn, `insert into Options (Zoom, TabsVisibility, Tuning, PlayMode) values (50, 1, "${defaultTuning}", 0)`, [], (tx, res) => {
+            Database.executeSqlDebug(txn, `insert into Options (Zoom, TabsVisibility, Tuning, PlayMode, PlaybackSpeed) values (50, 1, "${defaultTuning}", 0, 50)`, [], (tx, res) => {
               // res
             });
           }

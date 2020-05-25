@@ -13,7 +13,7 @@ export default class CollectionBrowser extends PureComponent {
     const { queriedBy, fetchTune, item, showModal } = this.props;
 
     let pickerOptions = [];
-    if (queriedBy === Constants.CollectionTypes.COLLECTION) {
+    if (queriedBy === Constants.CollectionTypes.COLLECTION || queriedBy === Constants.CollectionTypes.ALL) {
       pickerOptions = [
         <Picker.Item label="Cancel" value="cancel" key="cancel" />,
         <Picker.Item label="Details" value="details" key="details" />,

@@ -38,10 +38,10 @@ export default class CollectionBrowser extends PureComponent {
   }
 
   closeModal() {
-    this.queryDatabaseState();
     this.setState({
       modalVisible: false
     });
+    this.queryDatabaseState();
   }
 
   showModal(action, partialTune) {
@@ -106,7 +106,6 @@ export default class CollectionBrowser extends PureComponent {
         <FlatList
           style={styles.tunesList}
           removeClippedSubviews
-          contentContainerStyle={{ alignItems: 'flex-start' }}
           data={searchResults}
           renderItem={this.renderItem}
           // can use partialTune to make key unique
@@ -117,11 +116,17 @@ export default class CollectionBrowser extends PureComponent {
   }
 }
 
+/*
+  try linear gradients on some of the horizontal lines (text underline) to see if
+  it's a good effect. also collection item divider, try subtle gradients in other
+  places
+*/
+
 const styles = StyleSheet.create({
   browserContainer: {
     marginBottom: 80, // height of navigation bar
   },
   tunesList: {
-    marginLeft: 20
-  }
+    marginLeft: 20,
+  },
 });

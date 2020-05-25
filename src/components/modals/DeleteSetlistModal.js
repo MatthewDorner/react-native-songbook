@@ -8,7 +8,6 @@ import ModalStyles from '../../styles/modal-styles';
 import Database from '../../data-access/database';
 import TuneRepository from '../../data-access/tune-repository';
 import CollectionRepository from '../../data-access/collection-repository';
-import DBOperations from '../../data-access/db-operations';
 import Constants from '../../constants';
 
 export default function DeleteSetlistModal(props) {
@@ -23,7 +22,7 @@ export default function DeleteSetlistModal(props) {
       for (let i = 0; i < tunesForSetlist.length; i += 1) {
         const partialTune = tunesForSetlist[i];
         const wholeTune = await TuneRepository.get(partialTune.rowid);
-        promises.push(DBOperations.removeTuneFromSetlist(wholeTune, setlist.rowid));
+        promises.push(TuneRepository.removeTuneFromSetlist(wholeTune, setlist.rowid));
       }
 
       await Promise.all(promises);

@@ -7,14 +7,15 @@ export default StyleSheet.create({
     flex: 1
   },
   modalScrollContainer: {
-    paddingLeft: '5%',
-    paddingRight: '5%',
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   modalHeader: {
     alignItems: 'center'
   },
   modalBody: {
     alignItems: 'flex-start',
+    paddingBottom: 30,
   },
   modalFooter: {
     width: '100%',
@@ -27,18 +28,20 @@ export default StyleSheet.create({
     paddingRight: 20,
   },
   modalButton: {
-    color: Colors.modalButtonBackground,
     marginBottom: 40,
     width: 130,
+    borderWidth: 1.5,
+    borderColor: Colors.modalButtonBorder,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontFamily: Fonts.default,
     textAlign: 'center',
     margin: 15,
+    textDecorationLine: 'underline',
   },
   message: {
-    fontSize: 17,
+    fontSize: 20,
     fontFamily: Fonts.default,
     marginTop: 20,
     marginBottom: 15,
@@ -51,7 +54,7 @@ export default StyleSheet.create({
   },
   // height should be the same as height for the button? what determines the height of the button?
   fileInfoItem: {
-    width: '70%',
+    width: '68%',
     backgroundColor: Colors.fileInfoBackground,
     paddingTop: 11,
     paddingBottom: 9,

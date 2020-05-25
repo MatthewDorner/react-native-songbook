@@ -8,6 +8,7 @@ import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import CollectionRepository from '../../data-access/collection-repository';
 import Constants from '../../constants';
+import Fonts from '../../styles/fonts';
 
 export default function AddSetlistmodal(props) {
   const [name, setName] = useState('');
@@ -36,6 +37,7 @@ export default function AddSetlistmodal(props) {
       <Input
         placeholder="Name"
         onChangeText={value => setName(value)}
+        inputStyle={{ fontFamily: Fonts.default }}
       />
     </ModalContainer>
   );

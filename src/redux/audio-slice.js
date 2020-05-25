@@ -10,21 +10,31 @@ const audioSlice = createSlice({
   name: 'audio',
   initialState,
   reducers: {
-    togglePlayback(state, { payload }) {
-      if (state.playing) {
-        AudioPlayer.setPlaying(false);
-        state.playing = false;
-      } else if (payload.tune) {
-        AudioPlayer.setPlaying(true);
-        AudioPlayer.startPlayback(payload.tune);
-        state.playing = true;
-      }
+    startPlayback(state, { payload }) {
+      AudioPlayer.setPlaying(true);
+      AudioPlayer.startPlayback(payload.tune, payload.playMode);
+      state.playing = true;
+    },
+    stopPlayback(state) {
+      AudioPlayer.setPlaying(false);
+      state.playing = false;
     },
   },
 });
 
 export const {
-  togglePlayback
+  startPlayback,
+  stopPlayback,
 } = audioSlice.actions;
+
+export const togglePlayback = () => (dispatch, getState) => {
+  const { playMode, tune } = getState().currentTune;
+  const { playing } = getState().audio;
+  if (playing) {
+    dispatch(stopPlayback());
+  } else {
+    dispatch(startPlayback({ playMode, tune }));
+  }
+};
 
 export default audioSlice.reducer;

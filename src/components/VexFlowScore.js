@@ -19,12 +19,18 @@ export default class VexFlowScore extends Component {
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    const { bottomTabsVisibility } = this.state;
-    if (nextState.bottomTabsVisibility !== bottomTabsVisibility && nextProps === this.props) {
-      return false;
+  shouldComponentUpdate(nextProps) {
+    const { tune, dimHeight, dimWidth, tabsVisibility, zoom, tuning } = this.props;
+    if (nextProps.tune !== tune
+      || nextProps.dimHeight !== dimHeight
+      || nextProps.dimWidth !== dimWidth
+      || nextProps.tabsVisibility !== tabsVisibility
+      || nextProps.zoom !== zoom
+      || nextProps.tuning !== tuning
+    ) {
+      return true;
     }
-    return true;
+    return false;
   }
 
   onPress() {
@@ -53,7 +59,7 @@ export default class VexFlowScore extends Component {
       keySigAccidentalWidth: 20,
       tabsVisibility,
       voltaHeight: 25,
-      renderWidth: dimWidth * (50 / zoom) * 1.2, // doesn't work right
+      renderWidth: dimWidth * (50 / zoom) * 1.2,
       tuning: Constants.Tunings[tuning],
     };
 
@@ -61,37 +67,26 @@ export default class VexFlowScore extends Component {
 
     try {
       const tuneObject = AbcjsVexFlowRenderer.getTune(tune, renderOptions);
-      if (tuneObject === null) {
-        return null; // what, what else to do other than return null?
-      }
+      // if (tuneObject === null) {
+      //   return null;
+      // }
       const lastPart = tuneObject.parts[tuneObject.parts.length - 1];
       const lastBar = lastPart.bars[lastPart.bars.length - 1];
 
-      /*
-        explaining the math here. earlier, I did: const renderWidth = dimWidth * 1.2; this is just because
-        if I don't * 1.2, the music ends up bigger than I'd prefer.
-
-        for the context size here, since I set context width to dimWidth * 0.90 (right below this),
-        I need to multiply by 0.75 for the height. This is because:
-        1 / 1.2 === .83333, and then .83333 * .9 === 0.75
-
-        the + 50 is to add the extra space at the bottom
-
-        why don't I reference dimWidth in the height argument? Because it's already factored in by the
-        lastBar.position.y???
-
-        really all this math should be moved into the abcjs-vexflow-renderer library, and it shouldn't
-        use magic numbers yeah blah blah
-      */
-
-      // height: needs to account for zoom.
+      // 1.2, .75, .90, these numbers are all related but I don't remember how, and the math be simplified
+      const contextWidth = dimWidth * 0.90;
+      const contextHeight = ((lastBar.position.y + renderOptions.lineHeight) * (zoom / 50) * 0.75) + 50;
       context = new ReactNativeSVGContext(
         NotoFontPack,
-        { width: dimWidth * 0.90, height: ((lastBar.position.y + renderOptions.lineHeight) * 0.75) + 50 }
+        { width: contextWidth, height: contextHeight }
       );
 
-      context.setViewBox(0, 0, renderOptions.renderWidth + 6, (lastBar.position.y + renderOptions.lineHeight) + 5);
+      const viewBoxWidth = renderOptions.renderWidth + 6;
+      const viewBoxHeight = (lastBar.position.y + renderOptions.lineHeight) + 5;
+      context.setViewBox(0, 0, viewBoxWidth, viewBoxHeight);
+
       context.svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+
       AbcjsVexFlowRenderer.drawToContext(context, tuneObject);
     } catch (e) {
       exception = e;

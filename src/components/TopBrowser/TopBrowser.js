@@ -22,6 +22,13 @@ import DeleteSetlistModal from '../modals/DeleteSetlistModal';
 import ImportIntoCollectionModal from '../modals/ImportIntoCollectionModal';
 import RenameCollectionSetlistModal from '../modals/RenameCollectionSetlistModal';
 
+/*
+  BUG: topbrowser doesn't scroll?
+  what about the info screen? does that scroll?
+
+
+*/
+
 export default class TopBrowser extends Component {
   constructor(props) {
     super(props);
@@ -40,10 +47,9 @@ export default class TopBrowser extends Component {
     fetchCollections();
   }
 
-  // why is type being passed as an argument if it's accessible by item.Type ???
-  renderCollectionsItem = (item, type) => {
+  renderCollectionsItem = (item) => {
     let pickerOptions = [];
-    if (type === Constants.CollectionTypes.COLLECTION) {
+    if (item.Type === Constants.CollectionTypes.COLLECTION) {
       pickerOptions = [
         <Picker.Item label="Cancel" value="cancel" key="cancel" />,
         <Picker.Item label="Import Into Collection" value="importIntoCollection" key="importIntoCollection" />,
@@ -77,14 +83,16 @@ export default class TopBrowser extends Component {
             {item.Name}
           </Text>
         </TouchableOpacity>
-        <Picker
-          style={ListStyles.listItemPicker}
-          onValueChange={(action) => {
-            this.showModal(action, item);
-          }}
-        >
-          {pickerOptions}
-        </Picker>
+        { item.Type !== Constants.CollectionTypes.ALL && (
+          <Picker
+            style={ListStyles.listItemPicker}
+            onValueChange={(action) => {
+              this.showModal(action, item);
+            }}
+          >
+            {pickerOptions}
+          </Picker>
+        )}
       </View>
     );
   }
@@ -123,18 +131,21 @@ export default class TopBrowser extends Component {
 
   closeModal() {
     const { fetchCollections } = this.props;
-    fetchCollections();
     this.setState({
       modalVisible: false
     });
+    fetchCollections();
   }
 
   render() {
     const { modalVisible, modalContents } = this.state;
     const { collections, setlists } = this.props;
 
-    const collectionItems = collections.map(collection => this.renderCollectionsItem(collection, Constants.CollectionTypes.COLLECTION));
-    const setlistItems = setlists.map(setlist => this.renderCollectionsItem(setlist, Constants.CollectionTypes.SETLIST));
+    const collectionItems = collections.map(collection => this.renderCollectionsItem(collection));
+    const setlistItems = setlists.map(setlist => this.renderCollectionsItem(setlist));
+
+    // kind of a hack
+    collectionItems.unshift(this.renderCollectionsItem({ rowid: -1, Name: 'All Collections', Type: Constants.CollectionTypes.ALL }));
 
     return (
       <ScrollView style={styles.browserContainer}>
@@ -156,7 +167,7 @@ export default class TopBrowser extends Component {
             underlayColor={Colors.topBrowserUnderlay}
             onPress={() => this.showModal('addCollection')}
           >
-            <Text style={{ fontSize: 15, paddingBottom: 2, color: Colors.topBrowserButtonTitle }}>ADD</Text>
+            <Text style={{ fontSize: 14, paddingBottom: 2, color: Colors.topBrowserButtonTitle, fontFamily: Fonts.default }}>ADD</Text>
           </TouchableHighlight>
         </View>
 
@@ -174,7 +185,7 @@ export default class TopBrowser extends Component {
             underlayColor={Colors.topBrowserUnderlay}
             onPress={() => this.showModal('addSetlist')}
           >
-            <Text style={{ fontSize: 15, paddingBottom: 2, color: Colors.topBrowserButtonTitle }}>ADD</Text>
+            <Text style={{ fontSize: 14, paddingBottom: 2, color: Colors.topBrowserButtonTitle, fontFamily: Fonts.default }}>ADD</Text>
           </TouchableHighlight>
 
         </View>
@@ -196,6 +207,7 @@ const styles = StyleSheet.create({
   },
   sectionHeaderTitle: {
     color: Colors.topBrowserSectionTitle,
+    textDecorationLine: 'underline',
     fontSize: 22,
     textAlign: 'left',
     fontFamily: Fonts.default,
@@ -207,11 +219,12 @@ const styles = StyleSheet.create({
   // addCollectionButton doesn't appear right on tablets, why?
   addCollectionButton: {
     backgroundColor: Colors.topBrowserButtonBackground,
-    marginTop: 16,
+    marginTop: 15.25,
     marginLeft: 0,
     height: 24,
     borderRadius: 5,
-    padding: 0,
+    // padding: 0,
+    paddingTop: 1.5,
     width: 58,
     alignItems: 'center',
     justifyContent: 'center'

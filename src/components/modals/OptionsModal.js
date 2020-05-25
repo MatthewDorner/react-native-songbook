@@ -16,12 +16,23 @@ export default function OptionsModal(props) {
   const [tabsVisibility, setTabsVisibility] = useState(props.tabsVisibility);
   const [tuning, setTuning] = useState(props.tuning);
   const [playMode, setPlaymode] = useState(props.playMode);
+  const [playbackSpeed, setPlaybackSpeed] = useState(props.playbackSpeed);
   const { closeModal, updateOptions } = props;
 
   async function saveOptionsOperation() {
     closeModal();
-    updateOptions(tabsVisibility, zoom, tuning, playMode);
+    updateOptions(tabsVisibility, zoom, tuning, playMode, playbackSpeed);
   }
+
+  /*
+    TODO: Add option for playback speed. just normal, slow, slower?
+    TODO: Also, the stuff is still too small with the "default" screen size
+    on a 10-inch tablet. not sure if can be handled without.. explicitly
+    multiplying all the dimensions according to a factor based on the detected
+    screen size or resolution or something? what determines the 'default' screen
+    size for a device?
+    TODO: Get better samples
+  */
 
   return (
     <ModalContainer submit={saveOptionsOperation} cancel={closeModal} title="Options">
@@ -39,7 +50,7 @@ export default function OptionsModal(props) {
         </Picker>
       </Text>
       <Text style={ModalStyles.message}>
-        Tuning:
+        Tabs Tuning:
       </Text>
       <Text style={ModalStyles.pickerContainer}>
         <Picker
@@ -53,7 +64,7 @@ export default function OptionsModal(props) {
         </Picker>
       </Text>
       <Text style={ModalStyles.message}>
-        Play Mode:
+        Playback Mode:
       </Text>
       <Text style={ModalStyles.pickerContainer}>
         <Picker
@@ -61,11 +72,29 @@ export default function OptionsModal(props) {
           selectedValue={playMode}
           onValueChange={value => setPlaymode(value)}
         >
-          <Picker.Item label="Melody and Chords" value={Constants.PlayModes.CHORDS_AND_MELODY} key={Constants.PlayModes.CHORDS_AND_MELODY} />
-          <Picker.Item label="Chords Only" value={Constants.PlayModes.CHORDS_ONLY} key={Constants.PlayModes.CHORDS_AND_MELODY} />
-          <Picker.Item label="Melody Only" value={Constants.PlayModes.MELODY_ONLY} key={Constants.PlayModes.CHORDS_AND_MELODY} />
+          <Picker.Item label="Melody and Chords" value={Constants.PlayModes.MELODY_AND_CHORDS} />
+          <Picker.Item label="Chords Only" value={Constants.PlayModes.CHORDS_ONLY} />
+          <Picker.Item label="Melody Only" value={Constants.PlayModes.MELODY_ONLY} />
         </Picker>
       </Text>
+
+      <Text style={ModalStyles.message}>
+        Playback Speed:
+      </Text>
+      <View style={ModalStyles.pickerContainer}>
+        <Slider
+          style={{ alignSelf: 'stretch' }}
+          step={2}
+          onValueChange={value => setPlaybackSpeed(value)}
+          value={playbackSpeed}
+          minimumValue={10}
+          maximumValue={90}
+          minimumTrackTintColor={Colors.sliderMin}
+          maximumTrackTintColor={Colors.sliderMax}
+          thumbTintColor={Colors.sliderThumb}
+        />
+      </View>
+
       <Text style={ModalStyles.message}>
         Zoom:
       </Text>
@@ -79,6 +108,7 @@ export default function OptionsModal(props) {
           maximumValue={70}
           minimumTrackTintColor={Colors.sliderMin}
           maximumTrackTintColor={Colors.sliderMax}
+          thumbTintColor={Colors.sliderThumb}
         />
       </View>
     </ModalContainer>

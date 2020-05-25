@@ -39,6 +39,9 @@ const browserSlice = createSlice({
 
       const searchResults = selectedCollection.filter(tune => tune.Title.toLowerCase().includes(searchText.toLowerCase()));
       const rhythmFilterResults = searchResults.filter(tune => tune.Rhythm.toLowerCase().includes(rhythmFilter.toLowerCase()));
+
+      // should G include results for Gm? maybe not, but I'd like the rhythm filter to not work that way... also with leaving
+      // it how it is, people can search for 'm' to get all minor keys, 'mix' for all mixolydian
       const keyFilterResults = rhythmFilterResults.filter(tune => tune.Key.toLowerCase().includes(keyFilter.toLowerCase()));
       state.searchResults = keyFilterResults;
     },

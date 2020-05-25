@@ -1,4 +1,4 @@
 export default {
-  default: 'serif',
+  default: 'JacquesFrancois-Regular',
   info: 'monospace',
 };

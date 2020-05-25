@@ -3,9 +3,17 @@ import AbcMidiCreate from 'abcjs/src/midi/abc_midi_create';
 import Samples from './samples';
 import Constants from './constants';
 
+// this causes a dependency cycle
+import store from './redux/store';
+import { togglePlayback } from './redux/audio-slice';
+
+
 /*
   the AudioPlayer maintains its own state that is updated by Redux actions and mirrors the Redux
   audio slice state, but doesn't act on or read Redux, is only acted on by Redux
+
+  some other ways to create a variable timed loop here, to avoid the possible recursion limit:
+  https://stackoverflow.com/questions/1280263/changing-the-interval-of-setinterval-while-its-running
 */
 class AudioPlayer {
   constructor() {
@@ -18,7 +26,6 @@ class AudioPlayer {
 
   // c3 is 48, c6 is 84
   iterateMidi(i, events, playMode) {
-    console.log(`iterateMidi iteration: ${i}`);
     if (!this.playing) {
       return;
     }
@@ -47,18 +54,18 @@ class AudioPlayer {
 
     if (events[i + j]) {
       setTimeout(() => {
-        this.iterateMidi(i + j, events, true);
+        this.iterateMidi(i + j, events, playMode);
       }, events[i + j][1] * 1.3);
+    } else {
+      store.dispatch(togglePlayback());
     }
   }
 
-  // should take playMode
-  startPlayback(tune) {
+  startPlayback(tune, playMode) {
     const parsedObject = ABCJS.parseOnly(tune)[0];
     const parsedMidi = AbcMidiCreate(parsedObject, {});
 
-    // and revert this to use playMode
-    this.iterateMidi(0, parsedMidi, Constants.PlayModes.MELODY_AND_CHORDS);
+    this.iterateMidi(0, parsedMidi, playMode);
   }
 }
 

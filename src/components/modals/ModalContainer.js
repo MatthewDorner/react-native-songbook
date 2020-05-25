@@ -7,40 +7,40 @@ import {
 import { Button } from 'react-native-elements';
 import ModalStyles from '../../styles/modal-styles';
 import Colors from '../../styles/colors';
+import Fonts from '../../styles/fonts';
 
 export default function ModalContainer({ submit, cancel, close, children, title }) {
   let buttons = [];
 
-  // these buttons are all identical, it should just render whichever ones are given,
-  // or let you specify an arbitrary number of button callbacks and button titles??
-
   if (submit && cancel) {
-    buttons = [
-      <Button
-        onPress={() => submit()}
-        containerStyle={{ width: 130 }}
-        key="submit"
-        title="submit"
-        buttonStyle={{ backgroundColor: Colors.modalButtonBackground, marginBottom: 40 }}
-      />,
-      <Button
-        onPress={() => cancel()}
-        containerStyle={{ width: 130 }}
-        key="cancel"
-        title="cancel"
-        buttonStyle={{ backgroundColor: Colors.modalButtonBackground, marginBottom: 40 }}
-      />
-    ];
+    buttons = (
+      <>
+        <Button
+          onPress={() => submit()}
+          title="submit"
+          type="outline"
+          titleStyle={{ fontFamily: Fonts.default, fontSize: 16, color: Colors.modalButtonTitle }}
+          buttonStyle={ModalStyles.modalButton}
+        />
+        <Button
+          onPress={() => cancel()}
+          title="cancel"
+          type="outline"
+          titleStyle={{ fontFamily: Fonts.default, fontSize: 16, color: Colors.modalButtonTitle }}
+          buttonStyle={ModalStyles.modalButton}
+        />
+      </>
+    );
   } else if (close) {
-    buttons = [
+    buttons = (
       <Button
         onPress={() => close()}
-        containerStyle={{ width: 120, marginBottom: 40 }}
-        key="close"
         title="close"
-        buttonStyle={{ backgroundColor: Colors.modalButtonBackground }}
+        type="outline"
+        titleStyle={{ fontFamily: Fonts.default, fontSize: 16, color: Colors.modalButtonTitle }}
+        buttonStyle={ModalStyles.modalButton}
       />
-    ];
+    );
   }
 
   return (

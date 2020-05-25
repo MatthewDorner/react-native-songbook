@@ -11,6 +11,7 @@ class OptionsRepository extends Repository {
         new Field('TabsVisibility', Constants.FieldTypes.INTEGER),
         new Field('Tuning', Constants.FieldTypes.TEXT),
         new Field('PlayMode', Constants.FieldTypes.INTEGER),
+        new Field('PlaybackSpeed', Constants.FieldTypes.INTEGER),
       ],
     );
     super(tableSchema);

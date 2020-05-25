@@ -9,6 +9,7 @@ import {
   Modal,
 } from 'react-native';
 import { Button } from 'react-native-elements';
+import Icon from 'react-native-vector-icons/Entypo';
 import Colors from '../../styles/colors';
 import Fonts from '../../styles/fonts';
 
@@ -36,14 +37,14 @@ export default class CurrentTune extends Component {
   }
 
   showModal(action) {
-    const { rowid, updateOptions, tabsVisibility, zoom, tuning, playMode } = this.props;
+    const { rowid, updateOptions, tabsVisibility, zoom, tuning, playMode, playbackSpeed } = this.props;
     let modalToShow;
     switch (action) {
       case 'details':
         modalToShow = <DetailsModal closeModal={() => this.closeModal()} tuneRowid={rowid} />;
         break;
       case 'options':
-        modalToShow = <OptionsModal closeModal={() => this.closeModal()} updateOptions={updateOptions} tabsVisibility={tabsVisibility} zoom={zoom} tuning={tuning} playMode={playMode} />;
+        modalToShow = <OptionsModal closeModal={() => this.closeModal()} updateOptions={updateOptions} tabsVisibility={tabsVisibility} zoom={zoom} tuning={tuning} playMode={playMode} playbackSpeed={playbackSpeed} />;
         break;
       default:
         return;
@@ -65,58 +66,69 @@ export default class CurrentTune extends Component {
     const {
       modalVisible, modalContents
     } = this.state;
-    const { height, width, tabsVisibility, zoom, tuning, tune, title, loading, togglePlayback } = this.props;
+    const { height, width, tabsVisibility, zoom, tuning, tune, title, loading, togglePlayback, playing } = this.props;
 
     let content;
-    if (loading === false) {
-      content = [
-        <View style={styles.headerContainer} key="headerContainer">
-          <View style={styles.titleContainer} key="titleContainer">
-            <Text style={styles.title}>
-              {title}
-            </Text>
-            <Picker
-              style={{ height: 50, width: 30 }}
-              onValueChange={(itemValue) => {
-                this.showModal(itemValue);
-              }}
-            >
-              <Picker.Item label="Cancel" value="cancel" />
-              <Picker.Item label="Details" value="details" />
-              <Picker.Item label="Options" value="options" />
-            </Picker>
+    if (loading === false && tune) {
+      content = (
+        <>
+          <View style={styles.headerContainer}>
+            <View style={styles.headerLeft}>
+              <Button
+                containerStyle={styles.playButtonContainer}
+                buttonStyle={styles.playButtonButton}
+                onPress={() => { togglePlayback({ tune }); }}
+                icon={(
+                  <Icon
+                    name={playing ? 'controller-stop' : 'controller-play'}
+                    size={18}
+                    color={Colors.playButtonIcon}
+                  />
+                )}
+              />
+            </View>
+            <View style={styles.headerCenter}>
+              {/* <View style={{ width: 17, height: 30, flexShrink: 1 }} /> */}
+              <Text style={styles.title}>
+                {title}
+              </Text>
+              <Picker
+                style={styles.titlePicker}
+                onValueChange={(itemValue) => {
+                  this.showModal(itemValue);
+                }}
+              >
+                <Picker.Item label="Cancel" value="cancel" />
+                <Picker.Item label="Details" value="details" />
+                <Picker.Item label="Options" value="options" />
+              </Picker>
+            </View>
+            <View style={styles.headerRight} />
           </View>
-          <Button
-            containerStyle={styles.playButtonContainer}
-            buttonStyle={styles.playButtonButton}
-            onPress={() => { togglePlayback({ tune }); }}
-            title="P"
+          <VexFlowScore
+            tune={tune}
+            dimHeight={height}
+            dimWidth={width}
+            tabsVisibility={tabsVisibility}
+            zoom={zoom}
+            tuning={tuning}
           />
-        </View>,
-        <VexFlowScore
-          tune={tune}
-          dimHeight={height}
-          dimWidth={width}
-          tabsVisibility={tabsVisibility}
-          zoom={zoom}
-          tuning={tuning}
-          key="vexflowscore"
-        />,
-      ];
-    } else if (tune) { // tune is loaded but loading is also true, meaning another tune is being loaded
-      content = [
-        <View style={styles.contentContainer} key="contentContainer">
+        </>
+      );
+    } else if (loading === false) {
+      content = [];
+    } else {
+      content = (
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
           <Text style={styles.title}>
             Please Wait...
           </Text>
         </View>
-      ];
-    } else { // nothing is loaded, app is just started, so leave blank
-      content = [];
+      );
     }
 
     return (
-      <ScrollView style={styles.scrollViewContainer}>
+      <ScrollView>
         <Modal
           animationType="slide"
           transparent={false}
@@ -130,43 +142,61 @@ export default class CurrentTune extends Component {
   }
 }
 
-// WANT TO CENTER THE ACTUAL TITLE, AND MAKE THE PICKER JUST
-// STICK TO THE RIGHT SIDE OF THE TITLE.
-// https://stackoverflow.com/questions/36008969/how-to-justify-left-right-center-each-child-independently
+/*
+  still a problem: the title (headerCenter) shrinks when it doesn't have to. This is obvious in landscape mode with
+  longer titles. they wrap when they don't have to
 
-// OR, just make the picker stick to the right of the title and
-// the play button stick to the right of the picker
+  also TODO: support violin fingerings in addition to tab. I checked and it does work. just do 'v' + number or
+  whatever.
+
+  ALSO, tabstave.setNumLines(4) exists. could probably get away with not adjusting line height although...
+  might as well also do that.
+*/
 
 const styles = StyleSheet.create({
-  background: { // get rid of this... no background will look good
-    flex: 1,
-    // justifyContent: 'center',
-  },
   headerContainer: {
-    // flexDirection: 'row',
+    flexDirection: 'row',
+    marginLeft: '5%',
+    marginRight: '5%',
   },
-  titleContainer: {
-    // alignSelf: 'center',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    flexDirection: 'row'
+
+  // all inside headerContainer
+  headerLeft: {
+    flex: 1,
+    minWidth: 27,
   },
+  headerCenter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexShrink: 1,
+  },
+  headerRight: {
+    flex: 1,
+  },
+
+  // both inside headerCenter
   title: {
-    // maxWidth: '85%',
-    maxWidth: '65%',
-    fontSize: 20,
+    maxWidth: '85%',
+    fontSize: 22,
     textAlign: 'center',
     marginTop: 10,
     marginLeft: 10,
     marginRight: 10,
     fontFamily: Fonts.default,
+    textDecorationLine: 'underline',
   },
+  titlePicker: {
+    height: 50,
+    width: 30,
+  },
+
+  // both inside headerLeft
   playButtonContainer: {
-    position: 'absolute',
-    right: 10,
-    top: 10,
+    marginTop: 11.5,
+    marginRight: 'auto',
   },
   playButtonButton: {
+    padding: 0,
     backgroundColor: Colors.playButtonBackground,
     height: 27,
     width: 27,

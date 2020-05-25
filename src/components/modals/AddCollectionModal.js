@@ -12,6 +12,7 @@ import ModalStyles from '../../styles/modal-styles';
 import CollectionRepository from '../../data-access/collection-repository';
 import DBOperations from '../../data-access/db-operations';
 import Constants from '../../constants';
+import Fonts from '../../styles/fonts';
 
 export default function AddCollectionModal(props) {
   const [name, setName] = useState('');
@@ -69,13 +70,18 @@ export default function AddCollectionModal(props) {
         placeholder="Name"
         value={name}
         onChangeText={value => setName(value)}
+        inputStyle={{ fontFamily: Fonts.default }}
       />
       <View style={{ flexDirection: 'row', marginTop: 15 }}>
         <Button
-          containerStyle={{ width: '30%' }}
+          containerStyle={{ width: '32%' }}
           onPress={() => pickFile()}
           title="Select a File"
+          titleProps={{ style: { fontFamily: Fonts.default, fontSize: 15, padding: 2, color: 'white' } }}
         />
+        {/* this doesn't WORK, IF THE FILE NAME IS TOO LONG, YOU CAN'T SEE ANY OF IT.
+        ALSO RECONSIDER WHETHER CUTTING OFF FILENAME EXTENSIONS? OR DO IT TWICE JUST FOR THE
+        SPECIAL CASE OF.ABC.TXT FILES, JUST BECAUSE IT HAPPENS A LOT */}
         <Text style={ModalStyles.fileInfoItem}>
           {`File: ${importFileName}`}
         </Text>

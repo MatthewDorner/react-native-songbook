@@ -11,7 +11,7 @@ import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import DBOperations from '../../data-access/db-operations';
 
-export default function importIntoCollectionModal(props) {
+export default function ImportIntoCollectionModal(props) {
   const [importFilePath, setImportFilePath] = useState('');
   const [importFileName, setImportFileName] = useState('');
   const { closeModal, collection } = props;

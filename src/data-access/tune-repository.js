@@ -28,7 +28,6 @@ class TuneRepository extends Repository {
   // for collectionBrowser to create the list. when the full text is required, must call get() for the
   // individual tune
 
-  // should collection here use a dto instead of simply a rowid???
   getPartialTunesForCollection(collection, queriedBy) {
     return new Promise((resolve, reject) => {
       let tunes = [];
@@ -38,6 +37,8 @@ class TuneRepository extends Repository {
           query = `select rowid, Key, Rhythm, Title from ${this.tableSchema.tableName} where Collection = ${collection} order by Title COLLATE NOCASE ASC`;
         } else if (queriedBy === Constants.CollectionTypes.SETLIST) {
           query = `select rowid, Key, Rhythm, Title from ${this.tableSchema.tableName} where (Setlists like "%[${collection}]%" or Setlists like "%[${collection}," or Setlists like "%,${collection}]") order by Title COLLATE NOCASE ASC`;
+        } else if (queriedBy === Constants.CollectionTypes.ALL) {
+          query = `select rowid, Key, Rhythm, Title from ${this.tableSchema.tableName} order by Title COLLATE NOCASE ASC`;
         }
 
         // are there any other characters that need to be escaped??

@@ -1,15 +1,18 @@
 export default {
   CollectionTypes: {
+    ALL: 0,
     COLLECTION: 1,
     SETLIST: 2,
   },
   Tunings: {
-    'Guitar(EADGBE)': ['e/3', 'a/3', 'd/4', 'g/4', 'b/4', 'e/5'],
-    'Guitar(open D)': ['d/3', 'a/3', 'd/4', 'f/4#', 'a/4', 'd/5'],
-    'Banjo(GDGBD)': ['d/4', 'g/4', 'b/4', 'd/5'],
-    'Tenor Banjo(CGDA)': ['c/4', 'g/4', 'd/5', 'a/5'],
-    'Fiddle/Mandolin(GDAE)': ['g/3', 'd/4', 'a/4', 'e/5'],
-    'Cross Fiddle(AEAE)': ['a/3', 'e/4', 'a/4', 'e/5'],
+    'Guitar(EADGBE)': { tuning: ['e/3', 'a/3', 'd/4', 'g/4', 'b/4', 'e/5'] },
+    'Guitar(DADF#AD)': { tuning: ['d/3', 'a/3', 'd/4', 'f/4#', 'a/4', 'd/5'] },
+    'Banjo(GDGBD)': { tuning: ['d/4', 'g/4', 'b/4', 'd/5'] },
+    'Tenor Banjo(CGDA)': { tuning: ['c/4', 'g/4', 'd/5', 'a/5'] },
+    'Fiddle/Mandolin(GDAE)': { tuning: ['g/3', 'd/4', 'a/4', 'e/5'] },
+    'Fiddle Fingerings(GDAE)': { tuning: ['g/3', 'd/4', 'a/4', 'e/5'], showFingerings: true },
+    'Cross Fiddle(AEAE)': { tuning: ['a/3', 'e/4', 'a/4', 'e/5'] },
+    'Fiddle Fingerings(AEAE)': { tuning: ['a/3', 'e/4', 'a/4', 'e/5'], showFingerings: true },
   },
   SampleNotes: [
     'c3',

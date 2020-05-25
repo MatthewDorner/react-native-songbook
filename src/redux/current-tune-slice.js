@@ -4,7 +4,9 @@ import { Navigation } from 'react-native-navigation';
 import TuneRepository from '../data-access/tune-repository';
 import OptionsRepository from '../data-access/options-repository';
 
-const initialState = {};
+const initialState = {
+  loading: false,
+};
 
 const currentTuneSlice = createSlice({
   name: 'currentTune',
@@ -33,6 +35,7 @@ const currentTuneSlice = createSlice({
       state.zoom = payload.zoom;
       state.tuning = payload.tuning;
       state.playMode = payload.playMode;
+      state.playbackSpeed = payload.playbackSpeed;
     }
   },
 });
@@ -47,12 +50,13 @@ export const {
 export function fetchTune(rowid) {
   return async (dispatch) => {
     dispatch(fetchTuneStart());
-    const { TabsVisibility, Zoom, Tuning, PlayMode } = await OptionsRepository.get();
+    const { TabsVisibility, Zoom, Tuning, PlayMode, PlaybackSpeed } = await OptionsRepository.get();
     dispatch(updateOptionsSuccess({
       tabsVisibility: TabsVisibility,
       zoom: Zoom,
       tuning: Tuning,
       playMode: PlayMode,
+      playbackSpeed: PlaybackSpeed,
     }));
     const { Tune, Title } = await TuneRepository.get(rowid);
     dispatch(fetchTuneSuccess({
@@ -63,15 +67,16 @@ export function fetchTune(rowid) {
   };
 }
 
-export function updateOptions(tabsVisibility, zoom, tuning, playMode) {
+export function updateOptions(tabsVisibility, zoom, tuning, playMode, playbackSpeed) {
   return async (dispatch) => {
     await OptionsRepository.update({
       TabsVisibility: tabsVisibility,
       Zoom: zoom,
       Tuning: tuning,
       PlayMode: playMode,
+      PlaybackSpeed: playbackSpeed,
     });
-    dispatch(updateOptionsSuccess({ tabsVisibility, zoom, tuning, playMode }));
+    dispatch(updateOptionsSuccess({ tabsVisibility, zoom, tuning, playMode, playbackSpeed }));
   };
 }
 

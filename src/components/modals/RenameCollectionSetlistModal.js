@@ -7,7 +7,8 @@ import {
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import Constants from '../../constants';
-import collectionRepository from '../../data-access/collection-repository';
+import CollectionRepository from '../../data-access/collection-repository';
+import Fonts from '../../styles/fonts';
 
 export default function RenameCollectionSetlistModal(props) {
   const [name, setName] = useState('');
@@ -20,7 +21,7 @@ export default function RenameCollectionSetlistModal(props) {
       Name: name
     };
     try {
-      await collectionRepository.update(collectionDelta);
+      await CollectionRepository.update(collectionDelta);
       closeModal();
     } catch (e) {
       Alert.alert('Failed to rename collection/setlist', `${e}`);
@@ -35,6 +36,7 @@ export default function RenameCollectionSetlistModal(props) {
       <Input
         placeholder="Name"
         onChangeText={value => setName(value)}
+        inputStyle={{ fontFamily: Fonts.default }}
       />
       <Text style={ModalStyles.infoItem}>
         {`${type} Name: ${item.Name}`}

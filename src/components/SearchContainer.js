@@ -62,7 +62,7 @@ export default class SearchContainer extends Component {
     return (
       <View>
         <Search
-          inputStyle={{ fontFamily: Fonts.default, fontSize: 13, fontWeight: '100', color: Colors.searchControls }}
+          inputStyle={{ fontFamily: Fonts.default, fontSize: 16, fontWeight: '100', color: Colors.searchControls }}
           placeholderTextColor={Colors.searchControls}
           onSearch={searchText => this.setSearchText(searchText)}
           onCancel={() => this.setSearchText('')}
@@ -99,8 +99,8 @@ const styles = StyleSheet.create({
     height: 30,
     paddingTop: 5,
     paddingBottom: 5,
-    width: '100%',
-    fontSize: 13,
+    // width: '100%',
+    fontSize: 14.5,
     fontFamily: Fonts.default,
     color: Colors.searchControls,
   },
