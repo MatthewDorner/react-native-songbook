@@ -67,13 +67,10 @@ export default class VexFlowScore extends Component {
 
     try {
       const tuneObject = AbcjsVexFlowRenderer.getTune(tune, renderOptions);
-      // if (tuneObject === null) {
-      //   return null;
-      // }
       const lastPart = tuneObject.parts[tuneObject.parts.length - 1];
       const lastBar = lastPart.bars[lastPart.bars.length - 1];
 
-      // 1.2, .75, .90, these numbers are all related but I don't remember how, and the math be simplified
+      // 1.2, .75, .90, these numbers are all related but I don't remember how, and the math could be simplified
       const contextWidth = dimWidth * 0.90;
       const contextHeight = ((lastBar.position.y + renderOptions.lineHeight) * (zoom / 50) * 0.75) + 50;
       context = new ReactNativeSVGContext(

@@ -10,13 +10,14 @@ import ListStyles from '../styles/list-styles';
 
 export default class CollectionBrowser extends PureComponent {
   render() {
-    const { queriedBy, fetchTune, item, showModal } = this.props;
+    const { queriedBy, fetchTune, item, showModal, startBrowserPlayback } = this.props;
 
     let pickerOptions = [];
     if (queriedBy === Constants.CollectionTypes.COLLECTION || queriedBy === Constants.CollectionTypes.ALL) {
       pickerOptions = [
         <Picker.Item label="Cancel" value="cancel" key="cancel" />,
         <Picker.Item label="Details" value="details" key="details" />,
+        <Picker.Item label="Play" value="play" key="play" />,
         <Picker.Item label="Add to Setlist" value="addToSetlist" key="addToSetlist" />,
         <Picker.Item label="Move to Collection" value="moveToCollection" key="moveToCollection" />,
         <Picker.Item label="Delete" value="delete" key="delete" />
@@ -25,6 +26,7 @@ export default class CollectionBrowser extends PureComponent {
       pickerOptions = [
         <Picker.Item label="Cancel" value="cancel" key="cancel" />,
         <Picker.Item label="Details" value="details" key="details" />,
+        <Picker.Item label="Play" value="play" key="play" />,
         <Picker.Item label="Remove from Setlist" value="removeFromSetlist" key="removeFromSetlist" />
       ];
     }
@@ -44,7 +46,11 @@ export default class CollectionBrowser extends PureComponent {
           <Picker
             style={ListStyles.listItemPicker}
             onValueChange={(action) => {
-              showModal(action, item);
+              if (action === 'play') {
+                startBrowserPlayback(item.rowid);
+              } else {
+                showModal(action, item);
+              }
             }}
           >
             {pickerOptions}

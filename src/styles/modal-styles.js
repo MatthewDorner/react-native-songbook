@@ -19,11 +19,10 @@ export default StyleSheet.create({
   },
   modalFooter: {
     width: '100%',
-    backgroundColor: 'white',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'flex-end',
     height: 80,
+    paddingTop: 5,
     paddingLeft: 20,
     paddingRight: 20,
   },
@@ -37,14 +36,21 @@ export default StyleSheet.create({
     fontSize: 22,
     fontFamily: Fonts.default,
     textAlign: 'center',
-    margin: 15,
+    marginBottom: 5,
+    marginTop: 10,
     textDecorationLine: 'underline',
   },
   message: {
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: Fonts.default,
     marginTop: 20,
     marginBottom: 15,
+  },
+  optionLabel: {
+    fontSize: 18,
+    fontFamily: Fonts.default,
+    marginTop: 19,
+    marginBottom: 7,
   },
   infoItem: {
     fontSize: 14,
@@ -52,7 +58,6 @@ export default StyleSheet.create({
     padding: 10,
     width: '100%',
   },
-  // height should be the same as height for the button? what determines the height of the button?
   fileInfoItem: {
     width: '68%',
     backgroundColor: Colors.fileInfoBackground,

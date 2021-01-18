@@ -47,6 +47,9 @@ const SEMITONE = 1.05946;
   This node.js script takes an input.wav which should be note C3 and creates a set of
   repitched samples chromatically from C3 to C6.
 
+  TODO: should start at a lower note than C3... although I'm probably not going to use this anymore,
+  instead using my own recorded guitar samples
+
   input.wav of C3 should be placed in this 'sampleshift' folder.
 
   sox[global-options][format-options]infile1[[format-options]infile2]... [format-options]outfile[effect[effect-options]] ...

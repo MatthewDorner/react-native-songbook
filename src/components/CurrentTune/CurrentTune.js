@@ -66,7 +66,7 @@ export default class CurrentTune extends Component {
     const {
       modalVisible, modalContents
     } = this.state;
-    const { height, width, tabsVisibility, zoom, tuning, tune, title, loading, togglePlayback, playing } = this.props;
+    const { height, width, tabsVisibility, zoom, tuning, tune, title, loading, toggleCurrentTunePlayback, playing } = this.props;
 
     let content;
     if (loading === false && tune) {
@@ -77,7 +77,7 @@ export default class CurrentTune extends Component {
               <Button
                 containerStyle={styles.playButtonContainer}
                 buttonStyle={styles.playButtonButton}
-                onPress={() => { togglePlayback({ tune }); }}
+                onPress={() => toggleCurrentTunePlayback()}
                 icon={(
                   <Icon
                     name={playing ? 'controller-stop' : 'controller-play'}
@@ -141,17 +141,6 @@ export default class CurrentTune extends Component {
     );
   }
 }
-
-/*
-  still a problem: the title (headerCenter) shrinks when it doesn't have to. This is obvious in landscape mode with
-  longer titles. they wrap when they don't have to
-
-  also TODO: support violin fingerings in addition to tab. I checked and it does work. just do 'v' + number or
-  whatever.
-
-  ALSO, tabstave.setNumLines(4) exists. could probably get away with not adjusting line height although...
-  might as well also do that.
-*/
 
 const styles = StyleSheet.create({
   headerContainer: {

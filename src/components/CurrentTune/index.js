@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import CurrentTune from './CurrentTune';
 import { setDimensions, updateOptions } from '../../redux/current-tune-slice';
-import { togglePlayback } from '../../redux/audio-slice';
+import { toggleCurrentTunePlayback } from '../../redux/audio-slice';
 
 function mapStateToProps(state) {
   const { width, height, tuneRowid, tabsVisibility, zoom, tuning, title, tune, rowid, loading, playMode, playbackSpeed } = state.currentTune;
@@ -9,4 +9,4 @@ function mapStateToProps(state) {
   return { width, height, tuneRowid, tabsVisibility, zoom, tuning, title, tune, rowid, loading, playMode, playbackSpeed, playing };
 }
 
-export default connect(mapStateToProps, { setDimensions, updateOptions, togglePlayback })(CurrentTune);
+export default connect(mapStateToProps, { setDimensions, updateOptions, toggleCurrentTunePlayback })(CurrentTune);

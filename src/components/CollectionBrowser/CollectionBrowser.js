@@ -75,13 +75,14 @@ export default class CollectionBrowser extends PureComponent {
   }
 
   renderItem({ item }) {
-    const { queriedBy, fetchTune } = this.props;
+    const { queriedBy, fetchTune, startBrowserPlayback } = this.props;
     return (
       <CollectionListItem
         queriedBy={queriedBy}
         fetchTune={fetchTune}
         item={item}
         showModal={this.showModal}
+        startBrowserPlayback={startBrowserPlayback}
       />
     );
   }

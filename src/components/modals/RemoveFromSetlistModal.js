@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Text, Alert } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
-import DBOperations from '../../data-access/db-operations';
 import Constants from '../../constants';
 import TuneRepository from '../../data-access/tune-repository';
 import CollectionRepository from '../../data-access/collection-repository';
@@ -34,7 +33,7 @@ export default function RemoveFromSetlistModal(props) {
 
   const removeFromSetlistOperation = async () => {
     try {
-      await DBOperations.removeTuneFromSetlist(tune, collectionRowid);
+      await TuneRepository.removeTuneFromSetlist(tune, collectionRowid);
       closeModal();
     } catch (e) {
       Alert.alert('Failed to remove from setlist', `${e}`);

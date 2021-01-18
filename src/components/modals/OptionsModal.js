@@ -24,19 +24,9 @@ export default function OptionsModal(props) {
     updateOptions(tabsVisibility, zoom, tuning, playMode, playbackSpeed);
   }
 
-  /*
-    TODO: Add option for playback speed. just normal, slow, slower?
-    TODO: Also, the stuff is still too small with the "default" screen size
-    on a 10-inch tablet. not sure if can be handled without.. explicitly
-    multiplying all the dimensions according to a factor based on the detected
-    screen size or resolution or something? what determines the 'default' screen
-    size for a device?
-    TODO: Get better samples
-  */
-
   return (
     <ModalContainer submit={saveOptionsOperation} cancel={closeModal} title="Options">
-      <Text style={ModalStyles.message}>
+      <Text style={ModalStyles.optionLabel}>
         Tabs Visibility:
       </Text>
       <Text style={ModalStyles.pickerContainer}>
@@ -49,7 +39,7 @@ export default function OptionsModal(props) {
           <Picker.Item label="Hide" value={0} key="hide" />
         </Picker>
       </Text>
-      <Text style={ModalStyles.message}>
+      <Text style={ModalStyles.optionLabel}>
         Tabs Tuning:
       </Text>
       <Text style={ModalStyles.pickerContainer}>
@@ -63,7 +53,7 @@ export default function OptionsModal(props) {
           ))}
         </Picker>
       </Text>
-      <Text style={ModalStyles.message}>
+      <Text style={ModalStyles.optionLabel}>
         Playback Mode:
       </Text>
       <Text style={ModalStyles.pickerContainer}>
@@ -78,7 +68,7 @@ export default function OptionsModal(props) {
         </Picker>
       </Text>
 
-      <Text style={ModalStyles.message}>
+      <Text style={ModalStyles.optionLabel}>
         Playback Speed:
       </Text>
       <View style={ModalStyles.pickerContainer}>
@@ -95,7 +85,7 @@ export default function OptionsModal(props) {
         />
       </View>
 
-      <Text style={ModalStyles.message}>
+      <Text style={ModalStyles.optionLabel}>
         Zoom:
       </Text>
       <View style={ModalStyles.pickerContainer}>

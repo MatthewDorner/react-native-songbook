@@ -50,6 +50,7 @@ export const {
 export function fetchTune(rowid) {
   return async (dispatch) => {
     dispatch(fetchTuneStart());
+
     const { TabsVisibility, Zoom, Tuning, PlayMode, PlaybackSpeed } = await OptionsRepository.get();
     dispatch(updateOptionsSuccess({
       tabsVisibility: TabsVisibility,

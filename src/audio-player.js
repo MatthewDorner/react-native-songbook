@@ -5,35 +5,33 @@ import Constants from './constants';
 
 // this causes a dependency cycle
 import store from './redux/store';
-import { togglePlayback } from './redux/audio-slice';
+import { stopPlayback } from './redux/audio-slice';
 
-
-/*
-  the AudioPlayer maintains its own state that is updated by Redux actions and mirrors the Redux
-  audio slice state, but doesn't act on or read Redux, is only acted on by Redux
-
-  some other ways to create a variable timed loop here, to avoid the possible recursion limit:
-  https://stackoverflow.com/questions/1280263/changing-the-interval-of-setinterval-while-its-running
-*/
 class AudioPlayer {
   constructor() {
     this.playing = false;
+    this.currentTimeout = null;
   }
 
   setPlaying(playing) {
     this.playing = playing;
+    if (this.currentTimeout) {
+      clearTimeout(this.currentTimeout);
+      this.currentTimeout = null;
+    }
   }
 
   // c3 is 48, c6 is 84
-  iterateMidi(i, events, playMode) {
+  iterateMidi(i, events, playMode, playbackSpeed) {
     if (!this.playing) {
       return;
     }
 
     let j = 0;
-    for (j; j === 0 || (events[i + j] && events[i + j][1] === 0); j += 1) {
+
+    for (j; j === 0 || (events[i + j] && events[i + j][1] < 1); j += 1) {
       const { track, event } = events[i + j][0];
-      const soundIndex = event.noteNumber - 48;
+      const soundIndex = event.noteNumber - 48; // should be minus 48 when I the first sample is C3
 
       if (event.subtype === 'noteOn' && soundIndex > 0 && soundIndex < Samples.track1sounds.length) {
         if (track === 1 && playMode !== Constants.PlayModes.CHORDS_ONLY) {
@@ -53,19 +51,18 @@ class AudioPlayer {
     }
 
     if (events[i + j]) {
-      setTimeout(() => {
-        this.iterateMidi(i + j, events, playMode);
-      }, events[i + j][1] * 1.3);
+      this.currentTimeout = setTimeout(() => {
+        this.iterateMidi(i + j, events, playMode, playbackSpeed);
+      }, events[i + j][1] * 1.3 * (50 / playbackSpeed));
     } else {
-      store.dispatch(togglePlayback());
+      store.dispatch(stopPlayback());
     }
   }
 
-  startPlayback(tune, playMode) {
+  startPlayback(tune, playMode, playbackSpeed) {
     const parsedObject = ABCJS.parseOnly(tune)[0];
     const parsedMidi = AbcMidiCreate(parsedObject, {});
-
-    this.iterateMidi(0, parsedMidi, playMode);
+    this.iterateMidi(0, parsedMidi, playMode, playbackSpeed);
   }
 }
 

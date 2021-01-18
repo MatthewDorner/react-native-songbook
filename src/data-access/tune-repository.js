@@ -24,10 +24,6 @@ class TuneRepository extends Repository {
     return tune;
   }
 
-  // to hopefully improve list speed, this will not retrieve all fields. It will only get the fields necessary
-  // for collectionBrowser to create the list. when the full text is required, must call get() for the
-  // individual tune
-
   getPartialTunesForCollection(collection, queriedBy) {
     return new Promise((resolve, reject) => {
       let tunes = [];

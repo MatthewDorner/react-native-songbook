@@ -13,6 +13,7 @@ import CollectionRepository from '../../data-access/collection-repository';
 import DBOperations from '../../data-access/db-operations';
 import Constants from '../../constants';
 import Fonts from '../../styles/fonts';
+import Colors from '../../styles/colors';
 
 export default function AddCollectionModal(props) {
   const [name, setName] = useState('');
@@ -72,12 +73,12 @@ export default function AddCollectionModal(props) {
         onChangeText={value => setName(value)}
         inputStyle={{ fontFamily: Fonts.default }}
       />
-      <View style={{ flexDirection: 'row', marginTop: 15 }}>
+      <View style={{ flexDirection: 'row' }}>
         <Button
           containerStyle={{ width: '32%' }}
           onPress={() => pickFile()}
           title="Select a File"
-          titleProps={{ style: { fontFamily: Fonts.default, fontSize: 15, padding: 2, color: 'white' } }}
+          titleProps={{ style: { fontFamily: Fonts.default, fontSize: 15, padding: 2, color: Colors.fileSelectButtonTitle } }}
         />
         {/* this doesn't WORK, IF THE FILE NAME IS TOO LONG, YOU CAN'T SEE ANY OF IT.
         ALSO RECONSIDER WHETHER CUTTING OFF FILENAME EXTENSIONS? OR DO IT TWICE JUST FOR THE
