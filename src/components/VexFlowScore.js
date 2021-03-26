@@ -8,7 +8,6 @@ import {
   Text,
   TouchableWithoutFeedback
 } from 'react-native';
-import Constants from '../constants';
 
 export default class VexFlowScore extends Component {
   constructor(props) {
@@ -60,7 +59,7 @@ export default class VexFlowScore extends Component {
       tabsVisibility,
       voltaHeight: 25,
       renderWidth: dimWidth * (50 / zoom) * 1.2,
-      tuning: Constants.Tunings[tuning],
+      tuning: AbcjsVexFlowRenderer.TUNINGS[tuning],
     };
 
     let context; let exception; let content;

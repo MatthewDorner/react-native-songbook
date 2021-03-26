@@ -13,6 +13,6 @@ module.exports = {
     'object-curly-newline': 'off'
   },
   'globals': {
-    "fetch": false
+    'fetch': false
   }
 }

@@ -1,14 +1,12 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
-
-// TODO: fix dependency cycle
-import AudioPlayer from '../audio-player';
-
-import TuneRepository from '../data-access/tune-repository';
 import OptionsRepository from '../data-access/options-repository';
 
 const initialState = {
   playing: false,
+  shouldPlay: false,
+  shouldStop: false,
+  tune: null,
 };
 
 const audioSlice = createSlice({
@@ -16,38 +14,50 @@ const audioSlice = createSlice({
   initialState,
   reducers: {
     startPlayback(state, { payload }) {
-      AudioPlayer.setPlaying(true);
-      AudioPlayer.startPlayback(payload.tune, payload.playMode, payload.playbackSpeed);
-      state.playing = true;
+      state.tune = payload.tune;
+      state.shouldPlay = true;
     },
     stopPlayback(state) {
-      AudioPlayer.setPlaying(false);
+      state.shouldStop = true;
+    },
+    confirmPlaybackStarted(state) {
+      state.shouldPlay = false;
+      state.playing = true;
+    },
+    confirmPlaybackStopped(state) {
+      state.shouldStop = false;
       state.playing = false;
     },
-  },
+    updateAudioOptionsSuccess(state, { payload }) {
+      state.playMode = payload.playMode;
+      state.playbackSpeed = payload.playbackSpeed;
+    },
+  }
 });
 
 export const {
   startPlayback,
   stopPlayback,
+  confirmPlaybackStarted,
+  confirmPlaybackStopped,
+  updateAudioOptionsSuccess,
 } = audioSlice.actions;
 
-export const toggleCurrentTunePlayback = () => (dispatch, getState) => {
-  const { tune, playMode, playbackSpeed } = getState().currentTune;
-  const { playing } = getState().audio;
-  if (playing) {
-    dispatch(stopPlayback());
-  } else {
-    dispatch(startPlayback({ playMode, tune, playbackSpeed }));
-  }
-};
+export function updateAudioOptions(playMode, playbackSpeed) {
+  return async (dispatch) => {
+    await OptionsRepository.update({
+      PlayMode: playMode,
+      PlaybackSpeed: playbackSpeed,
+    });
+    dispatch(updateAudioOptionsSuccess({ playMode, playbackSpeed }));
+  };
+}
 
-export const startBrowserPlayback = rowid => async (dispatch) => {
-  const options = await OptionsRepository.get();
-  const { PlayMode: playMode, PlaybackSpeed: playbackSpeed } = options;
-  const tune = await TuneRepository.get(rowid);
-
-  dispatch(startPlayback({ playMode, tune: tune.Tune, playbackSpeed }));
-};
+export function refreshAudioOptions() {
+  return async (dispatch) => {
+    const { PlayMode, PlaybackSpeed } = await OptionsRepository.get();
+    dispatch(updateAudioOptionsSuccess({ playMode: PlayMode, playbackSpeed: PlaybackSpeed }));
+  };
+}
 
 export default audioSlice.reducer;

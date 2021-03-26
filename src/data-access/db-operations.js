@@ -1,9 +1,9 @@
 // default data is not needed unless the database is running for the first time, but we can't
 // conditionally import. unless they're imported by file system instead of JS includes. so
 // maybe should change that.
+import { AbcjsVexFlowRenderer } from 'abcjs-vexflow-renderer';
 import DefaultData from './default-data';
 import Database from './database';
-import Constants from '../constants';
 
 /*
   this module contains higher-level database "operations" that contain some program logic,
@@ -45,18 +45,31 @@ export default {
         resolve();
       });
 
-      // to support upgrading from 1.0 to 1.1 software version, check for / add this table separately, though
-      // next release should add a database schema version stored in the DB for upgrades.
       Database.db.transaction((txn) => {
         Database.executeSqlDebug(txn, 'select * from sqlite_master where type = "table" and name = "Options"', [], (tx, res) => {
           if (res.rows.length === 0) {
             Database.executeSqlDebug(txn, 'CREATE TABLE `Options` (`Zoom` integer, `TabsVisibility` integer, `Tuning` text, `PlayMode` integer, `PlaybackSpeed` integer)', [], (tx, res) => {
-              // console.log('tried to create, res was:');
-              // console.log(res);
               // res
             });
-            const defaultTuning = Object.keys(Constants.Tunings)[0];
+            const defaultTuning = Object.keys(AbcjsVexFlowRenderer.TUNINGS)[0];
             Database.executeSqlDebug(txn, `insert into Options (Zoom, TabsVisibility, Tuning, PlayMode, PlaybackSpeed) values (50, 1, "${defaultTuning}", 0, 50)`, [], (tx, res) => {
+              // res
+            });
+          }
+        });
+      }, (error) => {
+        reject(error);
+      }, () => {
+        resolve();
+      });
+
+      Database.db.transaction((txn) => {
+        Database.executeSqlDebug(txn, 'select * from sqlite_master where type = "table" and name = "Version"', [], (tx, res) => {
+          if (res.rows.length === 0) {
+            Database.executeSqlDebug(txn, 'CREATE TABLE `Version` (`Version` text)', [], (tx, res) => {
+              // res
+            });
+            Database.executeSqlDebug(txn, 'insert into Version (Version) values ("110")', [], (tx, res) => {
               // res
             });
           }
@@ -75,7 +88,7 @@ export default {
       // by a T:(title) field and finish with a K:(key) field."
       const escapedTuneBook = tuneBook.replace(/"/g, '""');
 
-      const tunes = escapedTuneBook.split('\nX:'); // TODO: trim whitespace somewhere around here....
+      const tunes = escapedTuneBook.split('\nX:');
       const correctedTunes = tunes.filter((tune) => {
         if (tune) {
           return true;

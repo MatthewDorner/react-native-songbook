@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import {
   Modal,
-  Picker,
   StyleSheet,
   Text,
   View,
   ScrollView,
   TouchableHighlight,
-  TouchableOpacity
+  TouchableOpacity,
+  Picker
 } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import Constants from '../../constants';
@@ -34,7 +34,7 @@ export default class TopBrowser extends Component {
     super(props);
 
     this.state = {
-      modalContents: <View />, // dont know what this should be
+      modalContents: null,
       modalVisible: false,
     };
 
@@ -144,7 +144,6 @@ export default class TopBrowser extends Component {
     const collectionItems = collections.map(collection => this.renderCollectionsItem(collection));
     const setlistItems = setlists.map(setlist => this.renderCollectionsItem(setlist));
 
-    // kind of a hack
     collectionItems.unshift(this.renderCollectionsItem({ rowid: -1, Name: 'All Collections', Type: Constants.CollectionTypes.ALL }));
 
     return (

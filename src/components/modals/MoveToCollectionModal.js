@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Text,
-  Picker,
-  Alert
+  Alert,
+  Picker
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';

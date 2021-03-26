@@ -4,7 +4,7 @@ module.exports = {
     [
       'inline-import',
       {
-        extensions: ['.abc']
+        extensions: ['.jstxt', '.abc']
       }
     ],
   ],

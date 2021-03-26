@@ -97,21 +97,14 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     signingConfigs {
-        // release {
-            // if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
-            //     storeFile file(MYAPP_RELEASE_STORE_FILE)
-            //     storePassword MYAPP_RELEASE_STORE_PASSWORD
-            //     keyAlias MYAPP_RELEASE_KEY_ALIAS
-            //     keyPassword MYAPP_RELEASE_KEY_PASSWORD
-            // }
         release {
             // PUT KEY AND PASSWORD HERE
-          if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
-            storeFile file(MYAPP_RELEASE_STORE_FILE)
-            storePassword MYAPP_RELEASE_STORE_PASSWORD
-            keyAlias MYAPP_RELEASE_KEY_ALIAS
-            keyPassword MYAPP_RELEASE_KEY_PASSWORD
-          }
+            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+                storeFile file(MYAPP_RELEASE_STORE_FILE)
+                storePassword MYAPP_RELEASE_STORE_PASSWORD
+                keyAlias MYAPP_RELEASE_KEY_ALIAS
+                keyPassword MYAPP_RELEASE_KEY_PASSWORD
+            }
         }
     }
 
@@ -182,7 +175,7 @@ configurations.all {
 }
 
 dependencies {
-    implementation project(':react-native-sound')
+    implementation project(':react-native-webview')
     implementation project(':@react-native-community_slider')
     implementation project(':react-native-fs')
     implementation "org.webkit:android-jsc:r241213"

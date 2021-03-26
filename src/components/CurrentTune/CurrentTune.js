@@ -4,15 +4,13 @@ import {
   Text,
   Dimensions,
   ScrollView,
-  Picker,
   View,
   Modal,
+  Picker
 } from 'react-native';
-import { Button } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/Entypo';
-import Colors from '../../styles/colors';
-import Fonts from '../../styles/fonts';
 
+import Fonts from '../../styles/fonts';
+import AudioPlayer from '../AudioPlayer';
 import VexFlowScore from '../VexFlowScore';
 import DetailsModal from '../modals/DetailsModal';
 import OptionsModal from '../modals/OptionsModal';
@@ -33,18 +31,23 @@ export default class CurrentTune extends Component {
     });
 
     this.showModal = this.showModal.bind(this);
-    this.closeModal = this.closeModal.bind(this); // is necessary?
+    this.closeModal = this.closeModal.bind(this);
+  }
+
+  async componentDidMount() {
+    const { refreshAudioOptions } = this.props;
+    await refreshAudioOptions();
   }
 
   showModal(action) {
-    const { rowid, updateOptions, tabsVisibility, zoom, tuning, playMode, playbackSpeed } = this.props;
+    const { rowid, updateTuneOptions, updateAudioOptions, tabsVisibility, zoom, tuning, playMode, playbackSpeed } = this.props;
     let modalToShow;
     switch (action) {
       case 'details':
         modalToShow = <DetailsModal closeModal={() => this.closeModal()} tuneRowid={rowid} />;
         break;
       case 'options':
-        modalToShow = <OptionsModal closeModal={() => this.closeModal()} updateOptions={updateOptions} tabsVisibility={tabsVisibility} zoom={zoom} tuning={tuning} playMode={playMode} playbackSpeed={playbackSpeed} />;
+        modalToShow = <OptionsModal closeModal={() => this.closeModal()} updateTuneOptions={updateTuneOptions} updateAudioOptions={updateAudioOptions} tabsVisibility={tabsVisibility} zoom={zoom} tuning={tuning} playMode={playMode} playbackSpeed={playbackSpeed} />;
         break;
       default:
         return;
@@ -63,10 +66,8 @@ export default class CurrentTune extends Component {
   }
 
   render() {
-    const {
-      modalVisible, modalContents
-    } = this.state;
-    const { height, width, tabsVisibility, zoom, tuning, tune, title, loading, toggleCurrentTunePlayback, playing } = this.props;
+    const { modalVisible, modalContents } = this.state;
+    const { height, width, tabsVisibility, zoom, tuning, tune, title, loading } = this.props;
 
     let content;
     if (loading === false && tune) {
@@ -74,21 +75,12 @@ export default class CurrentTune extends Component {
         <>
           <View style={styles.headerContainer}>
             <View style={styles.headerLeft}>
-              <Button
-                containerStyle={styles.playButtonContainer}
-                buttonStyle={styles.playButtonButton}
-                onPress={() => toggleCurrentTunePlayback()}
-                icon={(
-                  <Icon
-                    name={playing ? 'controller-stop' : 'controller-play'}
-                    size={18}
-                    color={Colors.playButtonIcon}
-                  />
-                )}
+              <AudioPlayer
+                currentTuneTune={tune}
+                showControls
               />
             </View>
             <View style={styles.headerCenter}>
-              {/* <View style={{ width: 17, height: 30, flexShrink: 1 }} /> */}
               <Text style={styles.title}>
                 {title}
               </Text>
@@ -116,7 +108,13 @@ export default class CurrentTune extends Component {
         </>
       );
     } else if (loading === false) {
-      content = [];
+      // so the user can play audio from browser before any tune has been loaded
+      content = [
+        <AudioPlayer
+          key="audioPlayer"
+          showControls={false}
+        />
+      ];
     } else {
       content = (
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
@@ -178,16 +176,4 @@ const styles = StyleSheet.create({
     height: 50,
     width: 30,
   },
-
-  // both inside headerLeft
-  playButtonContainer: {
-    marginTop: 11.5,
-    marginRight: 'auto',
-  },
-  playButtonButton: {
-    padding: 0,
-    backgroundColor: Colors.playButtonBackground,
-    height: 27,
-    width: 27,
-  }
 });

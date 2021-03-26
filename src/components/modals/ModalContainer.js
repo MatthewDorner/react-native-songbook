@@ -16,15 +16,15 @@ export default function ModalContainer({ submit, cancel, close, children, title 
     buttons = (
       <>
         <Button
-          onPress={() => submit()}
-          title="submit"
+          onPress={() => cancel()}
+          title="cancel"
           type="outline"
           titleStyle={{ fontFamily: Fonts.default, fontSize: 16, color: Colors.modalButtonTitle }}
           buttonStyle={ModalStyles.modalButton}
         />
         <Button
-          onPress={() => cancel()}
-          title="cancel"
+          onPress={() => submit()}
+          title="submit"
           type="outline"
           titleStyle={{ fontFamily: Fonts.default, fontSize: 16, color: Colors.modalButtonTitle }}
           buttonStyle={ModalStyles.modalButton}

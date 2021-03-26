@@ -30,12 +30,10 @@ const currentTuneSlice = createSlice({
       state.title = payload.title;
       state.rowid = payload.rowid;
     },
-    updateOptionsSuccess(state, { payload }) {
-      state.tabsVisibility = payload.tabsVisibility;
+    updateTuneOptionsSuccess(state, { payload }) {
       state.zoom = payload.zoom;
+      state.tabsVisibility = payload.tabsVisibility;
       state.tuning = payload.tuning;
-      state.playMode = payload.playMode;
-      state.playbackSpeed = payload.playbackSpeed;
     }
   },
 });
@@ -44,20 +42,19 @@ export const {
   fetchTuneStart,
   fetchTuneSuccess,
   setDimensions,
-  updateOptionsSuccess,
+  updateTuneOptionsSuccess,
 } = currentTuneSlice.actions;
 
 export function fetchTune(rowid) {
   return async (dispatch) => {
     dispatch(fetchTuneStart());
 
-    const { TabsVisibility, Zoom, Tuning, PlayMode, PlaybackSpeed } = await OptionsRepository.get();
-    dispatch(updateOptionsSuccess({
+    const { TabsVisibility, Zoom, Tuning } = await OptionsRepository.get();
+
+    dispatch(updateTuneOptionsSuccess({
       tabsVisibility: TabsVisibility,
       zoom: Zoom,
       tuning: Tuning,
-      playMode: PlayMode,
-      playbackSpeed: PlaybackSpeed,
     }));
     const { Tune, Title } = await TuneRepository.get(rowid);
     dispatch(fetchTuneSuccess({
@@ -68,16 +65,14 @@ export function fetchTune(rowid) {
   };
 }
 
-export function updateOptions(tabsVisibility, zoom, tuning, playMode, playbackSpeed) {
+export function updateTuneOptions(tabsVisibility, zoom, tuning) {
   return async (dispatch) => {
     await OptionsRepository.update({
       TabsVisibility: tabsVisibility,
       Zoom: zoom,
       Tuning: tuning,
-      PlayMode: playMode,
-      PlaybackSpeed: playbackSpeed,
     });
-    dispatch(updateOptionsSuccess({ tabsVisibility, zoom, tuning, playMode, playbackSpeed }));
+    dispatch(updateTuneOptionsSuccess({ tabsVisibility, zoom, tuning }));
   };
 }
 

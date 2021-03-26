@@ -11,7 +11,8 @@ const textIcon = require('./icons/text_topmargin_gray.png');
 
 YellowBox.ignoreWarnings([
   'Require cycle:',
-  'Remote debugger'
+  'Remote debugger',
+  // 'pure function',
 ]);
 
 RegisterScreens();
@@ -26,7 +27,7 @@ Navigation.events().registerAppLaunchedListener(() => {
               animate: false,
               backgroundColor: Colors.bottomTabsBackground,
               currentTabIndex: 2,
-              drawBehind: true
+              drawBehind: true,
             },
           },
           children: [{
@@ -48,7 +49,7 @@ Navigation.events().registerAppLaunchedListener(() => {
                         fontFamily: Fonts.default,
                         fontSize: 14,
                         text: 'Current Tune',
-                        icon: musicIcon, // credit "feathericons"
+                        icon: musicIcon, // credit "feathericons",
                       }
                     }
                   },

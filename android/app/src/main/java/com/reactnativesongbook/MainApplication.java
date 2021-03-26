@@ -3,7 +3,7 @@ package com.reactnativesongbook;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.zmxv.RNSound.RNSoundPackage;
+import com.reactnativecommunity.webview.RNCWebViewPackage;
 import com.reactnativecommunity.slider.ReactSliderPackage;
 import com.rnfs.RNFSPackage;
 import com.horcrux.svg.SvgPackage;
@@ -14,6 +14,8 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 
+import android.webkit.WebView; // for webview debugging
+
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.react.NavigationReactNativeHost;
 import com.reactnativenavigation.react.ReactGateway;
@@ -22,6 +24,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainApplication extends NavigationApplication {
+
+    // for webview debugging
+    @Override
+    public void onCreate() {
+      super.onCreate();
+      WebView.setWebContentsDebuggingEnabled(true);
+    }
     
     @Override
     protected ReactGateway createReactGateway() {
@@ -48,7 +57,7 @@ public class MainApplication extends NavigationApplication {
             new ReactNativeDocumentPicker(),
             new RNFSPackage(),
             new ReactSliderPackage(),
-            new RNSoundPackage()
+            new RNCWebViewPackage()
             // eg. new VectorIconsPackage()
         );
     }

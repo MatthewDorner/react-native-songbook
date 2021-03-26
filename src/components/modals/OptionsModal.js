@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import {
   Text,
   View,
-  Picker,
+  Picker
 } from 'react-native';
 import Slider from '@react-native-community/slider';
+import { AbcjsVexFlowRenderer } from 'abcjs-vexflow-renderer';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import Constants from '../../constants';
@@ -17,11 +18,12 @@ export default function OptionsModal(props) {
   const [tuning, setTuning] = useState(props.tuning);
   const [playMode, setPlaymode] = useState(props.playMode);
   const [playbackSpeed, setPlaybackSpeed] = useState(props.playbackSpeed);
-  const { closeModal, updateOptions } = props;
+  const { closeModal, updateTuneOptions, updateAudioOptions } = props;
 
   async function saveOptionsOperation() {
     closeModal();
-    updateOptions(tabsVisibility, zoom, tuning, playMode, playbackSpeed);
+    updateTuneOptions(tabsVisibility, zoom, tuning);
+    updateAudioOptions(playMode, playbackSpeed);
   }
 
   return (
@@ -48,8 +50,8 @@ export default function OptionsModal(props) {
           selectedValue={tuning}
           onValueChange={value => setTuning(value)}
         >
-          {Object.keys(Constants.Tunings).map(key => (
-            <Picker.Item label={key} value={key} key={key} />
+          {Object.keys(AbcjsVexFlowRenderer.TUNINGS).map(key => (
+            <Picker.Item label={AbcjsVexFlowRenderer.TUNINGS[key].displayName} value={key} key={key} />
           ))}
         </Picker>
       </Text>
@@ -74,7 +76,7 @@ export default function OptionsModal(props) {
       <View style={ModalStyles.pickerContainer}>
         <Slider
           style={{ alignSelf: 'stretch' }}
-          step={2}
+          step={1}
           onValueChange={value => setPlaybackSpeed(value)}
           value={playbackSpeed}
           minimumValue={10}
@@ -91,11 +93,11 @@ export default function OptionsModal(props) {
       <View style={ModalStyles.pickerContainer}>
         <Slider
           style={{ alignSelf: 'stretch' }}
-          step={2}
+          step={1}
           onValueChange={value => setZoom(value)}
           value={zoom}
-          minimumValue={30}
-          maximumValue={70}
+          minimumValue={25}
+          maximumValue={75}
           minimumTrackTintColor={Colors.sliderMin}
           maximumTrackTintColor={Colors.sliderMax}
           thumbTintColor={Colors.sliderThumb}
