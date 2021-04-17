@@ -1,4 +1,5 @@
 export default {
   default: 'JacquesFrancois-Regular',
-  info: 'monospace',
+  monospace: 'monospace',
+  dataField: 'normal'
 };

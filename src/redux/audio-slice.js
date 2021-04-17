@@ -6,7 +6,7 @@ const initialState = {
   playing: false,
   shouldPlay: false,
   shouldStop: false,
-  tune: null,
+  abcText: null,
 };
 
 const audioSlice = createSlice({
@@ -14,7 +14,7 @@ const audioSlice = createSlice({
   initialState,
   reducers: {
     startPlayback(state, { payload }) {
-      state.tune = payload.tune;
+      state.abcText = payload.abcText;
       state.shouldPlay = true;
     },
     stopPlayback(state) {

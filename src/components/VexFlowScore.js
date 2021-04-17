@@ -19,8 +19,8 @@ export default class VexFlowScore extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const { tune, dimHeight, dimWidth, tabsVisibility, zoom, tuning } = this.props;
-    if (nextProps.tune !== tune
+    const { abcText, dimHeight, dimWidth, tabsVisibility, zoom, tuning } = this.props;
+    if (nextProps.abcText !== abcText
       || nextProps.dimHeight !== dimHeight
       || nextProps.dimWidth !== dimWidth
       || nextProps.tabsVisibility !== tabsVisibility
@@ -45,7 +45,7 @@ export default class VexFlowScore extends Component {
   }
 
   render() {
-    const { dimWidth, tune, tabsVisibility, tuning, zoom } = this.props;
+    const { dimWidth, abcText, tabsVisibility, tuning, zoom } = this.props;
 
     const renderOptions = {
       xOffset: 3,
@@ -57,7 +57,7 @@ export default class VexFlowScore extends Component {
       dottedNotesModifier: 23,
       keySigAccidentalWidth: 20,
       tabsVisibility,
-      voltaHeight: 25,
+      voltaHeight: 27,
       renderWidth: dimWidth * (50 / zoom) * 1.2,
       tuning: AbcjsVexFlowRenderer.TUNINGS[tuning],
     };
@@ -65,7 +65,7 @@ export default class VexFlowScore extends Component {
     let context; let exception; let content;
 
     try {
-      const tuneObject = AbcjsVexFlowRenderer.getTune(tune, renderOptions);
+      const tuneObject = AbcjsVexFlowRenderer.getTune(abcText, renderOptions);
       const lastPart = tuneObject.parts[tuneObject.parts.length - 1];
       const lastBar = lastPart.bars[lastPart.bars.length - 1];
 

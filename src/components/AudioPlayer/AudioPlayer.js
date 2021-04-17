@@ -20,15 +20,17 @@ export default class AudioPlayer extends Component {
   }
 
   componentDidUpdate() {
-    // use tune (from Redux audio slice) to inject into webview
-    const { tune, shouldPlay, shouldStop, playMode, playbackSpeed, confirmPlaybackStarted, confirmPlaybackStopped } = this.props;
+    // use abcText (from Redux audio slice) to inject into webview
+    const { abcText, shouldPlay, shouldStop, playMode, playbackSpeed, confirmPlaybackStarted, confirmPlaybackStopped } = this.props;
 
     const chordsOff = playMode === Constants.PlayModes.MELODY_ONLY;
     const voicesOff = playMode === Constants.PlayModes.CHORDS_ONLY;
     const millisecondsPerMeasure = (100 - playbackSpeed) * 20; // to make the default 2000ms per measure
 
     if (shouldPlay) {
-      this.webview.injectJavaScript(`play(\`${tune}\`, ${millisecondsPerMeasure}, ${chordsOff}, ${voicesOff});`);
+      this.webview.injectJavaScript('stop();');
+      const escapedAbcText = JSON.stringify(abcText);
+      this.webview.injectJavaScript(`play(\`${escapedAbcText}\`, ${millisecondsPerMeasure}, ${chordsOff}, ${voicesOff});`);
       confirmPlaybackStarted();
     } else if (shouldStop) {
       this.webview.injectJavaScript('stop();');
@@ -37,8 +39,7 @@ export default class AudioPlayer extends Component {
   }
 
   render() {
-    // use currentTuneTune to call startPlayback()
-    const { showControls, currentTuneTune, playing, startPlayback, stopPlayback } = this.props;
+    const { showControls, currentTuneAbcText, playing, startPlayback, stopPlayback } = this.props;
 
     return (
       <View style={styles.container}>
@@ -60,7 +61,7 @@ export default class AudioPlayer extends Component {
             if (playing) {
               stopPlayback();
             } else {
-              startPlayback({ tune: currentTuneTune });
+              startPlayback({ abcText: currentTuneAbcText });
             }
           }}
           icon={(
@@ -71,7 +72,7 @@ export default class AudioPlayer extends Component {
             />
           )}
         />
-        ) }
+        )}
       </View>
     );
   }
@@ -89,7 +90,8 @@ const styles = StyleSheet.create({
     width: 0,
   },
   playButtonContainer: {
-    marginTop: 11.5,
+    zIndex: 1,
+    marginTop: 16.5,
     marginRight: 'auto',
   },
   playButtonButton: {

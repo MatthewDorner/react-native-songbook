@@ -21,8 +21,8 @@ export default function DeleteSetlistModal(props) {
       // this could be moved to a database operation? Delete Setlist?
       for (let i = 0; i < tunesForSetlist.length; i += 1) {
         const partialTune = tunesForSetlist[i];
-        const wholeTune = await TuneRepository.get(partialTune.rowid);
-        promises.push(TuneRepository.removeTuneFromSetlist(wholeTune, setlist.rowid));
+        const tune = await TuneRepository.get(partialTune.rowid);
+        promises.push(TuneRepository.removeTuneFromSetlist(tune, setlist.rowid));
       }
 
       await Promise.all(promises);
@@ -37,10 +37,10 @@ export default function DeleteSetlistModal(props) {
   return (
     <ModalContainer submit={deleteSetlistOperation} cancel={closeModal} title="Delete Setlist">
       <Text style={ModalStyles.message}>
-        Tunes in the setlist will not be deleted as they reside in their collection.
+        Setlist:
       </Text>
       <Text style={ModalStyles.infoItem}>
-        {`Setlist Name: ${setlist.Name}`}
+        {setlist.Name}
       </Text>
     </ModalContainer>
   );

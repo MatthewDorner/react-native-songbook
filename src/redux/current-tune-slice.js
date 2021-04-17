@@ -26,7 +26,7 @@ const currentTuneSlice = createSlice({
         }
       });
       state.loading = false;
-      state.tune = payload.tune;
+      state.abcText = payload.abcText;
       state.title = payload.title;
       state.rowid = payload.rowid;
     },
@@ -45,7 +45,7 @@ export const {
   updateTuneOptionsSuccess,
 } = currentTuneSlice.actions;
 
-export function fetchTune(rowid) {
+export function fetchCurrentTune(rowid) {
   return async (dispatch) => {
     dispatch(fetchTuneStart());
 
@@ -56,9 +56,9 @@ export function fetchTune(rowid) {
       zoom: Zoom,
       tuning: Tuning,
     }));
-    const { Tune, Title } = await TuneRepository.get(rowid);
+    const { AbcText, Title } = await TuneRepository.get(rowid);
     dispatch(fetchTuneSuccess({
-      tune: Tune,
+      abcText: AbcText,
       title: Title,
       rowid,
     }));

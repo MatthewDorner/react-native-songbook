@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Text,
   Alert,
-  Picker
+  Picker,
+  View
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
@@ -22,9 +23,9 @@ export default function MoveToCollectionModal(props) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const wholeTune = await TuneRepository.get(tuneRowid);
+        const tune = await TuneRepository.get(tuneRowid);
         const collections = await CollectionRepository.getCollectionsByType(Constants.CollectionTypes.COLLECTION);
-        setTune(wholeTune);
+        setTune(tune);
         setCollections(collections);
         setSelectedCollection(collections[0].rowid);
       } catch (e) {
@@ -35,7 +36,6 @@ export default function MoveToCollectionModal(props) {
     loadData();
   }, []);
 
-  // this calls a side-effect, so should it... be in useEffect????
   const moveToCollectionOperation = async () => {
     const { rowid } = tune;
     const tuneDelta = {
@@ -53,20 +53,22 @@ export default function MoveToCollectionModal(props) {
   return (
     <ModalContainer submit={moveToCollectionOperation} cancel={closeModal} title="Move To Collection">
       <Text style={ModalStyles.message}>
-        Select a Collection to add this Tune to:
+        Tune:
       </Text>
-      <Text style={ModalStyles.pickerContainer}>
+      <Text style={ModalStyles.infoItem}>
+        {tune.Title}
+      </Text>
+      <Text style={ModalStyles.message}>
+        Collection:
+      </Text>
+      <View style={ModalStyles.pickerContainer}>
         <Picker
-          style={ModalStyles.modalPicker}
           selectedValue={selectedCollection}
           onValueChange={itemValue => setSelectedCollection(itemValue)}
         >
           {collections.map(collection => <Picker.Item label={collection.Name} value={collection.rowid} key={collection.rowid} />)}
         </Picker>
-      </Text>
-      <Text style={ModalStyles.infoItem}>
-        {`Tune Name: ${tune.Title}`}
-      </Text>
+      </View>
     </ModalContainer>
   );
 }

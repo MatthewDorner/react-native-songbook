@@ -13,7 +13,7 @@ import Fonts from '../../styles/fonts';
 export default function RenameCollectionSetlistModal(props) {
   const [name, setName] = useState('');
   const { item, closeModal } = props;
-  const type = item.type === Constants.CollectionTypes.COLLECTION ? 'Collection' : 'Setlist';
+  const type = item.Type === Constants.CollectionTypes.COLLECTION ? 'Collection' : 'Setlist';
 
   const renameCollectionSetlistOperation = async () => {
     const collectionDelta = {
@@ -31,16 +31,19 @@ export default function RenameCollectionSetlistModal(props) {
   return (
     <ModalContainer submit={renameCollectionSetlistOperation} cancel={closeModal} title={`Rename ${type}`}>
       <Text style={ModalStyles.message}>
-        {`Enter a new Name for the ${type}.`}
+        {`${type}:`}
+      </Text>
+      <Text style={ModalStyles.infoItem}>
+        {item.Name}
+      </Text>
+      <Text style={ModalStyles.message}>
+        {`Enter a new Name for the ${type}:`}
       </Text>
       <Input
         placeholder="Name"
         onChangeText={value => setName(value)}
-        inputStyle={{ fontFamily: Fonts.default }}
+        inputStyle={ModalStyles.input}
       />
-      <Text style={ModalStyles.infoItem}>
-        {`${type} Name: ${item.Name}`}
-      </Text>
     </ModalContainer>
   );
 }

@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
   ScrollView,
   TouchableHighlight,
   TouchableOpacity,
@@ -22,12 +23,7 @@ import DeleteSetlistModal from '../modals/DeleteSetlistModal';
 import ImportIntoCollectionModal from '../modals/ImportIntoCollectionModal';
 import RenameCollectionSetlistModal from '../modals/RenameCollectionSetlistModal';
 
-/*
-  BUG: topbrowser doesn't scroll?
-  what about the info screen? does that scroll?
-
-
-*/
+const addCollectionIcon = require('../../../icons/addfolderv2.png');
 
 export default class TopBrowser extends Component {
   constructor(props) {
@@ -66,6 +62,7 @@ export default class TopBrowser extends Component {
 
     return (
       <View style={ListStyles.listItem} key={item.rowid.toString()}>
+        <Text style={ListStyles.listItemTitle}>►</Text>
         <TouchableOpacity
           onPress={() => {
             Navigation.push('BrowserStack', {
@@ -147,7 +144,7 @@ export default class TopBrowser extends Component {
     collectionItems.unshift(this.renderCollectionsItem({ rowid: -1, Name: 'All Collections', Type: Constants.CollectionTypes.ALL }));
 
     return (
-      <ScrollView style={styles.browserContainer}>
+      <View style={styles.browserContainer}>
         <Modal
           animationType="slide"
           transparent={false}
@@ -155,77 +152,70 @@ export default class TopBrowser extends Component {
         >
           {modalContents}
         </Modal>
-
-        <View style={styles.sectionHeaderContainer}>
-          <Text style={styles.sectionHeaderTitle}>
-            Collections
-          </Text>
-
-          <TouchableHighlight
-            style={styles.addCollectionButton}
-            underlayColor={Colors.topBrowserUnderlay}
-            onPress={() => this.showModal('addCollection')}
-          >
-            <Text style={{ fontSize: 14, paddingBottom: 2, color: Colors.topBrowserButtonTitle, fontFamily: Fonts.default }}>ADD</Text>
-          </TouchableHighlight>
-        </View>
-
-        <View style={{ alignItems: 'flex-start' }}>
-          {collectionItems}
-        </View>
-
-        <View style={styles.sectionHeaderContainer}>
-          <Text style={styles.sectionHeaderTitle}>
-            Setlists
-          </Text>
-
-          <TouchableHighlight
-            style={styles.addCollectionButton}
-            underlayColor={Colors.topBrowserUnderlay}
-            onPress={() => this.showModal('addSetlist')}
-          >
-            <Text style={{ fontSize: 14, paddingBottom: 2, color: Colors.topBrowserButtonTitle, fontFamily: Fonts.default }}>ADD</Text>
-          </TouchableHighlight>
-
-        </View>
-
-        <View style={{ alignItems: 'flex-start' }}>
-          {setlistItems}
-        </View>
-      </ScrollView>
+        <ScrollView style={styles.collectionsList}>
+          <View style={styles.sectionHeaderContainer}>
+            <Text style={styles.sectionHeaderTitle}>
+              Collections
+            </Text>
+            <TouchableHighlight
+              style={styles.addCollectionButton}
+              underlayColor={Colors.topBrowserUnderlay}
+              onPress={() => this.showModal('addCollection')}
+            >
+              <Image source={addCollectionIcon} style={styles.addCollectionIcon} />
+            </TouchableHighlight>
+          </View>
+          <View style={{ alignItems: 'flex-start' }}>
+            {collectionItems}
+          </View>
+          <View style={styles.sectionHeaderContainer}>
+            <Text style={styles.sectionHeaderTitle}>
+              Setlists
+            </Text>
+            <TouchableHighlight
+              style={styles.addCollectionButton}
+              underlayColor={Colors.topBrowserUnderlay}
+              onPress={() => this.showModal('addSetlist')}
+            >
+              <Image source={addCollectionIcon} style={styles.addCollectionIcon} />
+            </TouchableHighlight>
+          </View>
+          <View style={{ alignItems: 'flex-start' }}>
+            {setlistItems}
+          </View>
+        </ScrollView>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
   browserContainer: {
-    marginLeft: 20
+    marginLeft: 20,
+    marginBottom: 58
   },
   sectionHeaderContainer: {
     flexDirection: 'row'
   },
   sectionHeaderTitle: {
-    color: Colors.topBrowserSectionTitle,
     textDecorationLine: 'underline',
-    fontSize: 22,
+    fontSize: 24,
     textAlign: 'left',
     fontFamily: Fonts.default,
-    marginTop: 13,
+    marginTop: 15,
     marginRight: 10,
     marginBottom: 3
   },
-
-  // addCollectionButton doesn't appear right on tablets, why?
+  addCollectionIcon: {
+    height: 30.5,
+    width: 30.5
+  },
   addCollectionButton: {
-    backgroundColor: Colors.topBrowserButtonBackground,
-    marginTop: 15.25,
+    marginTop: 18.5,
     marginLeft: 0,
     height: 24,
-    borderRadius: 5,
-    // padding: 0,
     paddingTop: 1.5,
-    width: 58,
     alignItems: 'center',
     justifyContent: 'center'
-  }
+  },
 });

@@ -14,8 +14,8 @@ export default function DeleteTuneModal(props) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const wholeTune = await TuneRepository.get(tuneRowid);
-        setTune(wholeTune);
+        const tune = await TuneRepository.get(tuneRowid);
+        setTune(tune);
       } catch (e) {
         Alert.alert('DeleteTuneModal error', `${e}`);
         closeModal();
@@ -36,10 +36,10 @@ export default function DeleteTuneModal(props) {
   return (
     <ModalContainer submit={deleteTuneOperation} cancel={closeModal} title="Delete Tune">
       <Text style={ModalStyles.message}>
-        Tune will be deleted from database completely and all setlists.
+        Tune:
       </Text>
       <Text style={ModalStyles.infoItem}>
-        {`Tune Name: ${tune.Title}`}
+        {tune.Title}
       </Text>
     </ModalContainer>
   );

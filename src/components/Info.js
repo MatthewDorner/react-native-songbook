@@ -6,12 +6,14 @@ import {
   Linking,
   TouchableWithoutFeedback
 } from 'react-native';
+
+import GlobalStyles from '../styles/global-styles';
 import Fonts from '../styles/fonts';
 
 export default function Info() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
+      <Text style={GlobalStyles.title}>
         ABC Songbook
       </Text>
       <Text style={styles.body}>
@@ -44,19 +46,20 @@ export default function Info() {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 22,
+    fontSize: 30,
     fontFamily: Fonts.default,
     textDecorationLine: 'underline',
     textAlign: 'center',
     margin: 10,
   },
   body: {
-    fontSize: 16,
+    fontSize: 17.5,
     fontFamily: Fonts.default,
     marginTop: 20
   },
   url: {
     textDecorationLine: 'underline',
+    color: 'blue',
   },
   container: {
     marginLeft: 20,

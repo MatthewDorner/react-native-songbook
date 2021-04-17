@@ -4,11 +4,13 @@ import Colors from './colors';
 
 export default StyleSheet.create({
   modalContainer: {
-    flex: 1
+    flex: 1,
+    borderColor: 'black',
+    borderWidth: 5,
   },
   modalScrollContainer: {
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingLeft: 30,
+    paddingRight: 30,
   },
   modalHeader: {
     alignItems: 'center'
@@ -32,14 +34,6 @@ export default StyleSheet.create({
     borderWidth: 1.5,
     borderColor: Colors.modalButtonBorder,
   },
-  title: {
-    fontSize: 22,
-    fontFamily: Fonts.default,
-    textAlign: 'center',
-    marginBottom: 5,
-    marginTop: 10,
-    textDecorationLine: 'underline',
-  },
   message: {
     fontSize: 18,
     fontFamily: Fonts.default,
@@ -53,33 +47,50 @@ export default StyleSheet.create({
     marginBottom: 7,
   },
   infoItem: {
-    fontSize: 14,
-    fontFamily: Fonts.info,
-    padding: 10,
-    width: '100%',
-  },
-  fileInfoItem: {
-    width: '68%',
-    backgroundColor: Colors.fileInfoBackground,
-    paddingTop: 11,
-    paddingBottom: 9,
-    paddingLeft: 12,
-    fontFamily: Fonts.info,
-    height: 41
+    fontSize: 16,
+    fontFamily: Fonts.dataField,
+    backgroundColor: Colors.pickerBackground,
+    marginBottom: 15,
+    paddingTop: 12,
+    paddingBottom: 8,
+    paddingLeft: 7,
+    borderRadius: 5,
+    borderColor: Colors.pickerBackground,
+    borderWidth: 2.5,
+    alignSelf: 'stretch',
   },
   pickerContainer: {
     flex: 1,
     alignSelf: 'stretch',
     justifyContent: 'center',
-    minHeight: 45,
-    backgroundColor: Colors.pickerBackground,
-    borderRadius: 6
+    height: 45,
+    borderRadius: 5,
+    borderColor: Colors.fileInfoBackground,
+    borderWidth: 1,
   },
-  // setting an arbitrarily large number allows 100% width, but it hides the little black arrow.
-  // but it won't accept '100%' in this case for some reason so have to do this
-  // should change to use alignSelf stretch and flex??
-  modalPicker: {
-    width: 999999,
-    height: 45
+  infoMonospace: {
+    fontSize: 16,
+    fontFamily: Fonts.monospace,
+    borderRadius: 5,
+    borderColor: Colors.fileInfoBackground,
+    paddingTop: 12,
+    paddingLeft: 7,
+    alignSelf: 'stretch',
+  },
+  fileInfoItem: {
+    width: '70%',
+    backgroundColor: Colors.fileInfoBackground,
+    paddingTop: 11,
+    paddingBottom: 9,
+    paddingLeft: 12,
+    paddingRight: 12,
+    fontFamily: Fonts.monospace,
+    height: 41,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5
+  },
+  input: {
+    fontSize: 16,
+    fontFamily: Fonts.dataField
   }
 });

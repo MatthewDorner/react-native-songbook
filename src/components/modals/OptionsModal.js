@@ -31,22 +31,20 @@ export default function OptionsModal(props) {
       <Text style={ModalStyles.optionLabel}>
         Tabs Visibility:
       </Text>
-      <Text style={ModalStyles.pickerContainer}>
+      <View style={ModalStyles.pickerContainer}>
         <Picker
-          style={ModalStyles.modalPicker}
           selectedValue={tabsVisibility}
           onValueChange={value => setTabsVisibility(value)}
         >
           <Picker.Item label="Show" value={1} key="show" />
           <Picker.Item label="Hide" value={0} key="hide" />
         </Picker>
-      </Text>
+      </View>
       <Text style={ModalStyles.optionLabel}>
         Tabs Tuning:
       </Text>
-      <Text style={ModalStyles.pickerContainer}>
+      <View style={ModalStyles.pickerContainer}>
         <Picker
-          style={ModalStyles.modalPicker}
           selectedValue={tuning}
           onValueChange={value => setTuning(value)}
         >
@@ -54,13 +52,12 @@ export default function OptionsModal(props) {
             <Picker.Item label={AbcjsVexFlowRenderer.TUNINGS[key].displayName} value={key} key={key} />
           ))}
         </Picker>
-      </Text>
+      </View>
       <Text style={ModalStyles.optionLabel}>
         Playback Mode:
       </Text>
-      <Text style={ModalStyles.pickerContainer}>
+      <View style={ModalStyles.pickerContainer}>
         <Picker
-          style={ModalStyles.modalPicker}
           selectedValue={playMode}
           onValueChange={value => setPlaymode(value)}
         >
@@ -68,7 +65,7 @@ export default function OptionsModal(props) {
           <Picker.Item label="Chords Only" value={Constants.PlayModes.CHORDS_ONLY} />
           <Picker.Item label="Melody Only" value={Constants.PlayModes.MELODY_ONLY} />
         </Picker>
-      </Text>
+      </View>
 
       <Text style={ModalStyles.optionLabel}>
         Playback Speed:
@@ -96,7 +93,7 @@ export default function OptionsModal(props) {
           step={1}
           onValueChange={value => setZoom(value)}
           value={zoom}
-          minimumValue={25}
+          minimumValue={35}
           maximumValue={75}
           minimumTrackTintColor={Colors.sliderMin}
           maximumTrackTintColor={Colors.sliderMax}

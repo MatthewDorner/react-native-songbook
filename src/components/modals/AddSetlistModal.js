@@ -32,12 +32,12 @@ export default function AddSetlistmodal(props) {
   return (
     <ModalContainer submit={createSetlistOperation} cancel={closeModal} title="Add Setlist">
       <Text style={ModalStyles.message}>
-        A Tune can belong to any number of Setlists.
+        A Tune can be added to one or more Setlists. Enter a name for the new Setlist:
       </Text>
       <Input
         placeholder="Name"
         onChangeText={value => setName(value)}
-        inputStyle={{ fontFamily: Fonts.default }}
+        inputStyle={ModalStyles.input}
       />
     </ModalContainer>
   );

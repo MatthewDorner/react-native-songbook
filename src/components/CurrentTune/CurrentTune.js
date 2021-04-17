@@ -9,7 +9,7 @@ import {
   Picker
 } from 'react-native';
 
-import Fonts from '../../styles/fonts';
+import GlobalStyles from '../../styles/global-styles';
 import AudioPlayer from '../AudioPlayer';
 import VexFlowScore from '../VexFlowScore';
 import DetailsModal from '../modals/DetailsModal';
@@ -67,21 +67,21 @@ export default class CurrentTune extends Component {
 
   render() {
     const { modalVisible, modalContents } = this.state;
-    const { height, width, tabsVisibility, zoom, tuning, tune, title, loading } = this.props;
+    const { height, width, tabsVisibility, zoom, tuning, abcText, title, loading } = this.props;
 
     let content;
-    if (loading === false && tune) {
+    if (loading === false && abcText) {
       content = (
         <>
           <View style={styles.headerContainer}>
             <View style={styles.headerLeft}>
               <AudioPlayer
-                currentTuneTune={tune}
+                currentTuneAbcText={abcText}
                 showControls
               />
             </View>
             <View style={styles.headerCenter}>
-              <Text style={styles.title}>
+              <Text style={GlobalStyles.title}>
                 {title}
               </Text>
               <Picker
@@ -98,7 +98,7 @@ export default class CurrentTune extends Component {
             <View style={styles.headerRight} />
           </View>
           <VexFlowScore
-            tune={tune}
+            abcText={abcText}
             dimHeight={height}
             dimWidth={width}
             tabsVisibility={tabsVisibility}
@@ -118,7 +118,7 @@ export default class CurrentTune extends Component {
     } else {
       content = (
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-          <Text style={styles.title}>
+          <Text style={GlobalStyles.title}>
             Please Wait...
           </Text>
         </View>
@@ -149,31 +149,27 @@ const styles = StyleSheet.create({
 
   // all inside headerContainer
   headerLeft: {
+    // backgroundColor: 'green',
     flex: 1,
     minWidth: 27,
   },
   headerCenter: {
+    // backgroundColor: 'orange',
+    paddingLeft: 15,
     flexDirection: 'row',
     justifyContent: 'center',
     flexShrink: 1,
   },
   headerRight: {
+    // backgroundColor: 'blue',
     flex: 1,
   },
 
-  // both inside headerCenter
-  title: {
-    maxWidth: '85%',
-    fontSize: 22,
-    textAlign: 'center',
-    marginTop: 10,
-    marginLeft: 10,
-    marginRight: 10,
-    fontFamily: Fonts.default,
-    textDecorationLine: 'underline',
-  },
   titlePicker: {
-    height: 50,
+    // backgroundColor: 'yellow',
+    marginTop: 9,
+    marginLeft: 2,
+    height: 40,
     width: 30,
   },
 });

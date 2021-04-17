@@ -3,8 +3,8 @@ import AudioPlayer from './AudioPlayer';
 import { startPlayback, stopPlayback, confirmPlaybackStarted, confirmPlaybackStopped, updateAudioOptions } from '../../redux/audio-slice';
 
 function mapStateToProps(state) {
-  const { playing, tune, shouldPlay, shouldStop, playMode, playbackSpeed } = state.audio;
-  return { playing, tune, playMode, playbackSpeed, shouldPlay, shouldStop };
+  const { playing, abcText, shouldPlay, shouldStop, playMode, playbackSpeed } = state.audio;
+  return { playing, abcText, playMode, playbackSpeed, shouldPlay, shouldStop };
 }
 
 export default connect(mapStateToProps, { updateAudioOptions, startPlayback, stopPlayback, confirmPlaybackStarted, confirmPlaybackStopped })(AudioPlayer);

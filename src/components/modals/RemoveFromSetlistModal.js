@@ -43,13 +43,16 @@ export default function RemoveFromSetlistModal(props) {
   return (
     <ModalContainer submit={removeFromSetlistOperation} cancel={closeModal} title="Remove From Setlist">
       <Text style={ModalStyles.message}>
-        Remove from setlist? Tune will remain available via its collection.
+        Tune:
       </Text>
       <Text style={ModalStyles.infoItem}>
-        {`Tune Name: ${tune.Title}`}
+        {tune.Title}
+      </Text>
+      <Text style={ModalStyles.message}>
+        Setlist:
       </Text>
       <Text style={ModalStyles.infoItem}>
-        {`Setlist Name: ${setlist.Name}`}
+        {setlist.Name}
       </Text>
     </ModalContainer>
   );

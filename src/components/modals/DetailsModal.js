@@ -11,8 +11,8 @@ export default function DetailsModal(props) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const wholeTune = await TuneRepository.get(tuneRowid);
-        setTune(wholeTune);
+        const tune = await TuneRepository.get(tuneRowid);
+        setTune(tune);
       } catch (e) {
         Alert.alert('DetailsModal error', `${e}`);
         closeModal();
@@ -23,8 +23,8 @@ export default function DetailsModal(props) {
 
   return (
     <ModalContainer close={closeModal} title="Tune Details">
-      <Text style={ModalStyles.infoItem}>
-        {tune.Tune}
+      <Text style={ModalStyles.infoMonospace}>
+        {tune.AbcText}
       </Text>
     </ModalContainer>
   );

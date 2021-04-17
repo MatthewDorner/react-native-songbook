@@ -1,7 +1,6 @@
 export default {
   topBrowserButtonBackground: '#888888',
   topBrowserButtonTitle: '#fafafa',
-  topBrowserSectionTitle: '#444444',
   fileSelectButtonTitle: '#fafafa',
   modalButtonTitle: 'black',
   modalButtonBorder: '#444444',
@@ -12,14 +11,13 @@ export default {
   searchBackground: '#fafafa',
   searchBorder: 'lightgray',
   pickerBackground: '#eeeeee',
-  fileInfoBackground: 'lightgray', // should convert to hex so I can compare to other colors?
+  fileInfoBackground: 'lightgray',
   listItemBorder: '#222222',
-  searchTitleCancel: 'gray', // should be 888888?
+  searchTitleCancel: 'gray',
   sliderMax: 'gray',
   sliderMin: 'darkgray',
   sliderThumb: '#444444',
   topBrowserUnderlay: 'lightgray'
 };
-
 
 // bottom tabs icons are #808080

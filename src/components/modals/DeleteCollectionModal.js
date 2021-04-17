@@ -27,8 +27,11 @@ export default function DeleteCollectionModal(props) {
       <Text style={ModalStyles.message}>
         Tunes in the collection will be deleted.
       </Text>
+      <Text style={ModalStyles.message}>
+        Collection:
+      </Text>
       <Text style={ModalStyles.infoItem}>
-        {`Collection Name: ${collection.Name}`}
+        {collection.Name}
       </Text>
     </ModalContainer>
   );

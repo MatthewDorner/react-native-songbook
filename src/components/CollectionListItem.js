@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
-  Alert,
   Text,
   View,
   TouchableOpacity,
@@ -12,24 +11,7 @@ import ListStyles from '../styles/list-styles';
 import TuneRepository from '../data-access/tune-repository';
 
 export default function CollectionListItem(props) {
-  const { queriedBy, fetchTune, item, showModal, startPlayback } = props;
-  const [tune, setTune] = useState({});
-
-  // Loading each full tune because I couldn't find a way to load it only upon "play from browser" action.
-  // The async call to DB wouldn't complete until the user performed some other action, even something
-  // as minor as scrolling the list. Don't know why this is.
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const wholeTune = await TuneRepository.get(item.rowid);
-        setTune(wholeTune.Tune);
-      } catch (e) {
-        Alert.alert('CollectionListItem error', `${e}`);
-      }
-    };
-    loadData();
-  }, []);
+  const { queriedBy, fetchCurrentTune, item, showModal, startPlayback } = props;
 
   let pickerOptions = [];
   if (queriedBy === Constants.CollectionTypes.COLLECTION || queriedBy === Constants.CollectionTypes.ALL) {
@@ -55,7 +37,7 @@ export default function CollectionListItem(props) {
       <View style={ListStyles.listItem}>
         <TouchableOpacity
           onPress={() => {
-            fetchTune(item.rowid);
+            fetchCurrentTune(item.rowid);
           }}
         >
           <Text style={ListStyles.listItemTitle}>
@@ -66,7 +48,8 @@ export default function CollectionListItem(props) {
           style={ListStyles.listItemPicker}
           onValueChange={async (action) => {
             if (action === 'play') {
-              startPlayback({ tune });
+              const tune = await TuneRepository.get(item.rowid);
+              startPlayback({ abcText: tune.AbcText });
             } else {
               showModal(action, item);
             }

@@ -75,11 +75,11 @@ export default class CollectionBrowser extends PureComponent {
   }
 
   renderItem({ item }) {
-    const { queriedBy, fetchTune, startPlayback } = this.props;
+    const { queriedBy, fetchCurrentTune, startPlayback } = this.props;
     return (
       <CollectionListItem
         queriedBy={queriedBy}
-        fetchTune={fetchTune}
+        fetchCurrentTune={fetchCurrentTune}
         item={item}
         showModal={this.showModal}
         startPlayback={startPlayback}
@@ -106,13 +106,11 @@ export default class CollectionBrowser extends PureComponent {
         </View>
         <FlatList
           style={styles.tunesList}
+          removeClippedSubviews
           data={searchResults}
           renderItem={this.renderItem}
-          initialNumToRender={10}
-          maxToRenderPerBatch={2}
-          windowSize={10}
           // can use partialTune to make key unique
-          keyExtractor={(partialTune, index) => index.toString()} // is this really right
+          keyExtractor={(partialTune, index) => index.toString()}
         />
       </View>
     );
@@ -127,9 +125,9 @@ export default class CollectionBrowser extends PureComponent {
 
 const styles = StyleSheet.create({
   browserContainer: {
-    marginBottom: 80, // height of navigation bar
+    marginBottom: 75, // height of navigation bar
   },
   tunesList: {
     marginLeft: 20,
-  },
+  }
 });

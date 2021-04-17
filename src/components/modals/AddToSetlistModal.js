@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import {
   Text,
   Alert,
-  Picker
+  Picker,
+  View
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import TuneRepository from '../../data-access/tune-repository';
 import CollectionRepository from '../../data-access/collection-repository';
 import Constants from '../../constants';
+
 
 export default function AddtoSetlistModal(props) {
   const [setlists, setSetlists] = useState([]);
@@ -43,21 +45,24 @@ export default function AddtoSetlistModal(props) {
 
   return (
     <ModalContainer submit={addToSetlistOperation} cancel={closeModal} title="Add To Setlist">
+
       <Text style={ModalStyles.message}>
-        Select a setlist to add this tune to:
+        Tune:
       </Text>
-      <Text style={ModalStyles.pickerContainer}>
+      <Text style={ModalStyles.infoItem}>
+        {tune.Title}
+      </Text>
+      <Text style={ModalStyles.message}>
+        Setlist:
+      </Text>
+      <View style={ModalStyles.pickerContainer}>
         <Picker
-          style={ModalStyles.modalPicker}
           selectedValue={selectedSetlist}
           onValueChange={value => setSelectedSetlist(value)}
         >
           {setlists.map(setlist => <Picker.Item label={setlist.Name} value={setlist.rowid} key={setlist.rowid} />)}
         </Picker>
-      </Text>
-      <Text style={ModalStyles.infoItem}>
-        {`Tune Name: ${tune.Title}`}
-      </Text>
+      </View>
     </ModalContainer>
   );
 }

@@ -10,6 +10,7 @@ import {
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import DBOperations from '../../data-access/db-operations';
+import Fonts from '../../styles/fonts';
 
 export default function ImportIntoCollectionModal(props) {
   const [importFilePath, setImportFilePath] = useState('');
@@ -50,25 +51,26 @@ export default function ImportIntoCollectionModal(props) {
 
   return (
     <ModalContainer submit={importIntoCollectionOperation} cancel={closeModal} title="Import Into Collection">
-
+      <Text style={ModalStyles.message}>
+        Collection:
+      </Text>
+      <Text style={ModalStyles.infoItem}>
+        {collection.Name}
+      </Text>
       <Text style={ModalStyles.message}>
         Select an ABC songbook from your device storage:
       </Text>
-
-      <View style={{ flexDirection: 'row', marginTop: 15 }}>
+      <View style={{ flexDirection: 'row' }}>
         <Button
           containerStyle={{ width: '30%' }}
           onPress={pickFile}
-          title="Select a File"
+          title="Browse"
+          titleStyle={{ fontFamily: Fonts.default, fontSize: 16, fontWeight: 'bold' }}
         />
-        <Text style={ModalStyles.fileInfoItem}>
+        <Text style={ModalStyles.fileInfoItem} numberOfLines={1}>
           {`File: ${importFileName}`}
         </Text>
       </View>
-
-      <Text style={ModalStyles.infoItem}>
-        {`Collection Name: ${collection.Name}`}
-      </Text>
     </ModalContainer>
   );
 }

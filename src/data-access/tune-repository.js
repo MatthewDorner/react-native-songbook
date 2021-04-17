@@ -20,7 +20,12 @@ class TuneRepository extends Repository {
 
   async get(rowid) {
     const tune = await super.get(rowid);
-    tune.Tune = tune.Tune.replace(/""/g, '"');
+
+    // don't want tune.Tune anymore, it's not good naming so I just change the property to AbcText. Could build full field
+    // to object / model mappings system but don't need at this point
+    tune.AbcText = tune.Tune.replace(/""/g, '"');
+    delete tune.Tune;
+
     return tune;
   }
 

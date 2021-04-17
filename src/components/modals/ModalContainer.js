@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { Button } from 'react-native-elements';
 import ModalStyles from '../../styles/modal-styles';
+import GlobalStyles from '../../styles/global-styles';
 import Colors from '../../styles/colors';
 import Fonts from '../../styles/fonts';
 
@@ -47,7 +48,7 @@ export default function ModalContainer({ submit, cancel, close, children, title 
     <View style={ModalStyles.modalContainer}>
       <ScrollView contentContainerStyle={ModalStyles.modalScrollContainer}>
         <View style={ModalStyles.modalHeader}>
-          <Text style={ModalStyles.title}>{title}</Text>
+          <Text style={GlobalStyles.title}>{title}</Text>
         </View>
         <View style={ModalStyles.modalBody}>
           {children}
