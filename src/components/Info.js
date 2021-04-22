@@ -2,9 +2,9 @@ import React from 'react';
 import {
   StyleSheet,
   Text,
-  View,
+  ScrollView,
   Linking,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
 } from 'react-native';
 
 import GlobalStyles from '../styles/global-styles';
@@ -12,7 +12,7 @@ import Fonts from '../styles/fonts';
 
 export default function Info() {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={GlobalStyles.title}>
         ABC Songbook
       </Text>
@@ -40,7 +40,8 @@ export default function Info() {
         </TouchableWithoutFeedback>
         .
       </Text>
-    </View>
+      <Text style={styles.body} />
+    </ScrollView>
   );
 }
 
@@ -52,17 +53,26 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     margin: 10,
   },
+  bookImage: {
+    height: 120,
+    width: 170,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 10,
+    marginBottom: 10,
+  },
   body: {
     fontSize: 17.5,
     fontFamily: Fonts.default,
-    marginTop: 20
+    marginTop: 20,
   },
   url: {
     textDecorationLine: 'underline',
     color: 'blue',
   },
   container: {
-    marginLeft: 20,
-    marginRight: 20
+    paddingLeft: 20,
+    paddingRight: 20,
+    marginBottom: 56
   }
 });

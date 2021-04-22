@@ -40,7 +40,7 @@ export default function AddCollectionModal(props) {
       }
       closeModal();
     } catch (e) {
-      Alert.alert('Failed to create collection:', `${e}`);
+      Alert.alert('Failed to create collection', `${e}`);
     }
   };
 
@@ -65,7 +65,7 @@ export default function AddCollectionModal(props) {
   return (
     <ModalContainer submit={createCollectionOperation} cancel={closeModal} title="Add Collection">
       <Text style={ModalStyles.message}>
-        Select an ABC songbook from your device storage or leave File blank to create an empty Collection:
+        Select an ABC file from your device storage or leave File blank to create an empty Collection:
       </Text>
       <Input
         placeholder="Name"
@@ -75,10 +75,10 @@ export default function AddCollectionModal(props) {
       />
       <View style={{ flexDirection: 'row' }}>
         <Button
-          containerStyle={{ width: '30%' }}
+          containerStyle={ModalStyles.browseButtonContainer}
           onPress={() => pickFile()}
           title="Browse"
-          titleStyle={{ fontFamily: Fonts.default, fontSize: 16, fontWeight: 'bold' }}
+          titleStyle={ModalStyles.browseButtonTitle}
         />
         <Text style={ModalStyles.fileInfoItem} numberOfLines={1}>
           {`File: ${importFileName}`}

@@ -77,6 +77,15 @@ export default StyleSheet.create({
     paddingLeft: 7,
     alignSelf: 'stretch',
   },
+  browseButtonTitle: {
+    fontFamily: Fonts.default,
+    fontSize: 16,
+    fontWeight: 'bold'
+  },
+  browseButtonContainer: {
+    width: '30%',
+    height: 41,
+  },
   fileInfoItem: {
     width: '70%',
     backgroundColor: Colors.fileInfoBackground,
@@ -84,7 +93,8 @@ export default StyleSheet.create({
     paddingBottom: 9,
     paddingLeft: 12,
     paddingRight: 12,
-    fontFamily: Fonts.monospace,
+    fontFamily: Fonts.dataField,
+    fontSize: 16,
     height: 41,
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5

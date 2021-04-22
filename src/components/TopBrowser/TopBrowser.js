@@ -62,7 +62,7 @@ export default class TopBrowser extends Component {
 
     return (
       <View style={ListStyles.listItem} key={item.rowid.toString()}>
-        <Text style={ListStyles.listItemTitle}>►</Text>
+        <Text style={ListStyles.listItemTitle}>▸</Text>
         <TouchableOpacity
           onPress={() => {
             Navigation.push('BrowserStack', {

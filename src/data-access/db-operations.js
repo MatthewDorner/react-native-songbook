@@ -52,7 +52,7 @@ export default {
               // res
             });
             const defaultTuning = Object.keys(AbcjsVexFlowRenderer.TUNINGS)[0];
-            Database.executeSqlDebug(txn, `insert into Options (Zoom, TabsVisibility, Tuning, PlayMode, PlaybackSpeed) values (50, 1, "${defaultTuning}", 0, 50)`, [], (tx, res) => {
+            Database.executeSqlDebug(txn, `insert into Options (Zoom, TabsVisibility, Tuning, PlayMode, PlaybackSpeed) values (50, 1, "${defaultTuning}", 0, 40)`, [], (tx, res) => {
               // res
             });
           }
@@ -106,6 +106,7 @@ export default {
       Database.db.transaction((txn) => {
         correctedTunes.forEach((tune) => {
           const rhythm = getAbcField(tune, 'R').replace(/ /g, '');
+          const key = getAbcField(tune, 'K').replace(/ /g, '');
           let title = getAbcField(tune, 'T');
           // remove period from end of title
           if (title.endsWith('.')) {
@@ -118,7 +119,6 @@ export default {
           if (title === '') {
             return; // many books have "blank" tunes at beginning with info about book
           }
-          const key = getAbcField(tune, 'K').replace(/ /g, '');
           const setlists = '[]';
 
           Database.executeSqlDebug(txn, `insert into Tunes (Tune, Title, Rhythm, Key, Collection, Setlists) values ("${tune}", "${title}", "${rhythm}", "${key}", "${collection}", "${setlists}")`, [], (tx, res) => {

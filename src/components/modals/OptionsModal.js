@@ -94,7 +94,7 @@ export default function OptionsModal(props) {
           onValueChange={value => setZoom(value)}
           value={zoom}
           minimumValue={35}
-          maximumValue={75}
+          maximumValue={85}
           minimumTrackTintColor={Colors.sliderMin}
           maximumTrackTintColor={Colors.sliderMax}
           thumbTintColor={Colors.sliderThumb}

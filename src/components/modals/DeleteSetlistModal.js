@@ -5,7 +5,6 @@ import {
 } from 'react-native';
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
-import Database from '../../data-access/database';
 import TuneRepository from '../../data-access/tune-repository';
 import CollectionRepository from '../../data-access/collection-repository';
 import Constants from '../../constants';
@@ -15,7 +14,7 @@ export default function DeleteSetlistModal(props) {
 
   const deleteSetlistOperation = async () => {
     try {
-      const tunesForSetlist = await Database.getPartialTunesForCollection(setlist.rowid, Constants.CollectionTypes.SETLIST);
+      const tunesForSetlist = await TuneRepository.getPartialTunesForCollection(setlist.rowid, Constants.CollectionTypes.SETLIST);
       const promises = [];
 
       // this could be moved to a database operation? Delete Setlist?
@@ -27,7 +26,7 @@ export default function DeleteSetlistModal(props) {
 
       await Promise.all(promises);
       await CollectionRepository.delete(setlist);
-      Alert.alert('Deleted Setlist Successfully');
+
       closeModal();
     } catch (e) {
       Alert.alert('Failed to delete setlist', `${e}`);

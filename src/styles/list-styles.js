@@ -31,8 +31,8 @@ export default StyleSheet.create({
     marginBottom: 2
   },
   listItemPicker: {
-    marginTop: 2,
-    height: 31,
-    width: 28
+    marginTop: 4,
+    height: 29,
+    width: 26
   }
 });

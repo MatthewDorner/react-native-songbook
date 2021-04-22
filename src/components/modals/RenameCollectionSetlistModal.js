@@ -8,7 +8,6 @@ import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import Constants from '../../constants';
 import CollectionRepository from '../../data-access/collection-repository';
-import Fonts from '../../styles/fonts';
 
 export default function RenameCollectionSetlistModal(props) {
   const [name, setName] = useState('');

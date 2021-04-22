@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { WebView } from 'react-native-webview';
-import { Button } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/Entypo';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import Constants from '../../constants';
-import Colors from '../../styles/colors';
+import Fonts from '../../styles/fonts';
 
 import WebViewHtml from '../../audio-webview/audio-webview';
 
@@ -54,9 +52,8 @@ export default class AudioPlayer extends Component {
           mediaPlaybackRequiresUserAction={false}
         />
         { showControls && (
-        <Button
-          containerStyle={styles.playButtonContainer}
-          buttonStyle={styles.playButtonButton}
+        <TouchableOpacity
+          style={styles.playButton}
           onPress={() => {
             if (playing) {
               stopPlayback();
@@ -64,14 +61,11 @@ export default class AudioPlayer extends Component {
               startPlayback({ abcText: currentTuneAbcText });
             }
           }}
-          icon={(
-            <Icon
-              name={playing ? 'controller-stop' : 'controller-play'}
-              size={18}
-              color={Colors.playButtonIcon}
-            />
-          )}
-        />
+        >
+          <Text style={styles.playButtonTitle}>
+            {playing ? '▪' : '▸'}
+          </Text>
+        </TouchableOpacity>
         )}
       </View>
     );
@@ -81,6 +75,7 @@ export default class AudioPlayer extends Component {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
+    marginBottom: 5
   },
   // this positioning probably doesn't work, it appears the same with no positioning at all
   audioPlayer: {
@@ -89,15 +84,19 @@ const styles = StyleSheet.create({
     height: 0,
     width: 0,
   },
-  playButtonContainer: {
-    zIndex: 1,
-    marginTop: 16.5,
+  playButton: {
+    paddingLeft: 8,
+    paddingRight: 8,
+    zIndex: 2,
+    marginTop: 15,
     marginRight: 'auto',
   },
-  playButtonButton: {
-    padding: 0,
-    backgroundColor: Colors.playButtonBackground,
-    height: 27,
-    width: 27,
+  playButtonTitle: {
+    minWidth: 28,
+    textAlign: 'center',
+    fontFamily: Fonts.default,
+    borderRadius: 5,
+    color: 'black',
+    fontSize: 24 // should be same as title in global-style.js
   }
 });

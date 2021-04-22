@@ -25,7 +25,7 @@ export default function AddSetlistmodal(props) {
       });
       closeModal();
     } catch (e) {
-      Alert.alert('Failed to create setlist:', `${e}`);
+      Alert.alert('Failed to create setlist', `${e}`);
     }
   };
 

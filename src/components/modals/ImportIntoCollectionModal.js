@@ -10,7 +10,6 @@ import {
 import ModalContainer from './ModalContainer';
 import ModalStyles from '../../styles/modal-styles';
 import DBOperations from '../../data-access/db-operations';
-import Fonts from '../../styles/fonts';
 
 export default function ImportIntoCollectionModal(props) {
   const [importFilePath, setImportFilePath] = useState('');
@@ -23,12 +22,12 @@ export default function ImportIntoCollectionModal(props) {
         let contents = await RNFS.readFile(importFilePath, 'ascii');
         contents = contents.replace(/\r/g, ''); // get weird errors if I don't do this
 
-        const songsAdded = await DBOperations.importTuneBook(contents, collection.rowid);
-        Alert.alert('Imported Songbook Successfully', `Imported ${songsAdded} tunes.`);
+        const tunesAdded = await DBOperations.importTuneBook(contents, collection.rowid);
+        Alert.alert('Imported Successfully', `Imported ${tunesAdded} tunes.`);
         closeModal();
       }
     } catch (e) {
-      Alert.alert('Failed to import into collection:', `${e}`);
+      Alert.alert('Failed to import into collection', `${e}`);
     }
   };
 
@@ -58,14 +57,14 @@ export default function ImportIntoCollectionModal(props) {
         {collection.Name}
       </Text>
       <Text style={ModalStyles.message}>
-        Select an ABC songbook from your device storage:
+        Select an ABC file from your device storage:
       </Text>
       <View style={{ flexDirection: 'row' }}>
         <Button
-          containerStyle={{ width: '30%' }}
+          containerStyle={ModalStyles.browseButtonContainer}
           onPress={pickFile}
           title="Browse"
-          titleStyle={{ fontFamily: Fonts.default, fontSize: 16, fontWeight: 'bold' }}
+          titleStyle={ModalStyles.browseButtonTitle}
         />
         <Text style={ModalStyles.fileInfoItem} numberOfLines={1}>
           {`File: ${importFileName}`}
