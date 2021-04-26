@@ -92,7 +92,7 @@ export default class CollectionBrowser extends PureComponent {
     const { searchResults, applySearch } = this.props;
 
     return (
-      <View style={styles.browserContainer}>
+      <View>
         <Modal
           animationType="slide"
           transparent={false}
@@ -111,23 +111,18 @@ export default class CollectionBrowser extends PureComponent {
           renderItem={this.renderItem}
           // can use partialTune to make key unique
           keyExtractor={(partialTune, index) => index.toString()}
+          ListFooterComponent={() => <View style={styles.footer} />}
         />
       </View>
     );
   }
 }
 
-/*
-  try linear gradients on some of the horizontal lines (text underline) to see if
-  it's a good effect. also collection item divider, try subtle gradients in other
-  places
-*/
-
 const styles = StyleSheet.create({
-  browserContainer: {
-    marginBottom: 75, // height of navigation bar
-  },
   tunesList: {
     marginLeft: 20,
+  },
+  footer: {
+    height: 250,
   }
 });

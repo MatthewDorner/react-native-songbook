@@ -16,15 +16,15 @@ export default {
     Database.initDb();
     return new Promise((resolve, reject) => {
       // COMMENT THIS CODE FOR RELEASE
-      Database.db.transaction((txn) => {
-        Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Tunes', []); // JUST FOR TESTING
-        Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Collections', []); // JUST FOR TESTING
-        Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Options', []); // JUST FOR TESTING
-      }, (error) => {
-        reject(error);
-      }, () => {
-        resolve();
-      });
+      // Database.db.transaction((txn) => {
+      //   Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Tunes', []); // JUST FOR TESTING
+      //   Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Collections', []); // JUST FOR TESTING
+      //   Database.executeSqlDebug(txn, 'DROP TABLE IF EXISTS Options', []); // JUST FOR TESTING
+      // }, (error) => {
+      //   reject(error);
+      // }, () => {
+      //   resolve();
+      // });
 
       Database.db.transaction((txn) => {
         Database.executeSqlDebug(txn, 'select * from sqlite_master where type = "table" and name = "Tunes"', [], (tx, res) => {
@@ -52,7 +52,7 @@ export default {
               // res
             });
             const defaultTuning = Object.keys(AbcjsVexFlowRenderer.TUNINGS)[0];
-            Database.executeSqlDebug(txn, `insert into Options (Zoom, TabsVisibility, Tuning, PlayMode, PlaybackSpeed) values (50, 1, "${defaultTuning}", 0, 40)`, [], (tx, res) => {
+            Database.executeSqlDebug(txn, `insert into Options (Zoom, TabsVisibility, Tuning, PlayMode, PlaybackSpeed) values (50, 1, "${defaultTuning}", 0, 20)`, [], (tx, res) => {
               // res
             });
           }

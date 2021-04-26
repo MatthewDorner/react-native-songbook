@@ -183,6 +183,7 @@ export default class TopBrowser extends Component {
           <View style={{ alignItems: 'flex-start' }}>
             {setlistItems}
           </View>
+          <View style={styles.footer} />
         </ScrollView>
       </View>
     );
@@ -218,4 +219,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
+  footer: {
+    height: 150,
+  }
 });

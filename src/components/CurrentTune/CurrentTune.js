@@ -149,11 +149,13 @@ const styles = StyleSheet.create({
 
   // all inside headerContainer
   headerLeft: {
+    // backgroundColor: 'blue',
     justifyContent: 'flex-start',
     flex: 1,
-    minWidth: 28,
+    minWidth: 35,
   },
   headerCenter: {
+    // backgroundColor: 'orange',
     paddingLeft: 12,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -164,9 +166,10 @@ const styles = StyleSheet.create({
   },
 
   titlePicker: {
-    marginTop: 14,
+    // backgroundColor: 'pink',
+    marginTop: 17,
     marginLeft: 2,
-    height: 40,
+    height: 28,
     width: 30,
   },
 });

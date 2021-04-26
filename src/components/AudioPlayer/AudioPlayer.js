@@ -74,6 +74,7 @@ export default class AudioPlayer extends Component {
 
 const styles = StyleSheet.create({
   container: {
+    // backgroundColor: 'pink',
     flexDirection: 'column',
     marginBottom: 5
   },
@@ -85,6 +86,7 @@ const styles = StyleSheet.create({
     width: 0,
   },
   playButton: {
+    // backgroundColor: 'yellow',
     paddingLeft: 8,
     paddingRight: 8,
     zIndex: 2,
@@ -92,10 +94,10 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
   },
   playButtonTitle: {
+    // backgroundColor: 'green',
     minWidth: 28,
     textAlign: 'center',
     fontFamily: Fonts.default,
-    borderRadius: 5,
     color: 'black',
     fontSize: 24 // should be same as title in global-style.js
   }

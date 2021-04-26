@@ -76,7 +76,7 @@ export default function OptionsModal(props) {
           step={1}
           onValueChange={value => setPlaybackSpeed(value)}
           value={playbackSpeed}
-          minimumValue={10}
+          minimumValue={-50}
           maximumValue={90}
           minimumTrackTintColor={Colors.sliderMin}
           maximumTrackTintColor={Colors.sliderMax}

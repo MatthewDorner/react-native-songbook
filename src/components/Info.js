@@ -62,9 +62,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   body: {
-    fontSize: 17.5,
+    fontSize: 16,
     fontFamily: Fonts.default,
     marginTop: 20,
+    textAlign: 'center',
   },
   url: {
     textDecorationLine: 'underline',

@@ -3,6 +3,7 @@ import Fonts from './fonts';
 
 export default StyleSheet.create({
   title: {
+    // backgroundColor: 'silver',
     flexShrink: 1,
     fontSize: 24,
     fontFamily: Fonts.default,
