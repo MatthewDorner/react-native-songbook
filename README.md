@@ -2,7 +2,7 @@
 
 [![https://www.youtube.com/watch?v=3JmwLJkAOxk](https://img.youtube.com/vi/3JmwLJkAOxk/0.jpg)](https://www.youtube.com/watch?v=3JmwLJkAOxk)
 
-**Update 4/39/21: App v1.1.1 update is released on Google Play**
+**Update 4/30/21: App v1.1.1 update is released on Google Play**
 
 **Update 12/6/19: App is now released on Google Play as [ABC Songbook](https://play.google.com/store/apps/details?id=com.reactnativesongbook)**
 
